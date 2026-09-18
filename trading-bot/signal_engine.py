@@ -13,7 +13,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from indicators import compute_all_indicators, detect_crossover
+from indicators import compute_all_indicators
 
 DEFAULT_PARAMS: dict[str, Any] = {
     "rsi_oversold": 30,
@@ -63,17 +63,51 @@ class SignalEngine:
         """Attach every indicator column. Call once per fresh OHLCV frame."""
         return compute_all_indicators(df)
 
+    def _prev_valid(self, series: pd.Series, index: int):
+        """Nearest non-NaN value strictly before `index` — O(1) amortized
+        (see _crossover_at's docstring for why this matters for backtests)."""
+        n = len(series)
+        pos = index if index >= 0 else n + index
+        values = series.to_numpy()
+        prev_pos = pos - 1
+        while prev_pos >= 0 and pd.isna(values[prev_pos]):
+            prev_pos -= 1
+        return values[prev_pos] if prev_pos >= 0 else None
+
+    def _crossover_at(self, df_with_indicators: pd.DataFrame, index: int) -> str | None:
+        """O(1)-amortized version of detect_crossover() for a single row: looks
+        only at the current position and the nearest previous valid position,
+        instead of re-scanning the whole history up to `index` every call.
+        Backtesting calls this once per row, so the naive slice-and-dropna
+        approach (detect_crossover on df.iloc[:index+1]) makes a full backtest
+        O(n^2) in the number of candles — this keeps it O(n)."""
+        n = len(df_with_indicators)
+        pos = index if index >= 0 else n + index
+        if pos < 1:
+            return None
+        sma50 = df_with_indicators["sma50"].to_numpy()
+        sma200 = df_with_indicators["sma200"].to_numpy()
+        curr50, curr200 = sma50[pos], sma200[pos]
+        if pd.isna(curr50) or pd.isna(curr200):
+            return None
+        prev_pos = pos - 1
+        while prev_pos >= 0 and (pd.isna(sma50[prev_pos]) or pd.isna(sma200[prev_pos])):
+            prev_pos -= 1
+        if prev_pos < 0:
+            return None
+        prev_diff = sma50[prev_pos] - sma200[prev_pos]
+        curr_diff = curr50 - curr200
+        if prev_diff <= 0 < curr_diff:
+            return "golden"
+        if prev_diff >= 0 > curr_diff:
+            return "death"
+        return "above" if curr_diff > 0 else "below"
+
     def evaluate(self, df_with_indicators: pd.DataFrame, index: int = -1) -> Signal:
         """Compute the composite signal at a given row (default: most recent)."""
         p = self.params
         row = df_with_indicators.iloc[index]
-        # crossover needs the recent history, not just one row
-        sma50_series = df_with_indicators["sma50"]
-        sma200_series = df_with_indicators["sma200"]
-        if index != -1:
-            sma50_series = sma50_series.iloc[: index + 1 if index >= 0 else index + len(df_with_indicators) + 1]
-            sma200_series = sma200_series.iloc[: index + 1 if index >= 0 else index + len(df_with_indicators) + 1]
-        crossover = detect_crossover(sma50_series, sma200_series)
+        crossover = self._crossover_at(df_with_indicators, index)
 
         score = 0.0
         reasons: list[str] = []
@@ -95,8 +129,7 @@ class SignalEngine:
 
         macd_val, macd_sig, hist = row.get("macd"), row.get("macd_signal"), row.get("macd_hist")
         if pd.notna(macd_val) and pd.notna(macd_sig):
-            prev_hist = df_with_indicators["macd_hist"].iloc[: index if index != -1 else len(df_with_indicators) - 1]
-            prev_hist = prev_hist.dropna().iloc[-1] if not prev_hist.dropna().empty else None
+            prev_hist = self._prev_valid(df_with_indicators["macd_hist"], index)
             bullish_cross = macd_val > macd_sig and prev_hist is not None and prev_hist <= 0 < hist
             bearish_cross = macd_val < macd_sig and prev_hist is not None and prev_hist >= 0 > hist
             if bullish_cross:
