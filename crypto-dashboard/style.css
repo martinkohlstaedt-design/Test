@@ -261,6 +261,15 @@ main {
 }
 .coin-indicators b { color: var(--text); font-variant-numeric: tabular-nums; }
 
+.cross-badge {
+  text-align: center;
+  font-size: 11px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  background: var(--panel-2);
+  color: var(--text-dim);
+}
+
 .signal-badge {
   text-align: center;
   padding: 7px 8px;
@@ -343,6 +352,44 @@ main {
   font-size: 11.5px;
   color: var(--text-dim);
 }
+
+.tf-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 12px 0 14px;
+}
+.tf-tab {
+  font-size: 12px;
+  padding: 7px 14px;
+  border-radius: 20px;
+}
+.tf-tab.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #05070d;
+  font-weight: 600;
+}
+
+.ma-toggles {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 14px 0 4px;
+  padding: 10px 12px;
+  background: var(--panel-2);
+  border-radius: 8px;
+}
+.ma-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+.ma-toggle input { accent-color: var(--accent); cursor: pointer; }
+.ma-toggle.disabled { opacity: 0.4; cursor: not-allowed; }
 
 .detail-grid {
   display: grid;

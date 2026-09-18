@@ -27,14 +27,6 @@
 
   <div id="settings-panel" class="hidden">
     <div class="settings-row">
-      <label for="coin-count">Anzahl Coins (nach Marktkapitalisierung)</label>
-      <select id="coin-count">
-        <option value="20">Top 20</option>
-        <option value="50" selected>Top 50</option>
-        <option value="100">Top 100</option>
-      </select>
-    </div>
-    <div class="settings-row">
       <label for="vs-currency">Basiswährung</label>
       <select id="vs-currency">
         <option value="usd" selected>USD</option>
@@ -70,7 +62,7 @@
         <button class="filter-btn" data-filter="watchlist">★ Watchlist</button>
       </div>
       <select id="sort-select">
-        <option value="market_cap">Sortierung: Marktkap.</option>
+        <option value="default">Sortierung: Standard</option>
         <option value="signal">Sortierung: Signalstärke</option>
         <option value="change24h">Sortierung: 24h-Änderung</option>
         <option value="rsi">Sortierung: RSI</option>
@@ -90,8 +82,9 @@
   </div>
 
   <footer>
-    Kursdaten &amp; Sparkline: CoinGecko API. RSI(14) &amp; MACD(12,26,9) auf Stundenbasis (Übersicht) bzw.
-    Tagesbasis (Detailansicht). Keine Anlageberatung.
+    Fokus-Coins: Bitcoin, Ethereum, XRP, Solana, Dogecoin. Kursdaten: CoinGecko API.
+    Zeitrahmen 4H / Täglich / Wöchentlich / Monatlich wählbar, inkl. 50/200er gleitendem Durchschnitt,
+    RSI, Stochastic RSI, MACD, Bollinger Bänder &amp; On-Balance-Volume. Keine Anlageberatung.
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
