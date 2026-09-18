@@ -1,0 +1,30 @@
+# Copy this file to config.yaml and adjust it — config.yaml is gitignored
+# so your local settings (and, in live mode, exchange choice) never get
+# committed. Nothing in this file is a secret; API keys go in .env instead.
+
+mode: paper              # paper | live  (live requires .env keys AND the
+                          # I_UNDERSTAND_LIVE_TRADING_RISK env var — see README)
+exchange: binance         # any ccxt exchange id, e.g. binance, kraken, coinbase
+symbols:
+  - "BTC/USDT"
+  - "ETH/USDT"
+  - "XRP/USDT"
+  - "SOL/USDT"
+  - "DOGE/USDT"
+timeframe: "1h"           # candle size used for live signal evaluation
+poll_interval_seconds: 300
+
+paper:
+  initial_balance: 10000
+  fee_pct: 0.001
+  slippage_pct: 0.0005
+
+risk:
+  max_position_pct: 0.2      # fraction of balance risked per new trade
+  stop_loss_pct: 0.05
+  take_profit_pct: 0.10
+  max_daily_loss_pct: 0.05   # halts new entries for the rest of the day
+
+# Leave empty to use signal_engine.DEFAULT_PARAMS, or paste the "best_params"
+# dict an optimizer run printed out (see optimizer.py / run_optimization.py).
+signal_params: {}
