@@ -42,13 +42,21 @@
       </select>
     </div>
     <div class="settings-row">
-      <label for="api-key">CoinGecko API-Key (optional)</label>
-      <input type="text" id="api-key" placeholder="nur nötig bei Rate-Limit-Fehlern">
+      <label for="api-key">CoinGecko API-Key</label>
+      <input type="text" id="api-key" placeholder="z.B. CG-xxxxxxxxxxxxxxxxxxxx">
+    </div>
+    <div class="settings-row">
+      <label for="api-key-type">Key-Typ</label>
+      <select id="api-key-type">
+        <option value="demo" selected>Demo (kostenlos)</option>
+        <option value="pro">Pro / Paid Trial</option>
+      </select>
     </div>
     <p class="settings-hint">
-      Ein kostenloser "Demo API Key" lässt sich unter coingecko.com/de/developers/dashboard erstellen,
-      falls die App ohne Key Ratenlimit-Fehler meldet. Der Key wird nur lokal in deinem Browser gespeichert
-      und ausschließlich direkt an CoinGecko gesendet.
+      CoinGecko verlangt inzwischen für jeden Zugriff einen kostenlosen Key. Erstelle einen "Demo API Key"
+      unter coingecko.com/de/developers/dashboard (kein Zahlungsmittel nötig) und füge ihn oben ein –
+      Key-Typ dabei auf "Demo" lassen, außer du hast bewusst einen bezahlten/Trial-Key erzeugt.
+      Der Key wird nur lokal in deinem Browser gespeichert und ausschließlich direkt an CoinGecko gesendet.
     </p>
   </div>
 

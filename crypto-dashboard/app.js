@@ -1,4 +1,5 @@
-const API_BASE = "https://api.coingecko.com/api/v3";
+const API_BASE_DEMO = "https://api.coingecko.com/api/v3";
+const API_BASE_PRO = "https://pro-api.coingecko.com/api/v3";
 const FIXED_COINS = ["bitcoin", "ethereum", "ripple", "solana", "dogecoin"];
 const REF_MONDAY = Date.UTC(1970, 0, 5); // a Monday, used to align weekly buckets
 
@@ -13,6 +14,7 @@ const els = {
   vsCurrency: document.getElementById("vs-currency"),
   refreshInterval: document.getElementById("refresh-interval"),
   apiKey: document.getElementById("api-key"),
+  apiKeyType: document.getElementById("api-key-type"),
   searchInput: document.getElementById("search-input"),
   sortSelect: document.getElementById("sort-select"),
   filterBtns: Array.from(document.querySelectorAll(".filter-btn")),
@@ -42,9 +44,10 @@ function loadSettings() {
       vsCurrency: saved.vsCurrency || "usd",
       refreshInterval: saved.refreshInterval ?? 60000,
       apiKey: saved.apiKey || "",
+      keyType: saved.keyType || "demo",
     };
   } catch {
-    return { vsCurrency: "usd", refreshInterval: 60000, apiKey: "" };
+    return { vsCurrency: "usd", refreshInterval: 60000, apiKey: "", keyType: "demo" };
   }
 }
 
@@ -65,17 +68,35 @@ function saveWatchlist() {
 }
 
 function buildUrl(path, params) {
-  const url = new URL(API_BASE + path);
+  const isPro = state.settings.keyType === "pro" && state.settings.apiKey;
+  const base = isPro ? API_BASE_PRO : API_BASE_DEMO;
+  const url = new URL(base + path);
   Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
-  if (state.settings.apiKey) url.searchParams.set("x_cg_demo_api_key", state.settings.apiKey);
+  if (state.settings.apiKey) {
+    url.searchParams.set(isPro ? "x_cg_pro_api_key" : "x_cg_demo_api_key", state.settings.apiKey);
+  }
   return url.toString();
 }
 
 async function fetchJson(url) {
-  const res = await fetch(url);
+  let res;
+  try {
+    res = await fetch(url);
+  } catch {
+    throw new Error("NETWORK");
+  }
   if (!res.ok) {
     if (res.status === 429) throw new Error("RATE_LIMIT");
-    throw new Error(`HTTP_${res.status}`);
+    let detail = "";
+    try {
+      const body = await res.json();
+      detail = body?.status?.error_message || body?.error || "";
+    } catch {
+      // response wasn't JSON, ignore
+    }
+    const err = new Error(`HTTP_${res.status}`);
+    err.detail = detail;
+    throw err;
   }
   return res.json();
 }
@@ -186,8 +207,18 @@ function showError(err) {
   let msg;
   if (err.message === "RATE_LIMIT") {
     msg = "Rate-Limit von CoinGecko erreicht. Warte kurz oder trage unter ⚙ Einstellungen einen kostenlosen CoinGecko-API-Key ein.";
+  } else if (err.message === "NETWORK") {
+    msg = "Keine Verbindung zu CoinGecko möglich (Netzwerkfehler oder durch den Browser blockiert). Prüfe deine Internetverbindung, Adblocker oder Firewall.";
   } else if (err.message?.startsWith("HTTP_")) {
-    msg = `CoinGecko antwortete mit Fehler ${err.message.replace("HTTP_", "")}. Eventuell ist ein API-Key nötig (siehe ⚙ Einstellungen).`;
+    const status = err.message.replace("HTTP_", "");
+    if (status === "401" || status === "403") {
+      msg = `CoinGecko lehnt den Zugriff ab (Fehler ${status}${err.detail ? ": " + err.detail : ""}). `
+        + `Prüfe unter ⚙ Einstellungen: 1) ist der Key korrekt eingefügt (keine Leerzeichen)? `
+        + `2) passt der eingestellte "Key-Typ" (Demo/Pro) zu der Art Key, die du im CoinGecko-Dashboard erstellt hast? `
+        + `Ein "Demo API Key" gehört zu "Demo", ein Key aus einem bezahlten/Trial-Plan zu "Pro".`;
+    } else {
+      msg = `CoinGecko antwortete mit Fehler ${status}${err.detail ? ": " + err.detail : ""}.`;
+    }
   } else {
     msg = "Marktdaten konnten nicht geladen werden. Prüfe deine Internetverbindung und versuche es erneut.";
   }
@@ -552,6 +583,7 @@ els.settingsBtn.addEventListener("click", () => {
 els.vsCurrency.value = state.settings.vsCurrency;
 els.refreshInterval.value = state.settings.refreshInterval;
 els.apiKey.value = state.settings.apiKey;
+els.apiKeyType.value = state.settings.keyType;
 
 els.vsCurrency.addEventListener("change", () => {
   state.settings.vsCurrency = els.vsCurrency.value;
@@ -566,6 +598,12 @@ els.refreshInterval.addEventListener("change", () => {
 els.apiKey.addEventListener("change", () => {
   state.settings.apiKey = els.apiKey.value.trim();
   saveSettings();
+  refresh(true);
+});
+els.apiKeyType.addEventListener("change", () => {
+  state.settings.keyType = els.apiKeyType.value;
+  saveSettings();
+  refresh(true);
 });
 
 els.searchInput.addEventListener("input", () => {
