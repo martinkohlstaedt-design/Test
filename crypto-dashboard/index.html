@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Krypto Signal Dashboard</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <h1>📊 Krypto Signal Dashboard</h1>
+      <div class="header-actions">
+        <span id="refresh-status">–</span>
+        <button id="refresh-btn" title="Jetzt aktualisieren">⟳ Aktualisieren</button>
+        <button id="settings-btn" title="Einstellungen">⚙ Einstellungen</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="disclaimer">
+    ⚠️ <strong>Keine Anlageberatung.</strong> Alle Signale basieren auf frei verfügbaren technischen
+    Indikatoren (RSI, MACD, gleitende Durchschnitte) und Kursdaten von CoinGecko. Sie sind rein
+    informativ, können falsch liegen und ersetzen keine eigene Recherche oder Finanzberatung.
+    Kryptowährungen sind hochvolatil – investiere nur, was du bereit bist zu verlieren.
+  </div>
+
+  <div id="settings-panel" class="hidden">
+    <div class="settings-row">
+      <label for="coin-count">Anzahl Coins (nach Marktkapitalisierung)</label>
+      <select id="coin-count">
+        <option value="20">Top 20</option>
+        <option value="50" selected>Top 50</option>
+        <option value="100">Top 100</option>
+      </select>
+    </div>
+    <div class="settings-row">
+      <label for="vs-currency">Basiswährung</label>
+      <select id="vs-currency">
+        <option value="usd" selected>USD</option>
+        <option value="eur">EUR</option>
+      </select>
+    </div>
+    <div class="settings-row">
+      <label for="refresh-interval">Auto-Refresh</label>
+      <select id="refresh-interval">
+        <option value="0">Aus</option>
+        <option value="60000" selected>1 Minute</option>
+        <option value="300000">5 Minuten</option>
+      </select>
+    </div>
+    <div class="settings-row">
+      <label for="api-key">CoinGecko API-Key (optional)</label>
+      <input type="text" id="api-key" placeholder="nur nötig bei Rate-Limit-Fehlern">
+    </div>
+    <p class="settings-hint">
+      Ein kostenloser "Demo API Key" lässt sich unter coingecko.com/de/developers/dashboard erstellen,
+      falls die App ohne Key Ratenlimit-Fehler meldet. Der Key wird nur lokal in deinem Browser gespeichert
+      und ausschließlich direkt an CoinGecko gesendet.
+    </p>
+  </div>
+
+  <main>
+    <div class="toolbar">
+      <input type="search" id="search-input" placeholder="Coin suchen (z.B. Bitcoin, ETH)…">
+      <div class="filter-group">
+        <button class="filter-btn active" data-filter="all">Alle</button>
+        <button class="filter-btn" data-filter="buy">Nur Kaufsignale</button>
+        <button class="filter-btn" data-filter="sell">Nur Verkaufssignale</button>
+        <button class="filter-btn" data-filter="watchlist">★ Watchlist</button>
+      </div>
+      <select id="sort-select">
+        <option value="market_cap">Sortierung: Marktkap.</option>
+        <option value="signal">Sortierung: Signalstärke</option>
+        <option value="change24h">Sortierung: 24h-Änderung</option>
+        <option value="rsi">Sortierung: RSI</option>
+      </select>
+    </div>
+
+    <div id="error-box" class="hidden"></div>
+    <div id="loading" class="loading">Lade Marktdaten…</div>
+    <div id="coin-grid" class="coin-grid"></div>
+  </main>
+
+  <div id="detail-overlay" class="hidden">
+    <div id="detail-panel">
+      <button id="detail-close" title="Schließen">✕</button>
+      <div id="detail-content">Lade Details…</div>
+    </div>
+  </div>
+
+  <footer>
+    Kursdaten &amp; Sparkline: CoinGecko API. RSI(14) &amp; MACD(12,26,9) auf Stundenbasis (Übersicht) bzw.
+    Tagesbasis (Detailansicht). Keine Anlageberatung.
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="indicators.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
