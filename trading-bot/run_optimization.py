@@ -1,10 +1,10 @@
-"""CLI: walk-forward parameter search for the signal engine.
+"""CLI: rolling walk-forward parameter search for the signal engine.
 
-Splits fetched history into a training window (searched over) and a
-held-out test window (reported, never optimized against) — see the
-overfitting warning in optimizer.py. Saves the winning params to a JSON
-file you can point config.yaml's `signal_params` at, or pass to
-run_backtest.py --params.
+Splits fetched history into several rolling train/test folds (searching only
+on each fold's training window, scoring only on its held-out test window) so
+you see whether a parameter set actually generalizes across different market
+periods — not just whether it got lucky on one split. See optimizer.py's
+module docstring for the overfitting caveats this does and doesn't address.
 
 Example:
     python run_optimization.py --exchange binance --symbol BTC/USDT --timeframe 1d --days 1095
@@ -16,7 +16,7 @@ import json
 import time
 
 from data_feed import fetch_ohlcv_full_history
-from optimizer import DEFAULT_PARAM_GRID, run_walk_forward
+from optimizer import DEFAULT_PARAM_GRID, run_rolling_walk_forward
 from risk_manager import RiskManager
 
 
@@ -27,7 +27,8 @@ def main():
     parser.add_argument("--timeframe", default="1d")
     parser.add_argument("--days", type=int, default=1095)
     parser.add_argument("--balance", type=float, default=10_000.0)
-    parser.add_argument("--train-frac", type=float, default=0.7)
+    parser.add_argument("--train-frac", type=float, default=0.5)
+    parser.add_argument("--folds", type=int, default=4)
     parser.add_argument("--out", default="best_params.json")
     args = parser.parse_args()
 
@@ -35,30 +36,44 @@ def main():
     print(f"Fetching {args.days}d of {args.timeframe} candles for {args.symbol} on {args.exchange}...")
     df = fetch_ohlcv_full_history(args.exchange, args.symbol, timeframe=args.timeframe, since_ms=since_ms)
     print(f"Got {len(df)} candles: {df.index[0]} .. {df.index[-1]}")
+    print(f"Running {args.folds}-fold rolling walk-forward search "
+          f"({len(DEFAULT_PARAM_GRID)} params, this can take a while)...\n")
 
-    result = run_walk_forward(
-        df, DEFAULT_PARAM_GRID, train_frac=args.train_frac,
+    result = run_rolling_walk_forward(
+        df, DEFAULT_PARAM_GRID, n_folds=args.folds, train_frac=args.train_frac,
         risk_manager=RiskManager(), symbol=args.symbol,
         initial_balance=args.balance, timeframe=args.timeframe,
     )
 
-    print(f"\nTrain window: {result['train_size']} candles, test window: {result['test_size']} candles")
-    print("\n--- Train metrics (optimized against this data — expect this to look good) ---")
-    for k, v in (result["train_metrics"] or {}).items():
-        print(f"{k}: {v}")
-    print("\n--- Test metrics (held-out, never optimized against — trust this more) ---")
-    for k, v in result["test_metrics"].items():
-        print(f"{k}: {v}")
+    print("--- Per-fold results (out-of-sample only) ---")
+    for f in result["folds"]:
+        tr, te = f["train_range"], f["test_range"]
+        m = f["test_metrics"]
+        print(f"Fold {f['fold']}: train {tr[0].date()}..{tr[1].date()}  "
+              f"test {te[0].date()}..{te[1].date()}  "
+              f"return={m['total_return_pct']:+.2f}%  trades={m['num_trades']}  "
+              f"sharpe={m['sharpe_ratio']:.2f}")
 
+    s = result["summary"]
+    print("\n--- Summary across all folds ---")
+    print(f"Profitable folds: {s['profitable_folds']}/{s['n_folds']}")
+    print(f"Mean out-of-sample return: {s['mean_test_return_pct']:+.2f}%  "
+          f"(worst: {s['worst_test_return_pct']:+.2f}%, best: {s['best_test_return_pct']:+.2f}%)")
+    print(f"Mean out-of-sample Sharpe: {s['mean_test_sharpe_ratio']:.2f}")
+
+    # Use the most recent fold's params — closest to current market conditions —
+    # as the one written out for config.yaml.
+    latest_params = result["folds"][-1]["best_params"]
     with open(args.out, "w") as f:
-        json.dump(result["best_params"], f, indent=2)
-    print(f"\nBest params written to {args.out}")
-    if result["test_metrics"]["total_return_pct"] <= 0 or result["test_metrics"]["num_round_trips"] < 3:
+        json.dump(latest_params, f, indent=2)
+    print(f"\nMost recent fold's params written to {args.out}")
+
+    if s["profitable_folds"] < s["n_folds"] * 0.6:
         print(
-            "\nWARNING: the held-out test result is weak or based on very few trades. "
-            "Do not treat this as a strategy that's ready for real money — try a longer "
-            "history, a different timeframe, or accept that this signal set may not have "
-            "a real edge on this symbol."
+            "\nWARNING: this parameter set was only profitable in a minority of "
+            "out-of-sample folds. That is evidence against a real, consistent edge "
+            "on this symbol/timeframe — treat any single profitable fold as noise "
+            "rather than a strategy worth trading, paper or otherwise."
         )
 
 

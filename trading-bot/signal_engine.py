@@ -38,6 +38,12 @@ DEFAULT_PARAMS: dict[str, Any] = {
     "score_buy": 3,
     "score_sell": -3,
     "score_strong_sell": -6,
+    # Well-known fix for oscillator strategies (RSI/Stochastic "buy the dip"):
+    # refuse new longs while price is below the long-term trend filter MA,
+    # so an oversold reading in a strong downtrend doesn't get bought.
+    # 0 = off (score-only, original behavior), 1 = on.
+    "require_uptrend_filter": 0,
+    "trend_filter_ma": "sma200",
 }
 
 
@@ -180,5 +186,11 @@ class SignalEngine:
             label = "SELL"
         else:
             label = "HOLD"
+
+        if p.get("require_uptrend_filter") and label in ("BUY", "STRONG_BUY"):
+            trend_ma = row.get(p["trend_filter_ma"])
+            if pd.notna(trend_ma) and price < trend_ma:
+                reasons.append(f"Kein Kauf: Preis unter {p['trend_filter_ma'].upper()} (Trendfilter aktiv)")
+                label = "HOLD"
 
         return Signal(score=score, label=label, reasons=reasons, row=row)

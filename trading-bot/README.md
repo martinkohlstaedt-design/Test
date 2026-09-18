@@ -47,23 +47,33 @@ trades over the fetched history, using `signal_engine.DEFAULT_PARAMS`. Pass
 `--params best_params.json` to use parameters from a previous optimization
 run instead.
 
-## 2. Search for better parameters (with a held-out test split)
+## 2. Search for better parameters (rolling walk-forward)
 
 ```bash
-python run_optimization.py --exchange binance --symbol BTC/USDT --timeframe 1d --days 1095
+python run_optimization.py --exchange binance --symbol BTC/USDT --timeframe 1d --days 1095 --folds 4
 ```
 
-This grid-searches `optimizer.DEFAULT_PARAM_GRID` on the first `--train-frac`
-(default 70%) of the fetched history, then reports how the winning
-parameters actually performed on the remaining, never-optimized-against
-portion. **Trust the "test metrics" section, not the "train metrics"
-section** — a strategy that only looks good on its training window is
-overfit, not profitable. The winning parameters are saved to
-`best_params.json`; edit `config.yaml`'s `signal_params` (or pass
-`--params best_params.json` to `run_backtest.py`) to use them.
+This grid-searches `optimizer.DEFAULT_PARAM_GRID` — including
+`require_uptrend_filter` (refuse to buy below the long-term trend MA — the
+standard fix for oscillator strategies "catching falling knives") and the
+risk manager's `stop_loss_pct`/`take_profit_pct`, not just the signal
+thresholds — across **several rolling train/test folds**, not just one
+split. Each fold optimizes only on its training window and is scored only
+on its own held-out test window, so you get an out-of-sample return per
+fold instead of one number that might just be a lucky split.
 
-Re-run this periodically as new data comes in (true walk-forward
-re-optimization) rather than trusting one search forever — markets change.
+**Read the per-fold table, not just the best fold.** A parameter set that
+was profitable in 1 of 4 folds and lost money in the other 3 has no real
+edge — the summary's `profitable_folds` count and `worst_test_return_pct`
+tell you this directly; the CLI prints a warning when most folds lost
+money. Only the most recent fold's winning params are saved to
+`best_params.json` (closest to current conditions); edit `config.yaml`'s
+`signal_params` (or pass `--params best_params.json` to `run_backtest.py`,
+which also picks up any risk-manager fields in that file) to use them.
+
+Re-run this periodically as new data comes in rather than trusting one
+search forever — markets change, and no search here "solves" profitability;
+it only ever tells you what would have worked on the past.
 
 ## 3. Run the paper-trading bot
 
@@ -99,9 +109,24 @@ so no strategy code changes between modes — only the config.
 | `broker.py` | `PaperBroker` (simulated fills) and `LiveBroker` (real ccxt orders) |
 | `risk_manager.py` | Position sizing, stop-loss/take-profit, daily-loss kill switch |
 | `backtester.py` | Runs engine + risk manager over historical data, computes metrics |
-| `optimizer.py` | Grid search + train/test walk-forward split |
+| `optimizer.py` | Grid search (signal + risk params) with rolling walk-forward validation |
 | `bot.py` | Live polling loop wiring everything together |
 | `run_backtest.py`, `run_optimization.py` | CLI entry points |
+
+## Trading other assets, not just Bitcoin
+
+`config.yaml`'s `symbols` is a list — add as many trading pairs as you like
+(e.g. `ETH/USDT`, `SOL/USDT`), and `bot.py` polls and trades each one
+independently with the same strategy. `data_feed.py` and `broker.py` are
+built on **ccxt**, so any of the ~100 crypto exchanges it supports (Binance,
+Kraken, Coinbase, ...) work by changing `exchange:` — no code changes.
+
+That said, ccxt only covers **crypto exchanges**. Trading other asset
+classes in the traditional sense — stocks, forex, commodities, bonds —
+would need a different data/broker layer entirely (e.g. Alpaca or Interactive
+Brokers for stocks, OANDA for forex): different APIs, different market
+hours, different order types. None of that is wired up here; ask if you want
+it added for a specific asset class and broker.
 
 ## Known limitations
 

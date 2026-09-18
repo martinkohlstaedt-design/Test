@@ -12,6 +12,7 @@ import time
 
 from backtester import run_backtest
 from data_feed import fetch_ohlcv_full_history
+from optimizer import split_engine_and_risk_params
 from risk_manager import RiskManager
 from signal_engine import DEFAULT_PARAMS, SignalEngine
 
@@ -36,8 +37,11 @@ def main():
         with open(args.params) as f:
             params = {**DEFAULT_PARAMS, **json.load(f)}
 
-    engine = SignalEngine(params)
-    risk = RiskManager()
+    # A saved params file (from run_optimization.py) may include RiskManager
+    # fields like stop_loss_pct alongside the signal-engine ones — route each
+    # to where it actually takes effect instead of silently dropping them.
+    engine_params, risk = split_engine_and_risk_params(params, RiskManager())
+    engine = SignalEngine(engine_params)
     result = run_backtest(df, engine, risk, symbol=args.symbol, initial_balance=args.balance, timeframe=args.timeframe)
 
     print("\n--- Backtest metrics ---")
