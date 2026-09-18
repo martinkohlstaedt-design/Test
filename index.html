@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Pixel Plumber Adventure</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="game-wrap">
+    <h1>Pixel Plumber Adventure</h1>
+    <canvas id="game" width="800" height="480"></canvas>
+    <div id="hud">
+      <span>Punkte: <b id="score">0</b></span>
+      <span>Münzen: <b id="coins">0</b></span>
+      <span>Leben: <b id="lives">3</b></span>
+      <span>Welt 1-1</span>
+    </div>
+    <p id="hint">Pfeiltasten / A,D = Laufen &nbsp;|&nbsp; Leertaste / W / Pfeil hoch = Springen &nbsp;|&nbsp; R = Neustart</p>
+    <div id="overlay" class="hidden">
+      <div id="overlay-box">
+        <h2 id="overlay-title">Game Over</h2>
+        <p id="overlay-text"></p>
+        <button id="overlay-btn">Neustart</button>
+      </div>
+    </div>
+  </div>
+  <script src="game.js"></script>
+</body>
+</html>

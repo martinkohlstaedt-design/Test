@@ -1,0 +1,83 @@
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1a1a2e;
+  font-family: "Courier New", monospace;
+  color: #f0f0f0;
+}
+
+#game-wrap {
+  text-align: center;
+}
+
+h1 {
+  margin: 8px 0;
+  letter-spacing: 2px;
+  color: #ffd23f;
+}
+
+canvas {
+  background: #5c94fc;
+  border: 4px solid #222;
+  border-radius: 4px;
+  image-rendering: pixelated;
+  display: block;
+  margin: 0 auto;
+}
+
+#hud {
+  display: flex;
+  justify-content: space-between;
+  max-width: 800px;
+  margin: 8px auto 0;
+  font-size: 15px;
+  padding: 0 6px;
+}
+
+#hint {
+  font-size: 12px;
+  opacity: 0.7;
+  margin: 6px 0 0;
+}
+
+#overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#overlay.hidden {
+  display: none;
+}
+
+#overlay-box {
+  background: #222;
+  border: 3px solid #ffd23f;
+  border-radius: 8px;
+  padding: 24px 40px;
+  text-align: center;
+}
+
+#overlay-box button {
+  margin-top: 12px;
+  padding: 8px 20px;
+  font-family: inherit;
+  font-size: 14px;
+  background: #ffd23f;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#overlay-box button:hover {
+  background: #ffe27f;
+}
