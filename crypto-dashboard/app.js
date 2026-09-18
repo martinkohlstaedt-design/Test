@@ -90,7 +90,7 @@ async function fetchJson(url) {
     let detail = "";
     try {
       const body = await res.json();
-      detail = body?.status?.error_message || body?.error || "";
+      detail = extractErrorText(body);
     } catch {
       // response wasn't JSON, ignore
     }
@@ -99,6 +99,28 @@ async function fetchJson(url) {
     throw err;
   }
   return res.json();
+}
+
+// CoinGecko's error body shape varies (status.error_message, error as string,
+// error as {message}, plain message, …) — try the common shapes before
+// falling back to a raw dump so the UI never shows "[object Object]".
+function extractErrorText(body) {
+  if (!body) return "";
+  const candidates = [
+    body?.status?.error_message,
+    typeof body?.error === "string" ? body.error : null,
+    body?.error?.message,
+    body?.error_message,
+    body?.message,
+  ];
+  const found = candidates.find((c) => typeof c === "string" && c.trim());
+  if (found) return found;
+  try {
+    const raw = JSON.stringify(body);
+    return raw.length > 200 ? raw.slice(0, 200) + "…" : raw;
+  } catch {
+    return "";
+  }
 }
 
 function fetchMarkets() {
