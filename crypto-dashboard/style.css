@@ -353,6 +353,12 @@ main {
   color: var(--text-dim);
 }
 
+.data-source-note {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+}
+
 .tf-tabs {
   display: flex;
   gap: 6px;

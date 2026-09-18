@@ -3,6 +3,15 @@ const API_BASE_PRO = "https://pro-api.coingecko.com/api/v3";
 const FIXED_COINS = ["bitcoin", "ethereum", "ripple", "solana", "dogecoin"];
 const REF_MONDAY = Date.UTC(1970, 0, 5); // a Monday, used to align weekly buckets
 
+// CoinGecko's free/demo plan caps /market_chart history at 365 days, which is far
+// too short for a 50- or 200-week moving average. Binance's public klines endpoint
+// needs no key, has no such cap, and returns candles pre-bucketed by timeframe
+// (interval=1w/1M gives real weekly/monthly candles directly). We try it first and
+// fall back to CoinGecko (capped, then resampled) if Binance is unreachable.
+const BINANCE_SYMBOLS = { bitcoin: "BTCUSDT", ethereum: "ETHUSDT", ripple: "XRPUSDT", solana: "SOLUSDT", dogecoin: "DOGEUSDT" };
+const BINANCE_INTERVALS = { "4h": "4h", daily: "1d", weekly: "1w", monthly: "1M" };
+const COINGECKO_MAX_DAYS = 365;
+
 const els = {
   grid: document.getElementById("coin-grid"),
   loading: document.getElementById("loading"),
@@ -144,17 +153,38 @@ function extractSeries(chartResponse) {
   };
 }
 
-async function fetchDailyHistory(id) {
-  const url = buildUrl(`/coins/${id}/market_chart`, { vs_currency: state.settings.vsCurrency, days: "max" });
+async function fetchCoinGeckoDailyCapped(id) {
+  const url = buildUrl(`/coins/${id}/market_chart`, { vs_currency: state.settings.vsCurrency, days: COINGECKO_MAX_DAYS });
   return extractSeries(await fetchJson(url));
 }
 
-async function fetchHourlyHistory(id) {
+async function fetchCoinGeckoHourly(id) {
   const url = buildUrl(`/coins/${id}/market_chart`, { vs_currency: state.settings.vsCurrency, days: 90 });
   return extractSeries(await fetchJson(url));
 }
 
-// ---------- Timeframe resampling ----------
+async function fetchBinanceSeries(id, timeframe) {
+  const symbol = BINANCE_SYMBOLS[id];
+  const interval = BINANCE_INTERVALS[timeframe];
+  const url = `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=1000`;
+  let res;
+  try {
+    res = await fetch(url);
+  } catch {
+    throw new Error("BINANCE_NETWORK");
+  }
+  if (!res.ok) throw new Error(`BINANCE_HTTP_${res.status}`);
+  const data = await res.json();
+  if (!Array.isArray(data) || data.length === 0) throw new Error("BINANCE_EMPTY");
+  return {
+    times: data.map((k) => k[0]),
+    closes: data.map((k) => parseFloat(k[4])),
+    volumes: data.map((k) => parseFloat(k[5])),
+  };
+}
+
+// ---------- Timeframe resampling (CoinGecko fallback only — Binance already
+// returns pre-bucketed candles per timeframe) ----------
 function bucketKey4H(t) { return Math.floor(t / (4 * 3600 * 1000)); }
 function bucketKeyWeekly(t) { return Math.floor((t - REF_MONDAY) / (7 * 86400000)); }
 function bucketKeyMonthly(t) { const d = new Date(t); return d.getUTCFullYear() * 12 + d.getUTCMonth(); }
@@ -175,12 +205,32 @@ function resample(series, bucketFn) {
   return { times: vals.map((v) => v.t), closes: vals.map((v) => v.close), volumes: vals.map((v) => v.volume) };
 }
 
-function getActiveSeries(id, timeframe) {
-  const cache = state.historyCache[id];
-  if (timeframe === "4h") return resample(cache.hourly, bucketKey4H);
-  if (timeframe === "weekly") return resample(cache.daily, bucketKeyWeekly);
-  if (timeframe === "monthly") return resample(cache.daily, bucketKeyMonthly);
-  return cache.daily;
+async function fetchCoinGeckoSeriesForTimeframe(id, timeframe) {
+  if (timeframe === "4h") return fetchCoinGeckoHourly(id);
+  const daily = await fetchCoinGeckoDailyCapped(id);
+  if (timeframe === "weekly") return resample(daily, bucketKeyWeekly);
+  if (timeframe === "monthly") return resample(daily, bucketKeyMonthly);
+  return daily;
+}
+
+// Tries Binance first (no history cap, exact timeframe candles), falls back to
+// CoinGecko (365-day cap) if Binance is unreachable. Caches per id+timeframe.
+async function fetchSeriesForTimeframe(id, timeframe) {
+  state.historyCache[id] = state.historyCache[id] || {};
+  const cached = state.historyCache[id][timeframe];
+  if (cached) return cached;
+
+  let series, source;
+  try {
+    series = await fetchBinanceSeries(id, timeframe);
+    source = "binance";
+  } catch {
+    series = await fetchCoinGeckoSeriesForTimeframe(id, timeframe);
+    source = "coingecko";
+  }
+  const result = { ...series, source };
+  state.historyCache[id][timeframe] = result;
+  return result;
 }
 
 const TIMEFRAME_LABELS = { "4h": "4 Stunden", daily: "Täglich", weekly: "Wöchentlich", monthly: "Monatlich" };
@@ -196,11 +246,7 @@ async function refresh(showSpinner = true) {
     const rawCoins = await fetchMarkets();
     rawCoins.sort((a, b) => FIXED_COINS.indexOf(a.id) - FIXED_COINS.indexOf(b.id));
 
-    const histories = await Promise.all(rawCoins.map((c) => fetchDailyHistory(c.id)));
-    rawCoins.forEach((c, i) => {
-      state.historyCache[c.id] = state.historyCache[c.id] || {};
-      state.historyCache[c.id].daily = histories[i];
-    });
+    const histories = await Promise.all(rawCoins.map((c) => fetchSeriesForTimeframe(c.id, "daily")));
 
     state.coins = rawCoins.map((raw, i) => {
       const hist = histories[i];
@@ -372,13 +418,13 @@ async function openDetail(id) {
 async function setTimeframe(tf) {
   state.detail.timeframe = tf;
   const id = state.detail.id;
-  if (tf === "4h" && !state.historyCache[id].hourly) {
-    els.detailContent.insertAdjacentHTML("beforeend", `<p id="tf-loading" style="text-align:center;color:var(--text-dim);">Lade 4H-Daten…</p>`);
+  if (!state.historyCache[id]?.[tf]) {
+    els.detailContent.insertAdjacentHTML("beforeend", `<p id="tf-loading" style="text-align:center;color:var(--text-dim);">Lade ${TIMEFRAME_LABELS[tf]}-Daten…</p>`);
     try {
-      state.historyCache[id].hourly = await fetchHourlyHistory(id);
+      await fetchSeriesForTimeframe(id, tf);
     } catch (err) {
       document.getElementById("tf-loading")?.remove();
-      els.detailContent.insertAdjacentHTML("beforeend", `<p style="color:var(--red);text-align:center;">4H-Daten konnten nicht geladen werden.</p>`);
+      els.detailContent.insertAdjacentHTML("beforeend", `<p style="color:var(--red);text-align:center;">Daten für diesen Zeitrahmen konnten nicht geladen werden (weder Binance noch CoinGecko erreichbar).</p>`);
       return;
     }
   }
@@ -395,7 +441,7 @@ async function renderDetailBody() {
   const coin = state.coins.find((c) => c.raw.id === id);
   if (!coin) return;
 
-  const series = getActiveSeries(id, timeframe);
+  const series = state.historyCache[id]?.[timeframe] || (await fetchSeriesForTimeframe(id, timeframe));
   const minPoints = { sma20: 20, sma50: 50, sma200: 200 };
   const signal = series.closes.length >= 30
     ? computeSignal({
@@ -431,6 +477,9 @@ async function renderDetailBody() {
         <div><h2>${escapeHtml(raw.name)}</h2><span class="coin-symbol">${escapeHtml(raw.symbol)}</span></div>
       </div>
       <div class="tf-tabs">${tfTabs}</div>
+      <div class="data-source-note">
+        Datenquelle: ${series.source === "binance" ? "Binance" : "CoinGecko (auf 365 Tage begrenzt)"}
+      </div>
       <p style="color:var(--text-dim);padding:20px 0;text-align:center;">
         Zu wenig Datenpunkte (${series.closes.length}) für diesen Zeitrahmen, um verlässliche Indikatoren zu berechnen.
       </p>
@@ -456,6 +505,9 @@ async function renderDetailBody() {
     </div>
 
     <div class="tf-tabs">${tfTabs}</div>
+    <div class="data-source-note">
+      Datenquelle: ${series.source === "binance" ? "Binance (volle Historie)" : "CoinGecko (kostenloser Plan, auf 365 Tage begrenzt – lange MAs evtl. nicht verfügbar)"}
+    </div>
 
     <div class="signal-badge ${signal.tone}" style="display:inline-block;">${signal.label} (Score ${signal.score})</div>
     <ul class="detail-reasons">${signal.reasons.map((r) => `<li>${escapeHtml(r)}</li>`).join("") || "<li>Keine starken Signale</li>"}</ul>
