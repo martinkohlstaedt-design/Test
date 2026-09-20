@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bitcoin Day-Trader (Paper Trading)</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <h1>₿ Bitcoin Day-Trader</h1>
+      <div class="live-price">
+        <span id="live-price">–</span>
+        <span id="live-change" class="chip">–</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="disclaimer">
+    ⚠️ <strong>Reines Paper-Trading – keine Anlageberatung.</strong> Es wird kein echtes Geld bewegt; alle Trades
+    sind simuliert mit virtuellem Startkapital. Kursdaten stammen von der öffentlichen Binance-API (BTC/USDT).
+    Signale basieren auf technischen Indikatoren (EMA, RSI, MACD), sind rein informativ und keine Kauf-/Verkaufsempfehlung.
+    Bitcoin ist hochvolatil – reale Trades können zu Totalverlust führen.
+  </div>
+
+  <main>
+    <section class="chart-section">
+      <div class="toolbar">
+        <div class="timeframe-group" id="timeframe-group">
+          <button class="tf-btn" data-interval="1m">1m</button>
+          <button class="tf-btn active" data-interval="5m">5m</button>
+          <button class="tf-btn" data-interval="15m">15m</button>
+          <button class="tf-btn" data-interval="1h">1h</button>
+          <button class="tf-btn" data-interval="4h">4h</button>
+        </div>
+        <div class="status-group">
+          <span id="data-status">Lade Kursdaten…</span>
+          <button id="refresh-btn" title="Jetzt aktualisieren">⟳</button>
+        </div>
+      </div>
+      <div id="chart" class="chart"></div>
+      <div id="chart-error" class="hidden error-box"></div>
+
+      <div class="signal-panel" id="signal-panel">
+        <div class="signal-badge" id="signal-badge">Lade Signal…</div>
+        <ul class="signal-reasons" id="signal-reasons"></ul>
+      </div>
+    </section>
+
+    <aside class="sidebar">
+      <div class="panel">
+        <h2>Portfolio (Paper)</h2>
+        <div class="portfolio-grid">
+          <div><span>Cash</span><b id="pf-cash">–</b></div>
+          <div><span>BTC-Bestand</span><b id="pf-btc">–</b></div>
+          <div><span>Gesamtwert</span><b id="pf-equity">–</b></div>
+          <div><span>Gewinn/Verlust</span><b id="pf-pnl">–</b></div>
+        </div>
+        <button id="reset-btn" class="secondary-btn">Portfolio zurücksetzen</button>
+      </div>
+
+      <div class="panel">
+        <h2>Order aufgeben</h2>
+        <div class="order-row">
+          <label for="order-amount">Betrag (USD)</label>
+          <input type="number" id="order-amount" min="0" step="10" placeholder="z.B. 500">
+        </div>
+        <div class="quick-pct">
+          <button class="pct-btn" data-pct="25">25%</button>
+          <button class="pct-btn" data-pct="50">50%</button>
+          <button class="pct-btn" data-pct="100">100%</button>
+        </div>
+        <div class="order-actions">
+          <button id="buy-btn" class="buy-btn">Kaufen</button>
+          <button id="sell-btn" class="sell-btn">Verkaufen</button>
+        </div>
+        <p class="hint">Gebühr: 0,1 % pro Trade (wie bei echten Börsen simuliert). "Verkaufen" bezieht sich auf den
+        BTC-Gegenwert des eingegebenen USD-Betrags.</p>
+      </div>
+
+      <div class="panel">
+        <h2>Autopilot <span class="beta-tag">Demo</span></h2>
+        <label class="switch-row">
+          <input type="checkbox" id="autopilot-toggle">
+          <span>Automatisch nach Signal handeln (setzt bei Kaufsignal den gesamten Cash-Bestand ein,
+          bei Verkaufssignal den gesamten BTC-Bestand)</span>
+        </label>
+      </div>
+
+      <div class="panel">
+        <h2>Letzte Trades (Börse)</h2>
+        <div id="tape" class="tape"></div>
+      </div>
+    </aside>
+  </main>
+
+  <section class="log-section">
+    <h2>Trade-Log</h2>
+    <div class="table-wrap">
+      <table id="trade-log">
+        <thead>
+          <tr><th>Zeit</th><th>Quelle</th><th>Seite</th><th>Preis</th><th>Menge BTC</th><th>Wert (USD)</th><th>Cash danach</th></tr>
+        </thead>
+        <tbody id="trade-log-body"></tbody>
+      </table>
+      <p id="trade-log-empty" class="hint">Noch keine Trades.</p>
+    </div>
+  </section>
+
+  <footer>
+    Datenquelle: Binance Public API (BTC/USDT, keine Anmeldung nötig). Paper-Trading-Zustand wird nur lokal im
+    Browser gespeichert (localStorage). Kein echtes Geld, keine Anlageberatung.
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+  <script src="app.js?v=1"></script>
+</body>
+</html>
