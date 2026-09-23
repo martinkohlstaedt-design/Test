@@ -99,6 +99,79 @@ the bot does is logged to `logs/bot.log` and the console. Stop with Ctrl+C.
 `LiveBroker` in `broker.py` implements the same interface as `PaperBroker`,
 so no strategy code changes between modes — only the config.
 
+## 5. Funding-rate arbitrage (market-neutral, separate from the signal bot)
+
+A different way to earn from crypto markets that doesn't depend on predicting
+price direction: **buy an asset spot and short the same amount as a
+perpetual future.** Price moves cancel out; what's left is the *funding rate*
+that perpetual longs pay shorts (usually every 8h, hourly on some exchanges)
+whenever the perp trades above spot — which is most of the time in bull
+markets. When funding turns negative, the short *pays* instead.
+
+These tools only **read public data** — no API key, no orders, nothing live.
+
+### See what funding pays right now
+
+```bash
+python run_funding_monitor.py --exchange binance --symbols BTC/USDT ETH/USDT SOL/USDT
+```
+
+Prints the current, 7-day and 30-day average funding per coin as an
+annualized percentage (APR), plus how often it was positive. Remember that
+with 1x leverage only about half your capital sits in the short, so your
+return on total capital is roughly **half** these numbers, minus fees.
+
+### Backtest it on real history
+
+```bash
+python run_funding_backtest.py --exchange binance --symbol BTC/USDT --days 1095
+python run_funding_backtest.py --symbol ETH/USDT --leverage 2 --entry-apr 8 --exit-apr 2
+```
+
+Simulates the position on historical funding payments and hourly prices,
+with fees on every leg, and compares two scenarios:
+
+- **with entry/exit rule** — only hold the position while the trailing
+  `--lookback-days` average funding APR is above `--entry-apr`, exit below
+  `--exit-apr` (decisions only use funding already paid, no look-ahead);
+- **always in** — hold the whole time, as a baseline.
+
+It reports return, annualized return, max drawdown, time in position, total
+funding received vs. fees paid, and how often the position was rebalanced
+or liquidated. Entries/exits/rebalances are logged to
+`logs/funding_backtest_events.jsonl`.
+
+What the model does (see `funding_backtest.py` for details):
+
+- **Leverage** (`--leverage`) = short notional / futures margin. 1x puts half
+  the capital in spot and half as margin; higher leverage earns more funding
+  per euro but gets liquidated by smaller rallies.
+- **Liquidation**: checked against every candle's high. If the short's loss
+  eats its margin, the margin is gone and the unhedged spot is sold at that
+  candle's close.
+- **Rebalancing**: when the futures margin has fallen to half its target,
+  some spot is sold and the short reduced to restore the split — this is
+  what keeps a real position alive through a rally (costs fees each time).
+
+Not modeled: the basis (price gap) between spot and perp, interest on idle
+cash, the exchange going bust or freezing withdrawals (the biggest real risk
+— both legs usually sit on the same exchange), and taxes.
+
+**Exchanges:** any ccxt exchange with perpetuals works (`--exchange okx`,
+`krakenfutures`, `hyperliquid`, ...). How far back the backtest can go
+depends on how much funding history the exchange serves: Binance goes back
+years, Kraken Futures about a year, OKX/Bitget/KuCoin only ~3 months. Also
+check which exchanges actually let you trade perpetual futures where you
+live — e.g. Binance restricts derivatives for retail customers in several EU
+countries, while Kraken Futures is offered under EU regulation.
+
+**Reality check:** funding income is real but modest. In a sample run
+over Sept 2025 – Sept 2026 on Kraken Futures, BTC and ETH returned roughly
+1% for the year (always-in, 1x) — the entry/exit rule did *not* help there,
+since fees from frequent re-entries ate the difference. Funding pays well
+mostly during euphoric bull phases. Run the backtest yourself on the coins
+and period you care about before drawing conclusions.
+
 ## Project layout
 
 | File | Purpose |
@@ -112,6 +185,9 @@ so no strategy code changes between modes — only the config.
 | `optimizer.py` | Grid search (signal + risk params) with rolling walk-forward validation |
 | `bot.py` | Live polling loop wiring everything together |
 | `run_backtest.py`, `run_optimization.py` | CLI entry points |
+| `funding_data.py` | Funding-rate + perp price history via ccxt, APR conversion |
+| `funding_backtest.py` | Cash-and-carry (long spot + short perp) simulation with fees, rebalancing, liquidation |
+| `run_funding_monitor.py`, `run_funding_backtest.py` | CLI entry points for funding-rate arbitrage |
 
 ## Trading other assets, not just Bitcoin
 
