@@ -172,6 +172,43 @@ since fees from frequent re-entries ate the difference. Funding pays well
 mostly during euphoric bull phases. Run the backtest yourself on the coins
 and period you care about before drawing conclusions.
 
+## 6. Compare crypto strategies side by side
+
+```bash
+python run_strategy_comparison.py --exchange binance --symbol BTC/USDT --days 1095
+python run_strategy_comparison.py --symbol ETH/USDT --grid-range 0.5 --grids 30 --funding-exchange krakenfutures
+```
+
+Runs five strategies on the **same coin, period, starting capital and fees**
+and prints one table plus returns per calendar year:
+
+| Strategy | What it does |
+|---|---|
+| Buy & Hold | Buy everything on day one, never sell |
+| DCA (weekly) | Spread the capital over equal weekly buys across the whole period |
+| Indicator bot | This repo's `SignalEngine` + `RiskManager` on daily candles, whole balance per trade |
+| Grid bot | Spot grid in a fixed band (`--grid-range`, `--grids`) around the start price, hourly candles, never re-centered |
+| Funding arbitrage | Long spot + short perp, 1x, always in (section 5); idle cash before the exchange's funding history starts |
+
+Daily equity curves are saved to `logs/strategy_comparison.csv` (open it
+in any spreadsheet to chart them).
+
+Sample run (OKX data, 3 years to Sept 2026, 10,000 start, 0.1% fee + 0.05%
+slippage per fill; funding data only covered the last months):
+
+| | BTC total | BTC max DD | ETH total | ETH max DD |
+|---|---|---|---|---|
+| Buy & Hold | +218% | −53% | +68% | −68% |
+| Indicator bot | +84% | −25% | −28% | −51% |
+| DCA weekly | +22% | −46% | +5% | −59% |
+| Grid bot | +7% (±30%) | −2% | +29% (±50%) | −6% |
+| Funding arbitrage | +0.6% | −0.1% | +0.8% | −0.1% |
+
+The per-year table is the most useful part: every strategy has years where
+it wins and years where it loses (e.g. the indicator bot doubled BTC in 2024
+but lost 20% in 2025; the grid bot went idle once BTC left its band). One
+backtest over one period can't tell you which will win next.
+
 ## Project layout
 
 | File | Purpose |
@@ -188,6 +225,7 @@ and period you care about before drawing conclusions.
 | `funding_data.py` | Funding-rate + perp price history via ccxt, APR conversion |
 | `funding_backtest.py` | Cash-and-carry (long spot + short perp) simulation with fees, rebalancing, liquidation |
 | `run_funding_monitor.py`, `run_funding_backtest.py` | CLI entry points for funding-rate arbitrage |
+| `strategy_comparison.py`, `run_strategy_comparison.py` | Buy & Hold / DCA / indicator bot / grid bot / funding arbitrage on equal terms |
 
 ## Trading other assets, not just Bitcoin
 
