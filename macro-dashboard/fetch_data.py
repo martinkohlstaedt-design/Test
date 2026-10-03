@@ -24,6 +24,8 @@ SERIES = [
     ("PAYEMS", "Beschäftigung außerhalb Landwirtschaft (Δ pro Monat)", "labor", "diff", "Tsd.", 12, False),
     ("ICSA", "Erstanträge Arbeitslosenhilfe (wöchentlich)", "labor", "level", "Anträge", 52, False),
     ("CES0500000003", "Durchschnittl. Stundenlohn (YoY)", "labor", "yoy", "%", 12, False),
+    # Geld & Liquidität
+    ("M2SL", "Geldmenge M2 (YoY)", "money", "yoy", "%", 12, False),
     # Zinsen
     ("FEDFUNDS", "Fed Funds Rate", "rates", "level", "%", 12, False),
     ("DGS2", "2J Treasury-Rendite", "rates", "level", "%", 252, True),

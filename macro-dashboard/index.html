@@ -97,6 +97,9 @@ const PANELS = [
     { title: "Erstanträge Arbeitslosenhilfe", series: ["ICSA"], fmt: v => Math.round(v / 1000) + " Tsd." },
     { title: "Stundenlöhne (YoY)", series: ["CES0500000003"], fmt: v => v.toFixed(1) + " %" },
   ]},
+  { title: "Geld & Liquidität", charts: [
+    { title: "Geldmenge M2", series: ["M2SL"], fmt: v => v.toFixed(1) + " % YoY", zero: true },
+  ]},
   { title: "Zinsen & Zinskurve", charts: [
     { title: "Fed Funds, 2J und 10J Rendite", series: ["FEDFUNDS", "DGS2", "DGS10"], fmt: v => v.toFixed(2) + " %" },
     { title: "Zinskurve (Inversion < 0)", series: ["T10Y2Y", "T10Y3M"], fmt: v => v.toFixed(2) + " pp", zero: true },
