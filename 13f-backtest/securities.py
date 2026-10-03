@@ -27,7 +27,7 @@ def map_cusips(cusips):
         while True:
             r = requests.post("https://api.openfigi.com/v3/mapping", json=jobs,
                               headers=headers, timeout=30)
-            if r.status_code == 429:
+            if r.status_code == 429 or r.status_code >= 500:
                 time.sleep(30)
                 continue
             r.raise_for_status()
