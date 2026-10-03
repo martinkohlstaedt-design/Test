@@ -16,3 +16,8 @@ trading-bot/*.db
 
 # OS/editor cruft
 .DS_Store
+
+# 13F backtest cache
+13f-backtest/.cache/
+13f-backtest/output/
+13f-backtest/run.log
