@@ -11,7 +11,7 @@
     --bg: #f4f4f2; --surface-1: #fcfcfb; --border: #e1e0dc;
     --text-primary: #0b0b0b; --text-secondary: #52514e; --text-muted: #8a8984;
     --grid: #ebeae6; --rec: rgba(120,120,115,.14);
-    --series-1: #2a78d6; --series-2: #eb6834; --series-3: #1baf7a;
+    --series-1: #2a78d6; --series-2: #eb6834; --series-3: #1baf7a; --series-4: #eda100;
     --good: #1a7f37; --warn: #9a6700; --crit: #c62828;
   }
   @media (prefers-color-scheme: dark) {
@@ -20,7 +20,7 @@
       --bg: #121211; --surface-1: #1a1a19; --border: #2e2e2c;
       --text-primary: #ffffff; --text-secondary: #c3c2b7; --text-muted: #8f8e86;
       --grid: #2a2a28; --rec: rgba(200,200,190,.12);
-      --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70;
+      --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --series-4: #c98500;
       --good: #4cc16a; --warn: #e3b341; --crit: #f0605d;
     }
   }
@@ -29,7 +29,7 @@
     --bg: #121211; --surface-1: #1a1a19; --border: #2e2e2c;
     --text-primary: #ffffff; --text-secondary: #c3c2b7; --text-muted: #8f8e86;
     --grid: #2a2a28; --rec: rgba(200,200,190,.12);
-    --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70;
+    --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --series-4: #c98500;
     --good: #4cc16a; --warn: #e3b341; --crit: #f0605d;
   }
   * { box-sizing: border-box; }
@@ -98,7 +98,10 @@ const PANELS = [
     { title: "Stundenlöhne (YoY)", series: ["CES0500000003"], fmt: v => v.toFixed(1) + " %" },
   ]},
   { title: "Geld & Liquidität", charts: [
-    { title: "Geldmenge M2", series: ["M2SL"], fmt: v => v.toFixed(1) + " % YoY", zero: true },
+    { title: "US-Geldmenge M2", series: ["M2SL"], fmt: v => v.toFixed(1) + " % YoY", zero: true },
+    { title: "Global M2 (G4: US, EZ, JP, UK) YoY", series: ["GLOBALM2_YOY"], fmt: v => v.toFixed(1) + " %", zero: true },
+    { title: "Global M2 G4 in USD", series: ["GLOBALM2"], fmt: v => v.toFixed(1) + " Bio." },
+    { title: "M2 nach Region in USD", series: ["M2_US_USD", "M2_EZ_USD", "M2_JP_USD", "M2_UK_USD"], fmt: v => v.toFixed(1), },
   ]},
   { title: "Zinsen & Zinskurve", charts: [
     { title: "Fed Funds, 2J und 10J Rendite", series: ["FEDFUNDS", "DGS2", "DGS10"], fmt: v => v.toFixed(2) + " %" },
@@ -163,7 +166,7 @@ function buildLayout() {
   panels.innerHTML = PANELS.map((p, pi) => `<h2>${p.title}</h2><div class="grid">` + p.charts.map((c, ci) => {
     const colors = c.series.map((_, i) => `var(--series-${i + 1})`);
     const legend = c.series.length > 1
-      ? `<div class="legend">${c.series.map((id, i) => `<span><i style="background:${colors[i]}"></i>${DATA.series[id].name.replace(/ \(YoY\)/, "")}</span>`).join("")}</div>` : "";
+      ? `<div class="legend">${c.series.map((id, i) => `<span><i style="background:${colors[i]}"></i>${DATA.series[id].name.replace(/ \((YoY|USD Bio\.)\)/, "")}</span>`).join("")}</div>` : "";
     const [, v] = last(DATA.series[c.series[0]]);
     return `<div class="card"><div class="chart-head"><span class="chart-title">${c.title}</span>
       <span class="chart-last">${c.series.map(id => c.fmt(last(DATA.series[id])[1])).join(" · ")}</span></div>
@@ -176,7 +179,7 @@ function drawCharts() {
   PANELS.forEach((p, pi) => p.charts.forEach((c, ci) => {
     const traces = c.series.map((id, i) => {
       const s = DATA.series[id], pts = s.points.filter(([d]) => d >= from);
-      const base = { x: pts.map(p => p[0]), y: pts.map(p => p[1]), name: s.name.replace(/ \(YoY\)/, ""),
+      const base = { x: pts.map(p => p[0]), y: pts.map(p => p[1]), name: s.name.replace(/ \((YoY|USD Bio\.)\)/, ""),
         hovertemplate: "%{x|%b %Y}: %{y:.2f}<extra>" + s.name + "</extra>" };
       return c.bar
         ? { ...base, type: "bar", marker: { color: css("--series-1") } }

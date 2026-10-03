@@ -109,6 +109,13 @@ def main():
                 failed.append(sid)
                 print(f"FAIL {sid}: {e}", file=sys.stderr)
     ordered = {e[0]: result[e[0]] for e in SERIES if e[0] in result}
+    try:
+        import fetch_global_m2
+        ordered.update(fetch_global_m2.build())
+        print("ok   Global M2 (US, EZ, JP, UK)")
+    except Exception as e:
+        failed.append("GLOBALM2")
+        print(f"FAIL Global M2: {e}", file=sys.stderr)
     payload = {"updated": datetime.now(timezone.utc).isoformat(timespec="seconds"), "series": ordered}
     with open("data/us.json", "w") as f:
         json.dump(payload, f, separators=(",", ":"))
