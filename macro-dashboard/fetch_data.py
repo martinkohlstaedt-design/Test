@@ -43,6 +43,7 @@ SERIES = [
     ("SP500", "S&P 500", "markets", "level", "Punkte", 252, True),
     ("VIXCLS", "VIX", "markets", "level", "Punkte", 252, True),
     ("BAMLH0A0HYM2", "High-Yield Credit Spread", "markets", "level", "pp", 252, True),
+    ("BAA10Y", "Credit Spread Investment Grade (Baa minus 10J)", "markets", "level", "pp", 252, True),
     ("DTWEXBGS", "US-Dollar-Index (breit)", "markets", "level", "Index", 252, True),
     ("DCOILWTICO", "Rohöl WTI", "markets", "level", "USD", 252, True),
     # Rezession

@@ -106,6 +106,7 @@ const PANELS = [
   ]},
   { title: "Kredit & Stress", charts: [
     { title: "High-Yield Credit Spread", series: ["BAMLH0A0HYM2"], fmt: v => v.toFixed(2) + " pp" },
+    { title: "Credit Spread Investment Grade (Baa minus 10J)", series: ["BAA10Y"], fmt: v => v.toFixed(2) + " pp" },
     { title: "VIX", series: ["VIXCLS"], fmt: v => v.toFixed(1) },
     { title: "Finanzbedingungen NFCI (> 0 = restriktiv)", series: ["NFCI"], fmt: v => v.toFixed(2), zero: true },
   ]},
@@ -133,6 +134,7 @@ const LIM = {
   DFII10: { warn: 1.5, crit: 2.5, dir: "up" },
   T10Y3M: { warn: 0.5, crit: 0, dir: "down" },
   BAMLH0A0HYM2: { warn: 4, crit: 5, dir: "up" },
+  BAA10Y: { warn: 2.5, crit: 3.5, dir: "up" },
   VIXCLS: { warn: 20, crit: 30, dir: "up" },
   NFCI: { warn: -0.3, crit: 0, dir: "up" },
   SPX_CAPE: { warn: 28, crit: 35, dir: "up" },
