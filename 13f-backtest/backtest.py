@@ -51,11 +51,11 @@ def build_signals(data, tickers, top_n, broad_n, min_consensus):
                 cons[t] = cons.get(t, 0) + 1
             for t, x in to_t(top_positions(pos, broad_n)).items():
                 strat["Breit (Top-Broad)"][t] = strat["Breit (Top-Broad)"].get(t, 0) + x
-            fresh = {c: v for c, v in pos.items() if c not in prev}
+            fresh = {c: v for c, v in pos.items() if c not in prev} if idx else {}
             for t, x in to_t(top_positions(fresh, top_n)).items():
                 new_w[t] = new_w.get(t, 0) + x
         strat["Konsens"] = {t: 1.0 for t, k in cons.items() if k >= min_consensus}
-        strat["Neu-Einstiege"] = new_w if idx else {}
+        strat["Neu-Einstiege"] = new_w
         sig[p] = {k: v for k, v in strat.items()}
         sig[p]["_n_mgr"] = n_mgr
     return sig
@@ -144,7 +144,7 @@ def main():
     strategies = [c for c in df.columns if c not in ("SPY", "RSP")]
     table = {}
     for k in strategies + ["RSP", "SPY"]:
-        d = df[[k, "SPY"]].dropna()
+        d = df[[k, "SPY"]].dropna() if k != "SPY" else df[["SPY"]].dropna()
         table[k] = metrics(d[k], d["SPY"])
     res = pd.DataFrame(table).T
     res["Kursabdeckung"] = [f"{np.mean(covs[k]):.0%}" if k in covs else "-" for k in res.index]
