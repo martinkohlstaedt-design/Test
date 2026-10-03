@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>US Makro-Dashboard</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.35.2/plotly-basic.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/4.1.1/plotly-basic.min.js"></script>
 <style>
   :root {
     color-scheme: light;
@@ -79,55 +79,50 @@
 </div>
 
 <script>
+// Fokus: US-Aktien und Krypto. Die übrigen Reihen liegen weiter in data/us.json (siehe fetch_data.py)
 const PANELS = [
-  { title: "Wachstum", charts: [
-    { title: "Reales BIP", series: ["GDPC1"], fmt: v => v.toFixed(1) + " % YoY", zero: true },
-    { title: "Industrieproduktion", series: ["INDPRO"], fmt: v => v.toFixed(1) + " % YoY", zero: true },
-    { title: "Einzelhandelsumsatz", series: ["RSAFS"], fmt: v => v.toFixed(1) + " % YoY", zero: true },
-    { title: "Konsumentenstimmung", series: ["UMCSENT"], fmt: v => v.toFixed(1) },
-  ]},
-  { title: "Inflation", charts: [
-    { title: "CPI vs. Kern-CPI (YoY)", series: ["CPIAUCSL", "CPILFESL"], fmt: v => v.toFixed(2) + " %", ref: 2 },
-    { title: "Kern-PCE (Fed-Zielgröße, YoY)", series: ["PCEPILFE"], fmt: v => v.toFixed(2) + " %", ref: 2 },
-    { title: "10J Breakeven-Inflation", series: ["T10YIE"], fmt: v => v.toFixed(2) + " %", ref: 2 },
-  ]},
-  { title: "Arbeitsmarkt", charts: [
-    { title: "Arbeitslosenquote", series: ["UNRATE"], fmt: v => v.toFixed(1) + " %" },
-    { title: "Beschäftigungsaufbau (Δ pro Monat)", series: ["PAYEMS"], fmt: v => v.toFixed(0) + " Tsd.", zero: true, bar: true },
-    { title: "Erstanträge Arbeitslosenhilfe", series: ["ICSA"], fmt: v => Math.round(v / 1000) + " Tsd." },
-    { title: "Stundenlöhne (YoY)", series: ["CES0500000003"], fmt: v => v.toFixed(1) + " %" },
-  ]},
-  { title: "Geld & Liquidität", charts: [
-    { title: "US-Geldmenge M2", series: ["M2SL"], fmt: v => v.toFixed(1) + " % YoY", zero: true },
+  { title: "Liquidität", charts: [
     { title: "Global M2 (G4: US, EZ, JP, UK) YoY", series: ["GLOBALM2_YOY"], fmt: v => v.toFixed(1) + " %", zero: true },
     { title: "Global M2 G4 in USD", series: ["GLOBALM2"], fmt: v => v.toFixed(1) + " Bio." },
-    { title: "M2 nach Region in USD", series: ["M2_US_USD", "M2_EZ_USD", "M2_JP_USD", "M2_UK_USD"], fmt: v => v.toFixed(1), },
+    { title: "Fed-Bilanzsumme", series: ["WALCL"], fmt: v => (v / 1e6).toFixed(2) + " Bio. USD" },
   ]},
-  { title: "Zinsen & Zinskurve", charts: [
-    { title: "Fed Funds, 2J und 10J Rendite", series: ["FEDFUNDS", "DGS2", "DGS10"], fmt: v => v.toFixed(2) + " %" },
-    { title: "Zinskurve (Inversion < 0)", series: ["T10Y2Y", "T10Y3M"], fmt: v => v.toFixed(2) + " pp", zero: true },
-  ]},
-  { title: "Märkte & Stress", charts: [
-    { title: "S&P 500", series: ["SP500"], fmt: v => v.toLocaleString("de-DE", {maximumFractionDigits: 0}), log: true },
-    { title: "VIX", series: ["VIXCLS"], fmt: v => v.toFixed(1) },
-    { title: "High-Yield Credit Spread", series: ["BAMLH0A0HYM2"], fmt: v => v.toFixed(2) + " pp" },
+  { title: "Zinsen & Dollar", charts: [
+    { title: "Fed Funds Rate", series: ["FEDFUNDS"], fmt: v => v.toFixed(2) + " %" },
+    { title: "10J Realzins (TIPS)", series: ["DFII10"], fmt: v => v.toFixed(2) + " %", zero: true },
+    { title: "Zinskurve 10J–3M (Inversion < 0)", series: ["T10Y3M"], fmt: v => v.toFixed(2) + " pp", zero: true },
     { title: "US-Dollar-Index (breit)", series: ["DTWEXBGS"], fmt: v => v.toFixed(1) },
-    { title: "Rohöl WTI", series: ["DCOILWTICO"], fmt: v => "$" + v.toFixed(1) },
   ]},
-  { title: "Rezessionsradar", charts: [
-    { title: "Sahm-Rule (Signal ab 0,5)", series: ["SAHMREALTIME"], fmt: v => v.toFixed(2) + " pp", ref: 0.5 },
+  { title: "Kredit & Stress", charts: [
+    { title: "High-Yield Credit Spread", series: ["BAMLH0A0HYM2"], fmt: v => v.toFixed(2) + " pp" },
+    { title: "VIX", series: ["VIXCLS"], fmt: v => v.toFixed(1) },
+    { title: "Finanzbedingungen NFCI (> 0 = restriktiv)", series: ["NFCI"], fmt: v => v.toFixed(2), zero: true },
+  ]},
+  { title: "Bewertung S&P 500", charts: [
+    { title: "Shiller-KGV (CAPE)", series: ["SPX_CAPE"], fmt: v => v.toFixed(1) },
+    { title: "KGV (trailing)", series: ["SPX_PE"], fmt: v => v.toFixed(1) },
+    { title: "Gewinnrendite minus 10J-Rendite", series: ["SPX_ERP"], fmt: v => v.toFixed(2) + " pp", zero: true },
+  ]},
+  { title: "Risikoassets", charts: [
+    { title: "S&P 500", series: ["SP500"], fmt: v => v.toLocaleString("de-DE", {maximumFractionDigits: 0}), log: true },
+    { title: "Bitcoin (USD)", series: ["CBBTCUSD"], fmt: v => "$" + Math.round(v).toLocaleString("de-DE"), log: true },
+  ]},
+  { title: "Makro-Bremse", charts: [
+    { title: "Kern-PCE (Fed-Zielgröße, YoY)", series: ["PCEPILFE"], fmt: v => v.toFixed(2) + " %", ref: 2 },
+    { title: "Sahm-Rule (Rezessionssignal ab 0,5)", series: ["SAHMREALTIME"], fmt: v => v.toFixed(2) + " pp", ref: 0.5 },
   ]},
 ];
 
 // Signale: [Label, Serie, Formatierer, Bewertungsfunktion -> "good"|"warn"|"crit"]
 const SIGNALS = [
+  ["Global M2 (YoY)", "GLOBALM2_YOY", v => v.toFixed(1) + " %", v => v < 0 ? "crit" : v < 4 ? "warn" : "good"],
+  ["10J Realzins", "DFII10", v => v.toFixed(2) + " %", v => v > 2.5 ? "crit" : v > 1.5 ? "warn" : "good"],
   ["Zinskurve 10J–3M", "T10Y3M", v => v.toFixed(2) + " pp", v => v < 0 ? "crit" : v < 0.5 ? "warn" : "good"],
-  ["Sahm-Rule", "SAHMREALTIME", v => v.toFixed(2) + " pp", v => v >= 0.5 ? "crit" : v >= 0.3 ? "warn" : "good"],
-  ["Kern-PCE (YoY)", "PCEPILFE", v => v.toFixed(2) + " %", v => v > 3 ? "crit" : v > 2.5 ? "warn" : "good"],
-  ["Reales BIP (YoY)", "GDPC1", v => v.toFixed(1) + " %", v => v < 0 ? "crit" : v < 1.5 ? "warn" : "good"],
-  ["Arbeitslosenquote", "UNRATE", v => v.toFixed(1) + " %", v => v >= 5.5 ? "crit" : v >= 4.5 ? "warn" : "good"],
   ["Credit Spread (HY)", "BAMLH0A0HYM2", v => v.toFixed(2) + " pp", v => v > 5 ? "crit" : v > 4 ? "warn" : "good"],
   ["VIX", "VIXCLS", v => v.toFixed(1), v => v > 30 ? "crit" : v > 20 ? "warn" : "good"],
+  ["Finanzbedingungen (NFCI)", "NFCI", v => v.toFixed(2), v => v > 0 ? "crit" : v > -0.3 ? "warn" : "good"],
+  ["Shiller-KGV (CAPE)", "SPX_CAPE", v => v.toFixed(1), v => v > 35 ? "crit" : v > 28 ? "warn" : "good"],
+  ["Kern-PCE (YoY)", "PCEPILFE", v => v.toFixed(2) + " %", v => v > 3 ? "crit" : v > 2.5 ? "warn" : "good"],
+  ["Sahm-Rule", "SAHMREALTIME", v => v.toFixed(2) + " pp", v => v >= 0.5 ? "crit" : v >= 0.3 ? "warn" : "good"],
 ];
 const STATE = { good: ["●", "Unauffällig"], warn: ["▲", "Erhöht"], crit: ["■", "Alarm"] };
 const RANGES = [["5J", 5], ["10J", 10], ["25J", 25], ["Max", 0]];

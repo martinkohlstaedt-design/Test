@@ -26,6 +26,11 @@ SERIES = [
     ("CES0500000003", "Durchschnittl. Stundenlohn (YoY)", "labor", "yoy", "%", 12, False),
     # Geld & Liquidität
     ("M2SL", "Geldmenge M2 (YoY)", "money", "yoy", "%", 12, False),
+    # Fed-Liquidität, Finanzbedingungen, Krypto
+    ("WALCL", "Fed-Bilanzsumme", "money", "level", "Mio. USD", 52, False),
+    ("NFCI", "Chicago Fed Financial Conditions (NFCI)", "markets", "level", "Index", 52, False),
+    ("CBBTCUSD", "Bitcoin (Coinbase)", "markets", "level", "USD", 365, True),
+    ("DFII10", "10J Realzins (TIPS)", "rates", "level", "%", 252, True),
     # Zinsen
     ("FEDFUNDS", "Fed Funds Rate", "rates", "level", "%", 12, False),
     ("DGS2", "2J Treasury-Rendite", "rates", "level", "%", 252, True),
@@ -116,6 +121,13 @@ def main():
     except Exception as e:
         failed.append("GLOBALM2")
         print(f"FAIL Global M2: {e}", file=sys.stderr)
+    try:
+        import fetch_valuation
+        ordered.update(fetch_valuation.build())
+        print("ok   Bewertung (KGV, CAPE, Gewinnrendite)")
+    except Exception as e:
+        failed.append("VALUATION")
+        print(f"FAIL Bewertung: {e}", file=sys.stderr)
     payload = {"updated": datetime.now(timezone.utc).isoformat(timespec="seconds"), "series": ordered}
     with open("data/us.json", "w") as f:
         json.dump(payload, f, separators=(",", ":"))
