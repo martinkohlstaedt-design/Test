@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>US Makro-Dashboard</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/4.1.1/plotly-basic.min.js"></script>
 <style>
   :root {
     color-scheme: light;
@@ -44,7 +43,7 @@
                    padding: 6px 12px; border-radius: 6px; cursor: pointer; font: inherit; }
   .ranges button[aria-pressed="true"] { color: var(--text-primary); border-color: var(--text-secondary); font-weight: 600; }
   .card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
-  .signals { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; margin-bottom: 20px; }
+  .signals { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 20px; }
   .signal .lbl { color: var(--text-secondary); font-size: 12px; }
   .signal .val { font-size: 22px; font-weight: 650; margin: 2px 0; font-variant-numeric: tabular-nums; }
   .signal .state { font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 5px; }
@@ -56,7 +55,13 @@
   .chart-last { font-variant-numeric: tabular-nums; color: var(--text-secondary); font-size: 12px; white-space: nowrap; }
   .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--text-secondary); margin: 4px 0 0; }
   .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
-  .plot { height: 230px; }
+  .plot { height: 230px; position: relative; }
+  .plot svg { display: block; }
+  .tip { position: absolute; top: 4px; pointer-events: none; background: var(--surface-1); border: 1px solid var(--border);
+         border-radius: 6px; padding: 5px 8px; font-size: 12px; line-height: 1.4; white-space: nowrap; z-index: 2;
+         font-variant-numeric: tabular-nums; box-shadow: 0 2px 8px rgba(0,0,0,.12); }
+  .tip i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 5px; }
+  .tip-d { color: var(--text-secondary); }
   footer { margin-top: 28px; color: var(--text-muted); font-size: 12px; }
   .err { color: var(--crit); padding: 24px; }
   @media (max-width: 480px) { .grid { grid-template-columns: 1fr; } }
@@ -169,35 +174,137 @@ function buildLayout() {
   }).join("") + `</div>`).join("");
 }
 
-function drawCharts() {
-  const from = fromDate(), grid = css("--grid"), muted = css("--text-muted"), text = css("--text-secondary");
-  PANELS.forEach((p, pi) => p.charts.forEach((c, ci) => {
-    const traces = c.series.map((id, i) => {
-      const s = DATA.series[id], pts = s.points.filter(([d]) => d >= from);
-      const base = { x: pts.map(p => p[0]), y: pts.map(p => p[1]), name: s.name.replace(/ \((YoY|USD Bio\.)\)/, ""),
-        hovertemplate: "%{x|%b %Y}: %{y:.2f}<extra>" + s.name + "</extra>" };
-      return c.bar
-        ? { ...base, type: "bar", marker: { color: css("--series-1") } }
-        : { ...base, type: "scatter", mode: "lines", line: { color: css(`--series-${i + 1}`), width: 2, shape: "linear" } };
-    });
-    const x0 = traces[0].x[0], x1 = traces[0].x[traces[0].x.length - 1];
-    const shapes = recessions.filter(([a, b]) => b >= x0).map(([a, b]) => ({
-      type: "rect", xref: "x", yref: "paper", x0: a < x0 ? x0 : a, x1: b, y0: 0, y1: 1,
-      fillcolor: css("--rec"), line: { width: 0 }, layer: "below" }));
-    const hline = (y, dash) => ({ type: "line", xref: "paper", x0: 0, x1: 1, yref: "y", y0: y, y1: y,
-      line: { color: muted, width: 1, dash } });
-    if (c.zero) shapes.push(hline(0, "solid"));
-    if (c.ref != null) shapes.push(hline(c.ref, "dot"));
-    Plotly.react(`plot-${pi}-${ci}`, traces, {
-      margin: { l: 44, r: 8, t: 6, b: 24 }, showlegend: false,
-      paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
-      font: { color: text, size: 11 }, shapes, hovermode: "x unified", bargap: 0.25,
-      xaxis: { gridcolor: grid, linecolor: grid, showgrid: false, range: [x0, x1] },
-      yaxis: { gridcolor: grid, zeroline: false, type: c.log ? "log" : "linear", automargin: true },
-      hoverlabel: { bgcolor: css("--surface-1"), bordercolor: grid, font: { color: css("--text-primary") } },
-    }, { displayModeBar: false, responsive: true });
-  }));
+const SVGNS = "http://www.w3.org/2000/svg";
+const T = s => new Date(s + "T00:00:00Z").getTime();
+const compact = new Intl.NumberFormat("de-DE", { notation: "compact", maximumFractionDigits: 1 });
+
+function niceTicks(lo, hi, n = 5) {
+  const span = hi - lo || 1, raw = span / n, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(s => s >= raw) || raw;
+  const out = [];
+  for (let v = Math.ceil(lo / step) * step; v <= hi + step * 1e-9; v += step) out.push(+v.toFixed(10));
+  return out;
 }
+
+function fmtTick(v) {
+  const a = Math.abs(v);
+  if (a >= 1e6) return +(v / 1e6).toFixed(1) + " Mio";
+  if (a >= 1e4) return +(v / 1e3).toFixed(0) + "k";
+  return v.toLocaleString("de-DE", { maximumFractionDigits: a < 10 ? 2 : 0 });
+}
+
+function el(name, attrs = {}, parent) {
+  const n = document.createElementNS(SVGNS, name);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(n);
+  return n;
+}
+
+function drawChart(host, c, from) {
+  host.innerHTML = "";
+  const W = Math.max(host.clientWidth, 200), H = host.clientHeight || 230;
+  const m = { l: 46, r: 10, t: 8, b: 22 }, iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const data = c.series.map((id, i) => {
+    const s = DATA.series[id];
+    return { id, name: s.name.replace(/ \((YoY|USD Bio\.)\)/, ""), color: `var(--series-${i + 1})`,
+             pts: s.points.filter(([d]) => d >= from).map(([d, v]) => [T(d), v, d]) };
+  });
+  const all = data.flatMap(s => s.pts);
+  if (!all.length) return;
+  const x0 = Math.min(...all.map(p => p[0])), x1 = Math.max(...all.map(p => p[0]));
+  let ys = all.map(p => p[1]);
+  if (c.zero || c.bar) ys.push(0);
+  if (c.ref != null) ys.push(c.ref);
+  const log = !!c.log;
+  const tf = v => log ? Math.log10(v) : v;
+  let lo = Math.min(...ys.map(tf)), hi = Math.max(...ys.map(tf));
+  const pad = (hi - lo || 1) * 0.06; lo -= pad; hi += pad;
+  const X = t => m.l + (t - x0) / (x1 - x0 || 1) * iw;
+  const Y = v => m.t + (1 - (tf(v) - lo) / (hi - lo)) * ih;
+
+  const svg = el("svg", { width: W, height: H, viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": c.title }, host);
+
+  recessions.forEach(([a, b]) => {
+    const ra = Math.max(T(a), x0), rb = Math.min(T(b), x1);
+    if (rb > ra) el("rect", { x: X(ra), y: m.t, width: Math.max(X(rb) - X(ra), 1), height: ih, style: "fill:var(--rec)" }, svg);
+  });
+
+  const yt = log
+    ? (() => { const o = []; for (let e = Math.floor(lo) - 1; e <= Math.ceil(hi); e++) [1, 2, 5].forEach(k => {
+        const v = k * Math.pow(10, e); if (Math.log10(v) >= lo && Math.log10(v) <= hi) o.push(v); }); return o; })()
+    : niceTicks(lo, hi);
+  yt.forEach(v => {
+    const y = Y(v);
+    el("line", { x1: m.l, x2: W - m.r, y1: y, y2: y, style: "stroke:var(--grid)", "stroke-width": 1 }, svg);
+    const t = el("text", { x: m.l - 6, y: y + 4, "text-anchor": "end", style: "fill:var(--text-muted)", "font-size": 11 }, svg);
+    t.textContent = fmtTick(v);
+  });
+
+  const span = (x1 - x0) / (365.25 * 864e5), step = span > 40 ? 10 : span > 18 ? 5 : span > 8 ? 2 : 1;
+  const y0 = new Date(x0).getUTCFullYear(), y1 = new Date(x1).getUTCFullYear();
+  for (let yr = Math.ceil(y0 / step) * step; yr <= y1; yr += step) {
+    const x = X(Date.UTC(yr, 0, 1));
+    if (x < m.l || x > W - m.r) continue;
+    const t = el("text", { x, y: H - 6, "text-anchor": "middle", style: "fill:var(--text-muted)", "font-size": 11 }, svg);
+    t.textContent = yr;
+  }
+
+  const hline = (v, dash) => el("line", { x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), style: "stroke:var(--text-muted)",
+    "stroke-width": 1, "stroke-dasharray": dash }, svg);
+  if (c.zero && !log) hline(0, "");
+  if (c.ref != null) hline(c.ref, "3 3");
+
+  data.forEach(s => {
+    if (c.bar) {
+      const bw = Math.max(iw / s.pts.length * 0.7, 1), y0p = Y(0);
+      s.pts.forEach(p => el("rect", { x: X(p[0]) - bw / 2, width: bw, y: Math.min(Y(p[1]), y0p),
+        height: Math.abs(Y(p[1]) - y0p), style: `fill:${s.color}` }, svg));
+    } else {
+      const d = s.pts.map((p, i) => (i ? "L" : "M") + X(p[0]).toFixed(1) + " " + Y(p[1]).toFixed(1)).join("");
+      el("path", { d, fill: "none", style: `stroke:${s.color}`, "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }, svg);
+      const lp = s.pts[s.pts.length - 1];
+      el("circle", { cx: X(lp[0]), cy: Y(lp[1]), r: 3.5, style: `fill:${s.color};stroke:var(--surface-1)`, "stroke-width": 2 }, svg);
+    }
+  });
+
+  // Hover: Fadenkreuz und Tooltip
+  const cross = el("line", { y1: m.t, y2: m.t + ih, style: "stroke:var(--text-secondary)", "stroke-width": 1, visibility: "hidden" }, svg);
+  const dots = data.map(s => el("circle", { r: 4, style: `fill:${s.color};stroke:var(--surface-1)`, "stroke-width": 2, visibility: "hidden" }, svg));
+  const tip = document.createElement("div");
+  tip.className = "tip"; tip.hidden = true; host.appendChild(tip);
+  const hit = el("rect", { x: m.l, y: m.t, width: iw, height: ih, fill: "transparent" }, svg);
+  const nearest = (pts, t) => {
+    let lo2 = 0, hi2 = pts.length - 1;
+    while (hi2 - lo2 > 1) { const mid = (lo2 + hi2) >> 1; (pts[mid][0] < t ? lo2 = mid : hi2 = mid); }
+    return Math.abs(pts[lo2][0] - t) <= Math.abs(pts[hi2][0] - t) ? pts[lo2] : pts[hi2];
+  };
+  const move = e => {
+    const r = svg.getBoundingClientRect(), px = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
+    const t = x0 + (px - m.l) / iw * (x1 - x0);
+    const rows = data.map(s => ({ s, p: nearest(s.pts, t) }));
+    const cx = X(rows[0].p[0]);
+    cross.setAttribute("x1", cx); cross.setAttribute("x2", cx); cross.setAttribute("visibility", "visible");
+    rows.forEach((row, i) => { dots[i].setAttribute("cx", X(row.p[0])); dots[i].setAttribute("cy", Y(row.p[1])); dots[i].setAttribute("visibility", c.bar ? "hidden" : "visible"); });
+    const date = new Date(rows[0].p[0]).toLocaleDateString("de-DE", { year: "numeric", month: "short", day: rows[0].s.pts.length > 400 ? "numeric" : undefined, timeZone: "UTC" });
+    tip.innerHTML = `<div class="tip-d">${date}</div>` + rows.map(({ s, p }) =>
+      `<div><i style="background:${s.color}"></i>${data.length > 1 ? s.name + ": " : ""}<b>${c.fmt(p[1])}</b></div>`).join("");
+    tip.hidden = false;
+    const tw = tip.offsetWidth;
+    tip.style.left = Math.min(Math.max(cx - tw / 2, 0), W - tw) + "px";
+  };
+  const leave = () => { cross.setAttribute("visibility", "hidden"); dots.forEach(d => d.setAttribute("visibility", "hidden")); tip.hidden = true; };
+  hit.addEventListener("mousemove", move); hit.addEventListener("mouseleave", leave);
+  hit.addEventListener("touchstart", move, { passive: true }); hit.addEventListener("touchmove", move, { passive: true });
+  hit.addEventListener("touchend", leave);
+}
+
+function drawCharts() {
+  const from = fromDate();
+  PANELS.forEach((p, pi) => p.charts.forEach((c, ci) => drawChart(document.getElementById(`plot-${pi}-${ci}`), c, from)));
+}
+
+let resizeTimer;
+window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(drawCharts, 120); });
 
 function buildRanges() {
   const el = document.getElementById("ranges");
