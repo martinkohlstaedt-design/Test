@@ -38,6 +38,18 @@
   header { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: end; justify-content: space-between; margin-bottom: 16px; }
   h1 { font-size: 22px; margin: 0; }
   .sub { color: var(--text-secondary); font-size: 12px; margin-top: 2px; }
+  .fazit { margin: -4px 0 20px; display: grid; gap: 14px; }
+  .fazit h2 { margin: 0; color: var(--text-primary); text-transform: none; letter-spacing: 0; font-size: 17px; }
+  .fazit .head { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: baseline; justify-content: space-between; }
+  .fazit .asof { color: var(--text-muted); font-size: 12px; }
+  .fazit .verdict { font-size: 15px; font-weight: 600; margin: 0; max-width: 75ch; text-wrap: balance; }
+  .fazit .outlook { margin: 0; max-width: 75ch; color: var(--text-secondary); }
+  .drivers { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px 16px; margin: 0; padding: 0; list-style: none; }
+  .drivers li { display: grid; gap: 2px; min-width: 0; }
+  .drivers .dn { font-weight: 600; display: flex; gap: 6px; align-items: baseline; }
+  .drivers .dt { color: var(--text-secondary); font-size: 13px; }
+  .watch { color: var(--text-secondary); font-size: 13px; margin: 0; max-width: 90ch; }
+  .fazit .note { color: var(--text-muted); font-size: 12px; margin: 0; }
   .toolbar { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
   .refresh { background: var(--surface-1); color: var(--text-primary); border: 1px solid var(--text-secondary);
              padding: 6px 12px; border-radius: 6px; cursor: pointer; font: inherit; font-weight: 600; }
@@ -86,6 +98,7 @@
   </header>
 
   <section class="signals" id="signals" aria-label="Signale"></section>
+  <section class="card fazit" id="fazit" aria-label="Fazit"></section>
   <div id="panels"></div>
 
   <footer>Quelle: FRED (Federal Reserve Bank of St. Louis). Graue Flächen = NBER-Rezessionen. Gestrichelte Linien: gelb = erhöht, rot = Alarm (rote Fläche = kritischer Bereich). Der offizielle ISM-PMI ist nicht frei verfügbar; Philly-Fed und Empire-State dienen als Ersatz. Signalschwellen sind einfache Faustregeln, keine Anlageberatung.</footer>
@@ -379,6 +392,75 @@ function buildRanges() {
   };
 }
 
+
+// ---- Fazit: regelbasierte Einordnung aus den Daten (keine Prognose) ----
+const TONE = { good: ["●", "Rückenwind"], warn: ["▲", "Neutral"], crit: ["■", "Gegenwind"] };
+const RANK = { good: 0, warn: 1, crit: 2 };
+const worst = (...s) => s.reduce((a, b) => RANK[b] > RANK[a] ? b : a, "good");
+const num = (v, d = 1) => v.toLocaleString("de-DE", { minimumFractionDigits: d, maximumFractionDigits: d });
+const sgn = (v, d = 1) => (v >= 0 ? "+" : "−") + num(Math.abs(v), d);
+
+function valueAgo(id, days) {
+  const pts = DATA.series[id].points, end = new Date(last(DATA.series[id])[0]);
+  end.setDate(end.getDate() - days);
+  const iso = end.toISOString().slice(0, 10);
+  let p = pts[0];
+  for (const q of pts) { if (q[0] <= iso) p = q; else break; }
+  return p[1];
+}
+
+function renderFazit() {
+  const v = id => last(DATA.series[id])[1];
+  const st = id => level(LIM[id], v(id));
+  const d3 = id => v(id) - valueAgo(id, 91);
+
+  const m2 = v("GLOBALM2_YOY"), fed3 = (v("WALCL") / valueAgo("WALCL", 91) - 1) * 100;
+  const liq = m2 < 0 ? "crit" : m2 < 4 ? "warn" : "good";
+  const liqTxt = `Global M2 (ohne China) wächst mit ${sgn(m2)} % zum Vorjahr; die Fed-Bilanz hat sich in 3 Monaten um ${sgn(fed3)} % verändert (${num(v("WALCL") / 1e6, 2)} Bio. USD).`;
+
+  const rates = worst(st("DFII10"), st("PCEPILFE"));
+  const ratesTxt = `10J-Realzins ${num(v("DFII10"), 2)} % (3 Monate: ${sgn(d3("DFII10"), 2)} pp), Kern-PCE ${num(v("PCEPILFE"), 2)} %, Fed Funds ${num(v("FEDFUNDS"), 2)} %.`;
+
+  let val = st("SPX_CAPE");
+  if (val === "good" && v("SPX_ERP") <= 0) val = "warn";
+  const valTxt = `Shiller-KGV ${num(v("SPX_CAPE"))}, trailing-KGV ${num(v("SPX_PE"))}; die Gewinnrendite liegt ${num(Math.abs(v("SPX_ERP")), 2)} pp ${v("SPX_ERP") < 0 ? "unter" : "über"} der 10J-Rendite.`;
+
+  const stress = worst(st("BAMLH0A0HYM2"), st("VIXCLS"), st("NFCI"));
+  const stressTxt = `HY-Spread ${num(v("BAMLH0A0HYM2"), 2)} pp, VIX ${num(v("VIXCLS"))}, Finanzbedingungen ${num(v("NFCI"), 2)} (unter 0 = locker).`;
+
+  const macro = worst(st("SAHMREALTIME"), st("T10Y3M"));
+  const macroTxt = `Sahm-Rule ${num(v("SAHMREALTIME"), 2)} pp, Zinskurve 10J–3M ${sgn(v("T10Y3M"), 2)} pp, Philly-Fed ${num(v("GACDFSA066MSFRBPHI"))}, Empire-State ${num(v("GACDISA066MSFRBNY"))}.`;
+
+  const drivers = [["Liquidität", liq, liqTxt], ["Zinsen & Inflation", rates, ratesTxt], ["Bewertung", val, valTxt],
+                   ["Kredit & Stress", stress, stressTxt], ["Konjunktur", macro, macroTxt]];
+  const tail = drivers.filter(d => d[1] === "good").length, head = drivers.filter(d => d[1] === "crit").length;
+
+  let verdict, outlook;
+  if (stress === "crit" || macro === "crit") {
+    verdict = "Risikoscheu: Stress- oder Rezessionssignale sind aktiv.";
+    outlook = "Wenn Kreditspreads, Volatilität oder Arbeitsmarkt kippen, folgen Aktienmärkte typischerweise mit Verzögerung nach. Das spricht für Vorsicht, solange diese Signale nicht abklingen.";
+  } else if (head >= 2 && stress === "good" && macro === "good") {
+    verdict = "Aufwärtstrend intakt, aber anfällig: Stress ist niedrig, Bewertung und Zinsen belasten.";
+    outlook = "Solange Kredit- und Arbeitsmarktsignale ruhig bleiben, sprechen die Daten nicht für einen akuten Einbruch. Der Spielraum nach oben ist bei dieser Bewertung und diesen Realzinsen aber begrenzt, und Rücksetzer bei Zins- oder Inflationsüberraschungen sind wahrscheinlicher als in günstigeren Phasen. Eher seitwärts bis holprig als stark steigend.";
+  } else if (head === 0 && tail >= 3) {
+    verdict = "Konstruktiv: Liquidität, Zinsen und Stresslage stützen Risikoassets.";
+    outlook = "Die Daten sprechen für ein günstiges Umfeld. Der Hauptrisikofaktor wäre ein Umschwung bei Zinsen oder Spreads.";
+  } else {
+    verdict = "Gemischtes Bild: Rückenwind und Gegenwind halten sich ungefähr die Waage.";
+    outlook = "Die Daten geben keine klare Richtung vor. Entscheidend sind die nächsten Veränderungen bei Realzinsen, Credit Spreads und Liquidität.";
+  }
+
+  const watch = `Worauf achten: Wechsel in den Risikoaus-Modus bei HY-Spread über ${LIM.BAMLH0A0HYM2.crit.toLocaleString("de-DE")} pp, VIX über ${LIM.VIXCLS.crit.toLocaleString("de-DE")}, Finanzbedingungen über ${LIM.NFCI.crit.toLocaleString("de-DE")}, Sahm-Rule ab ${LIM.SAHMREALTIME.crit.toLocaleString("de-DE")} oder Inversion der Zinskurve. Entlastung käme von fallenden Realzinsen (unter ${LIM.DFII10.warn.toLocaleString("de-DE")} %) und steigender Liquidität.`;
+
+  document.getElementById("fazit").innerHTML = `
+    <div class="head"><h2>Fazit: Ausblick Aktienmärkte</h2><span class="asof">Stand ${last(DATA.series.SP500)[0]} · S&amp;P 500 ${num(v("SP500"), 0)}</span></div>
+    <p class="verdict">${verdict}</p>
+    <p class="outlook">${outlook}</p>
+    <ul class="drivers">${drivers.map(([n, s, t]) => `<li><span class="dn s-${s}"><span aria-hidden="true">${TONE[s][0]}</span>${n}: ${TONE[s][1]}</span><span class="dt">${t}</span></li>`).join("")}</ul>
+    <p class="watch">${watch}</p>
+    <p class="note">Regelbasierte Einordnung aus den Daten dieser Seite. Sie ändert sich mit den Daten, ist keine Prognose und keine Anlageberatung.</p>`;
+}
+
 const stamp = (msg, err) => {
   const el = document.getElementById("updated");
   el.className = "sub" + (err ? " err" : "");
@@ -394,7 +476,7 @@ async function loadData(manual) {
     const d = await r.json();
     const changed = !DATA || d.updated !== DATA.updated;
     DATA = d;
-    if (changed || !manual) { computeRecessions(); renderSignals(); buildLayout(); drawCharts(); }
+    if (changed || !manual) { computeRecessions(); renderSignals(); renderFazit(); buildLayout(); drawCharts(); }
     stamp("Datenstand: " + new Date(d.updated).toLocaleString("de-DE") + " · Quelle FRED" +
       (manual ? (changed ? " · aktualisiert" : " · bereits aktuell") : ""));
   } catch (e) {
