@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>US Makro-Dashboard</title>
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #f4f4f2; --surface-1: #fcfcfb; --border: #e1e0dc;
+    --text-primary: #0b0b0b; --text-secondary: #52514e; --text-muted: #8a8984;
+    --grid: #ebeae6; --rec: rgba(120,120,115,.14);
+    --series-1: #2a78d6; --series-2: #eb6834; --series-3: #1baf7a; --series-4: #eda100;
+    --good: #1a7f37; --warn: #9a6700; --crit: #c62828;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --bg: #121211; --surface-1: #1a1a19; --border: #2e2e2c;
+      --text-primary: #ffffff; --text-secondary: #c3c2b7; --text-muted: #8f8e86;
+      --grid: #2a2a28; --rec: rgba(200,200,190,.12);
+      --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --series-4: #c98500;
+      --good: #4cc16a; --warn: #e3b341; --crit: #f0605d;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #121211; --surface-1: #1a1a19; --border: #2e2e2c;
+    --text-primary: #ffffff; --text-secondary: #c3c2b7; --text-muted: #8f8e86;
+    --grid: #2a2a28; --rec: rgba(200,200,190,.12);
+    --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --series-4: #c98500;
+    --good: #4cc16a; --warn: #e3b341; --crit: #f0605d;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text-primary);
+         font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 20px 16px 48px; }
+  header { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: end; justify-content: space-between; margin-bottom: 16px; }
+  h1 { font-size: 22px; margin: 0; }
+  .sub { color: var(--text-secondary); font-size: 12px; margin-top: 2px; }
+  .fazit { margin: -4px 0 20px; display: grid; gap: 14px; }
+  .fazit h2 { margin: 0; color: var(--text-primary); text-transform: none; letter-spacing: 0; font-size: 17px; }
+  .fazit .head { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: baseline; justify-content: space-between; }
+  .fazit .asof { color: var(--text-muted); font-size: 12px; }
+  .fazit .verdict { font-size: 15px; font-weight: 600; margin: 0; max-width: 75ch; text-wrap: balance; }
+  .fazit .outlook { margin: 0; max-width: 75ch; color: var(--text-secondary); }
+  .drivers { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px 16px; margin: 0; padding: 0; list-style: none; }
+  .drivers li { display: grid; gap: 2px; min-width: 0; }
+  .drivers .dn { font-weight: 600; display: flex; gap: 6px; align-items: baseline; }
+  .drivers .dt { color: var(--text-secondary); font-size: 13px; }
+  .watch { color: var(--text-secondary); font-size: 13px; margin: 0; max-width: 90ch; }
+  .fazit .note { color: var(--text-muted); font-size: 12px; margin: 0; }
+  .toolbar { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+  .refresh { background: var(--surface-1); color: var(--text-primary); border: 1px solid var(--text-secondary);
+             padding: 6px 12px; border-radius: 6px; cursor: pointer; font: inherit; font-weight: 600; }
+  .refresh:disabled { opacity: .6; cursor: progress; }
+  .refresh:focus-visible, .ranges button:focus-visible { outline: 2px solid var(--series-1); outline-offset: 2px; }
+  .ranges { display: flex; gap: 4px; }
+  .ranges button { background: var(--surface-1); color: var(--text-secondary); border: 1px solid var(--border);
+                   padding: 6px 12px; border-radius: 6px; cursor: pointer; font: inherit; }
+  .ranges button[aria-pressed="true"] { color: var(--text-primary); border-color: var(--text-secondary); font-weight: 600; }
+  .card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+  .signals { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 20px; }
+  .signal .lbl { color: var(--text-secondary); font-size: 12px; }
+  .signal .val { font-size: 22px; font-weight: 650; margin: 2px 0; font-variant-numeric: tabular-nums; }
+  .signal .state { font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 5px; }
+  .s-good { color: var(--good); } .s-warn { color: var(--warn); } .s-crit { color: var(--crit); }
+  h2 { font-size: 15px; margin: 26px 0 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .06em; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 12px; }
+  .chart-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .chart-title { font-weight: 600; }
+  .chart-last { font-variant-numeric: tabular-nums; color: var(--text-secondary); font-size: 12px; white-space: nowrap; }
+  .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--text-secondary); margin: 4px 0 0; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+  .plot { height: 230px; position: relative; }
+  .plot svg { display: block; }
+  .tip { position: absolute; top: 4px; pointer-events: none; background: var(--surface-1); border: 1px solid var(--border);
+         border-radius: 6px; padding: 5px 8px; font-size: 12px; line-height: 1.4; white-space: nowrap; z-index: 2;
+         font-variant-numeric: tabular-nums; box-shadow: 0 2px 8px rgba(0,0,0,.12); }
+  .tip i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 5px; }
+  .tip-d { color: var(--text-secondary); }
+  footer { margin-top: 28px; color: var(--text-muted); font-size: 12px; }
+  .err { color: var(--crit); }
+  @media (max-width: 480px) { .grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>US Makro-Dashboard</h1>
+      <div class="sub" id="updated">Lade Daten …</div>
+    </div>
+    <div class="toolbar">
+      <button id="refresh" class="refresh" type="button">↻ Aktualisieren</button>
+      <div class="ranges" id="ranges" role="group" aria-label="Zeitraum"></div>
+    </div>
+  </header>
+
+  <section class="signals" id="signals" aria-label="Signale"></section>
+  <section class="card fazit" id="fazit" aria-label="Fazit"></section>
+  <div id="panels"></div>
+
+  <footer>Quelle: FRED (Federal Reserve Bank of St. Louis). Graue Flächen = NBER-Rezessionen. Gestrichelte Linien: gelb = erhöht, rot = Alarm (rote Fläche = kritischer Bereich). Der offizielle ISM-PMI ist nicht frei verfügbar; Philly-Fed und Empire-State dienen als Ersatz. Signalschwellen sind einfache Faustregeln, keine Anlageberatung.</footer>
+</div>
+
+<script>
+// Fokus: US-Aktien und Krypto. Die übrigen Reihen liegen weiter in data/us.json (siehe fetch_data.py)
+const PANELS = [
+  { title: "Liquidität", charts: [
+    { title: "Global M2 in USD (ohne China)", series: ["GLOBALM2"], fmt: v => v.toFixed(1) + " Bio. $" },
+    { title: "Fed-Bilanzsumme", series: ["WALCL"], div: 1e6, fmt: v => v.toFixed(2) + " Bio. USD" },
+  ]},
+  { title: "Zinsen & Dollar", charts: [
+    { title: "Fed Funds Rate", series: ["FEDFUNDS"], fmt: v => v.toFixed(2) + " %" },
+    { title: "10J Realzins (TIPS)", series: ["DFII10"], fmt: v => v.toFixed(2) + " %", zero: true },
+    { title: "Zinskurve 10J–3M (Inversion < 0)", series: ["T10Y3M"], fmt: v => v.toFixed(2) + " pp", zero: true },
+    { title: "US-Dollar-Index (breit)", series: ["DTWEXBGS"], fmt: v => v.toFixed(1) },
+  ]},
+  { title: "Kredit & Stress", charts: [
+    { title: "High-Yield Credit Spread", series: ["BAMLH0A0HYM2"], fmt: v => v.toFixed(2) + " pp" },
+    { title: "Credit Spread Investment Grade (Baa minus 10J)", series: ["BAA10Y"], fmt: v => v.toFixed(2) + " pp" },
+    { title: "VIX", series: ["VIXCLS"], fmt: v => v.toFixed(1) },
+    { title: "Finanzbedingungen NFCI (> 0 = restriktiv)", series: ["NFCI"], fmt: v => v.toFixed(2), zero: true },
+  ]},
+  { title: "Bewertung S&P 500", charts: [
+    { title: "Shiller-KGV (CAPE)", series: ["SPX_CAPE"], fmt: v => v.toFixed(1) },
+    { title: "KGV (trailing)", series: ["SPX_PE"], fmt: v => v.toFixed(1) },
+    { title: "Gewinnrendite minus 10J-Rendite", series: ["SPX_ERP"], fmt: v => v.toFixed(2) + " pp", zero: true },
+  ]},
+  { title: "Risikoassets", charts: [
+    { title: "S&P 500", series: ["SP500"], fmt: v => v.toLocaleString("de-DE", {maximumFractionDigits: 0}), log: true },
+    { title: "Bitcoin (USD)", series: ["CBBTCUSD"], fmt: v => "$" + Math.round(v).toLocaleString("de-DE"), log: true },
+  ]},
+  { title: "Konjunktur (Ersatz für ISM)", charts: [
+    { title: "Philly-Fed und Empire-State Industrieindex", series: ["GACDFSA066MSFRBPHI", "GACDISA066MSFRBNY"], fmt: v => v.toFixed(1), zero: true },
+  ]},
+  { title: "Makro-Bremse", charts: [
+    { title: "Kern-PCE (Fed-Zielgröße, YoY)", series: ["PCEPILFE"], fmt: v => v.toFixed(2) + " %", ref: 2 },
+    { title: "Sahm-Rule (Rezessionssignal ab 0,5)", series: ["SAHMREALTIME"], fmt: v => v.toFixed(2) + " pp" },
+  ]},
+];
+
+// Kritische Grenzen: warn = erhöht, crit = Alarm, dir = Richtung, in der es kritisch wird.
+// Dieselben Werte steuern die Ampeln oben und die Linien in den Charts.
+const LIM = {
+  DFII10: { warn: 1.5, crit: 2.5, dir: "up" },
+  T10Y3M: { warn: 0.5, crit: 0, dir: "down" },
+  BAMLH0A0HYM2: { warn: 4, crit: 5, dir: "up" },
+  BAA10Y: { warn: 2.5, crit: 3.5, dir: "up" },
+  VIXCLS: { warn: 20, crit: 30, dir: "up" },
+  NFCI: { warn: -0.3, crit: 0, dir: "up" },
+  SPX_CAPE: { warn: 28, crit: 35, dir: "up" },
+  SPX_ERP: { warn: 0, dir: "down" },
+  PCEPILFE: { warn: 2.5, crit: 3, dir: "up" },
+  SAHMREALTIME: { warn: 0.3, crit: 0.5, dir: "up" },
+  GACDFSA066MSFRBPHI: { warn: 0, dir: "down" },
+};
+const level = (l, v) => l.dir === "up"
+  ? (v >= l.crit ? "crit" : v >= l.warn ? "warn" : "good")
+  : (v <= l.crit ? "crit" : v <= l.warn ? "warn" : "good");
+
+// Signale: [Label, Serie, Formatierer, Bewertungsfunktion -> "good"|"warn"|"crit"]
+const SIGNALS = [
+  ["Global M2 (ohne China)", "GLOBALM2", v => v.toFixed(1) + " Bio. $", () => { const y = last(DATA.series.GLOBALM2_YOY)[1]; return y < 0 ? "crit" : y < 4 ? "warn" : "good"; },
+    () => (last(DATA.series.GLOBALM2_YOY)[1] >= 0 ? "+" : "") + last(DATA.series.GLOBALM2_YOY)[1].toFixed(1) + " % YoY · US, EZ, JP, UK"],
+  ["10J Realzins", "DFII10", v => v.toFixed(2) + " %", v => level(LIM.DFII10, v)],
+  ["Zinskurve 10J–3M", "T10Y3M", v => v.toFixed(2) + " pp", v => level(LIM.T10Y3M, v)],
+  ["Credit Spread (HY)", "BAMLH0A0HYM2", v => v.toFixed(2) + " pp", v => level(LIM.BAMLH0A0HYM2, v)],
+  ["VIX", "VIXCLS", v => v.toFixed(1), v => level(LIM.VIXCLS, v)],
+  ["Finanzbedingungen (NFCI)", "NFCI", v => v.toFixed(2), v => level(LIM.NFCI, v)],
+  ["Shiller-KGV (CAPE)", "SPX_CAPE", v => v.toFixed(1), v => level(LIM.SPX_CAPE, v)],
+  ["Kern-PCE (YoY)", "PCEPILFE", v => v.toFixed(2) + " %", v => level(LIM.PCEPILFE, v)],
+  ["Sahm-Rule", "SAHMREALTIME", v => v.toFixed(2) + " pp", v => level(LIM.SAHMREALTIME, v)],
+];
+const STATE = { good: ["●", "Unauffällig"], warn: ["▲", "Erhöht"], crit: ["■", "Alarm"] };
+const RANGES = [["1J", 1], ["5J", 5], ["10J", 10], ["25J", 25], ["Max", 0]];
+
+let DATA, rangeYears = 10, recessions = [];
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const last = s => s.points[s.points.length - 1];
+
+function computeRecessions() {
+  const pts = DATA.series.USREC.points; recessions = []; let start = null;
+  pts.forEach(([d, v], i) => {
+    if (v === 1 && !start) start = d;
+    if (v === 0 && start) { recessions.push([start, pts[i - 1][0]]); start = null; }
+  });
+  if (start) recessions.push([start, pts[pts.length - 1][0]]);
+}
+
+function fromDate() {
+  if (!rangeYears) return "0000-01-01";
+  const d = new Date(); d.setFullYear(d.getFullYear() - rangeYears);
+  return d.toISOString().slice(0, 10);
+}
+
+function renderSignals() {
+  document.getElementById("signals").innerHTML = SIGNALS.map(([lbl, id, fmt, rate, note]) => {
+    const s = DATA.series[id]; if (!s) return "";
+    const [d, v] = last(s), st = rate(v), [icon, text] = STATE[st];
+    return `<div class="card signal"><div class="lbl">${lbl}</div><div class="val">${fmt(v)}</div>
+      <div class="state s-${st}"><span aria-hidden="true">${icon}</span>${text}</div>
+      <div class="lbl">${note ? note() + " · " : ""}Stand ${d.slice(0, 7)}</div></div>`;
+  }).join("");
+}
+
+function buildLayout() {
+  const panels = document.getElementById("panels");
+  panels.innerHTML = PANELS.map((p, pi) => `<h2>${p.title}</h2><div class="grid">` + p.charts.map((c, ci) => {
+    const colors = c.series.map((_, i) => `var(--series-${i + 1})`);
+    const legend = c.series.length > 1
+      ? `<div class="legend">${c.series.map((id, i) => `<span><i style="background:${colors[i]}"></i>${DATA.series[id].name.replace(/ \((YoY|USD Bio\.)\)/, "")}</span>`).join("")}</div>` : "";
+    const [, v] = last(DATA.series[c.series[0]]);
+    return `<div class="card"><div class="chart-head"><span class="chart-title">${c.title}</span>
+      <span class="chart-last">${c.series.map(id => c.fmt(last(DATA.series[id])[1] / (c.div || 1))).join(" · ")}</span></div>
+      ${legend}<div class="plot" id="plot-${pi}-${ci}"></div></div>`;
+  }).join("") + `</div>`).join("");
+}
+
+const SVGNS = "http://www.w3.org/2000/svg";
+const T = s => new Date(s + "T00:00:00Z").getTime();
+const compact = new Intl.NumberFormat("de-DE", { notation: "compact", maximumFractionDigits: 1 });
+
+function niceTicks(lo, hi, n = 5) {
+  const span = hi - lo || 1, raw = span / n, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(s => s >= raw) || raw;
+  const out = [];
+  for (let v = Math.ceil(lo / step) * step; v <= hi + step * 1e-9; v += step) out.push(+v.toFixed(10) || 0);
+  return out;
+}
+
+function fmtTick(v, dec) {
+  const a = Math.abs(v);
+  if (a >= 1e6) return +(v / 1e6).toFixed(1) + " Mio";
+  if (a >= 1e4) return +(v / 1e3).toFixed(0) + "k";
+  return v.toLocaleString("de-DE", { minimumFractionDigits: dec || 0, maximumFractionDigits: dec != null ? dec : a < 10 ? 2 : 0 });
+}
+
+function el(name, attrs = {}, parent) {
+  const n = document.createElementNS(SVGNS, name);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(n);
+  return n;
+}
+
+function drawChart(host, c, from) {
+  host.innerHTML = "";
+  const W = Math.max(host.clientWidth, 200), H = host.clientHeight || 230;
+  const m = { l: 46, r: 10, t: 8, b: 22 }, iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const data = c.series.map((id, i) => {
+    const s = DATA.series[id];
+    return { id, name: s.name.replace(/ \((YoY|USD Bio\.)\)/, ""), color: `var(--series-${i + 1})`,
+             pts: s.points.filter(([d]) => d >= from).map(([d, v]) => [T(d), v / (c.div || 1), d]) };
+  });
+  const all = data.flatMap(s => s.pts);
+  if (!all.length) return;
+  const x0 = Math.min(...all.map(p => p[0])), x1 = Math.max(...all.map(p => p[0]));
+  let ys = all.map(p => p[1]);
+  if (c.zero || c.bar) ys.push(0);
+  if (c.ref != null) ys.push(c.ref);
+  const log = !!c.log;
+  const lim = LIM[c.series[0]];
+  const limLines = [];
+  if (lim) {
+    const dMin = Math.min(...ys), dMax = Math.max(...ys), near = (dMax - dMin) * 0.6;
+    [["warn", "Erhöht"], ["crit", "Alarm"]].forEach(([k, name]) => {
+      const v = lim[k];
+      if (v != null && v >= dMin - near && v <= dMax + near) limLines.push({ k, v, name });
+    });
+    limLines.forEach(l => ys.push(l.v));
+  }
+  const tf = v => log ? Math.log10(v) : v;
+  let lo = Math.min(...ys.map(tf)), hi = Math.max(...ys.map(tf));
+  const pad = (hi - lo || 1) * 0.06; lo -= pad; hi += pad;
+  const X = t => m.l + (t - x0) / (x1 - x0 || 1) * iw;
+  const Y = v => m.t + (1 - (tf(v) - lo) / (hi - lo)) * ih;
+
+  const svg = el("svg", { width: W, height: H, viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": c.title }, host);
+
+  recessions.forEach(([a, b]) => {
+    const ra = Math.max(T(a), x0), rb = Math.min(T(b), x1);
+    if (rb > ra) el("rect", { x: X(ra), y: m.t, width: Math.max(X(rb) - X(ra), 1), height: ih, style: "fill:var(--rec)" }, svg);
+  });
+
+  const yt = log
+    ? (() => { const o = []; for (let e = Math.floor(lo) - 1; e <= Math.ceil(hi); e++) [1, 2, 5].forEach(k => {
+        const v = k * Math.pow(10, e); if (Math.log10(v) >= lo && Math.log10(v) <= hi) o.push(v); }); return o; })()
+    : niceTicks(lo, hi);
+  const dec = !log && yt.length > 1 ? Math.max(0, -Math.floor(Math.log10(Math.abs(yt[1] - yt[0])) + 1e-9)) : undefined;
+  yt.forEach(v => {
+    const y = Y(v);
+    el("line", { x1: m.l, x2: W - m.r, y1: y, y2: y, style: "stroke:var(--grid)", "stroke-width": 1 }, svg);
+    const t = el("text", { x: m.l - 6, y: y + 4, "text-anchor": "end", style: "fill:var(--text-muted)", "font-size": 11 }, svg);
+    t.textContent = fmtTick(v, dec);
+  });
+
+  const span = (x1 - x0) / (365.25 * 864e5), step = span > 40 ? 10 : span > 18 ? 5 : span > 8 ? 2 : 1;
+  const y0 = new Date(x0).getUTCFullYear(), y1 = new Date(x1).getUTCFullYear();
+  const xlabel = (x, s) => { if (x < m.l || x > W - m.r) return;
+    el("text", { x, y: H - 6, "text-anchor": "middle", style: "fill:var(--text-muted)", "font-size": 11 }, svg).textContent = s; };
+  if (span < 3) {  // kurze Zeiträume: Monatsmarken
+    const every = span < 1.5 ? 2 : span < 2 ? 4 : 6, d0 = new Date(x0);
+    for (let k = 0, mo = d0.getUTCFullYear() * 12 + d0.getUTCMonth() + 1; k < 40; k++, mo++) {
+      if (mo % every) continue;
+      const t = Date.UTC(Math.floor(mo / 12), mo % 12, 1); if (t > x1) break;
+      xlabel(X(t), new Date(t).toLocaleDateString("de-DE", { month: "short", year: "2-digit", timeZone: "UTC" }));
+    }
+  } else {
+    for (let yr = Math.ceil(y0 / step) * step; yr <= y1; yr += step) xlabel(X(Date.UTC(yr, 0, 1)), yr);
+  }
+
+  const crit = limLines.find(l => l.k === "crit");
+  if (crit) {
+    const yc = Y(crit.v), top = lim.dir === "up" ? m.t : yc, ht = lim.dir === "up" ? yc - m.t : m.t + ih - yc;
+    if (ht > 0) el("rect", { x: m.l, y: top, width: iw, height: ht, style: "fill:var(--crit);opacity:.07" }, svg);
+  }
+  limLines.forEach(l => {
+    const y = Y(l.v), col = `var(--${l.k})`;
+    el("line", { x1: m.l, x2: W - m.r, y1: y, y2: y, style: `stroke:${col}`, "stroke-width": 1.25, "stroke-dasharray": "5 3" }, svg);
+    const t = el("text", { x: m.l + 4, y: y + (lim.dir === "up" && l.k === "crit" || lim.dir === "down" && l.k === "warn" ? -4 : 11),
+      style: `fill:${col}`, "font-size": 10, "font-weight": 600 }, svg);
+    t.textContent = `${l.name} ${l.v.toLocaleString("de-DE")}`;
+  });
+
+  const hline = (v, dash) => el("line", { x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), style: "stroke:var(--text-muted)",
+    "stroke-width": 1, "stroke-dasharray": dash }, svg);
+  if (c.zero && !log) hline(0, "");
+  if (c.ref != null) hline(c.ref, "3 3");
+
+  data.forEach(s => {
+    if (c.bar) {
+      const bw = Math.max(iw / s.pts.length * 0.7, 1), y0p = Y(0);
+      s.pts.forEach(p => el("rect", { x: X(p[0]) - bw / 2, width: bw, y: Math.min(Y(p[1]), y0p),
+        height: Math.abs(Y(p[1]) - y0p), style: `fill:${s.color}` }, svg));
+    } else {
+      const d = s.pts.map((p, i) => (i ? "L" : "M") + X(p[0]).toFixed(1) + " " + Y(p[1]).toFixed(1)).join("");
+      el("path", { d, fill: "none", style: `stroke:${s.color}`, "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }, svg);
+      const lp = s.pts[s.pts.length - 1];
+      el("circle", { cx: X(lp[0]), cy: Y(lp[1]), r: 3.5, style: `fill:${s.color};stroke:var(--surface-1)`, "stroke-width": 2 }, svg);
+    }
+  });
+
+  // Hover: Fadenkreuz und Tooltip
+  const cross = el("line", { y1: m.t, y2: m.t + ih, style: "stroke:var(--text-secondary)", "stroke-width": 1, visibility: "hidden" }, svg);
+  const dots = data.map(s => el("circle", { r: 4, style: `fill:${s.color};stroke:var(--surface-1)`, "stroke-width": 2, visibility: "hidden" }, svg));
+  const tip = document.createElement("div");
+  tip.className = "tip"; tip.hidden = true; host.appendChild(tip);
+  const hit = el("rect", { x: m.l, y: m.t, width: iw, height: ih, fill: "transparent" }, svg);
+  const nearest = (pts, t) => {
+    let lo2 = 0, hi2 = pts.length - 1;
+    while (hi2 - lo2 > 1) { const mid = (lo2 + hi2) >> 1; (pts[mid][0] < t ? lo2 = mid : hi2 = mid); }
+    return Math.abs(pts[lo2][0] - t) <= Math.abs(pts[hi2][0] - t) ? pts[lo2] : pts[hi2];
+  };
+  const move = e => {
+    const r = svg.getBoundingClientRect(), px = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
+    const t = x0 + (px - m.l) / iw * (x1 - x0);
+    const rows = data.map(s => ({ s, p: nearest(s.pts, t) }));
+    const cx = X(rows[0].p[0]);
+    cross.setAttribute("x1", cx); cross.setAttribute("x2", cx); cross.setAttribute("visibility", "visible");
+    rows.forEach((row, i) => { dots[i].setAttribute("cx", X(row.p[0])); dots[i].setAttribute("cy", Y(row.p[1])); dots[i].setAttribute("visibility", c.bar ? "hidden" : "visible"); });
+    const date = new Date(rows[0].p[0]).toLocaleDateString("de-DE", { year: "numeric", month: "short", day: rows[0].s.pts.length > 400 ? "numeric" : undefined, timeZone: "UTC" });
+    tip.innerHTML = `<div class="tip-d">${date}</div>` + rows.map(({ s, p }) =>
+      `<div><i style="background:${s.color}"></i>${data.length > 1 ? s.name + ": " : ""}<b>${c.fmt(p[1])}</b></div>`).join("");
+    tip.hidden = false;
+    const tw = tip.offsetWidth;
+    tip.style.left = Math.min(Math.max(cx - tw / 2, 0), W - tw) + "px";
+  };
+  const leave = () => { cross.setAttribute("visibility", "hidden"); dots.forEach(d => d.setAttribute("visibility", "hidden")); tip.hidden = true; };
+  hit.addEventListener("mousemove", move); hit.addEventListener("mouseleave", leave);
+  hit.addEventListener("touchstart", move, { passive: true }); hit.addEventListener("touchmove", move, { passive: true });
+  hit.addEventListener("touchend", leave);
+}
+
+function drawCharts() {
+  const from = fromDate();
+  PANELS.forEach((p, pi) => p.charts.forEach((c, ci) => drawChart(document.getElementById(`plot-${pi}-${ci}`), c, from)));
+}
+
+let resizeTimer;
+window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(drawCharts, 120); });
+
+function buildRanges() {
+  const el = document.getElementById("ranges");
+  el.innerHTML = RANGES.map(([l, y]) => `<button data-y="${y}" aria-pressed="${y === rangeYears}">${l}</button>`).join("");
+  el.onclick = e => {
+    const b = e.target.closest("button"); if (!b) return;
+    if (!DATA) return;
+    rangeYears = +b.dataset.y;
+    el.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+    drawCharts();
+  };
+}
+
+
+// ---- Fazit: regelbasierte Einordnung aus den Daten (keine Prognose) ----
+const TONE = { good: ["●", "Rückenwind"], warn: ["▲", "Neutral"], crit: ["■", "Gegenwind"] };
+const RANK = { good: 0, warn: 1, crit: 2 };
+const worst = (...s) => s.reduce((a, b) => RANK[b] > RANK[a] ? b : a, "good");
+const num = (v, d = 1) => v.toLocaleString("de-DE", { minimumFractionDigits: d, maximumFractionDigits: d });
+const sgn = (v, d = 1) => (v >= 0 ? "+" : "−") + num(Math.abs(v), d);
+
+function valueAgo(id, days) {
+  const pts = DATA.series[id].points, end = new Date(last(DATA.series[id])[0]);
+  end.setDate(end.getDate() - days);
+  const iso = end.toISOString().slice(0, 10);
+  let p = pts[0];
+  for (const q of pts) { if (q[0] <= iso) p = q; else break; }
+  return p[1];
+}
+
+function renderFazit() {
+  const v = id => last(DATA.series[id])[1];
+  const st = id => level(LIM[id], v(id));
+  const d3 = id => v(id) - valueAgo(id, 91);
+
+  const m2 = v("GLOBALM2_YOY"), fed3 = (v("WALCL") / valueAgo("WALCL", 91) - 1) * 100;
+  const liq = m2 < 0 ? "crit" : m2 < 4 ? "warn" : "good";
+  const liqTxt = `Global M2 (ohne China) wächst mit ${sgn(m2)} % zum Vorjahr; die Fed-Bilanz hat sich in 3 Monaten um ${sgn(fed3)} % verändert (${num(v("WALCL") / 1e6, 2)} Bio. USD).`;
+
+  const rates = worst(st("DFII10"), st("PCEPILFE"));
+  const ratesTxt = `10J-Realzins ${num(v("DFII10"), 2)} % (3 Monate: ${sgn(d3("DFII10"), 2)} pp), Kern-PCE ${num(v("PCEPILFE"), 2)} %, Fed Funds ${num(v("FEDFUNDS"), 2)} %.`;
+
+  let val = st("SPX_CAPE");
+  if (val === "good" && v("SPX_ERP") <= 0) val = "warn";
+  const valTxt = `Shiller-KGV ${num(v("SPX_CAPE"))}, trailing-KGV ${num(v("SPX_PE"))}; die Gewinnrendite liegt ${num(Math.abs(v("SPX_ERP")), 2)} pp ${v("SPX_ERP") < 0 ? "unter" : "über"} der 10J-Rendite.`;
+
+  const stress = worst(st("BAMLH0A0HYM2"), st("VIXCLS"), st("NFCI"));
+  const stressTxt = `HY-Spread ${num(v("BAMLH0A0HYM2"), 2)} pp, VIX ${num(v("VIXCLS"))}, Finanzbedingungen ${num(v("NFCI"), 2)} (unter 0 = locker).`;
+
+  const macro = worst(st("SAHMREALTIME"), st("T10Y3M"));
+  const macroTxt = `Sahm-Rule ${num(v("SAHMREALTIME"), 2)} pp, Zinskurve 10J–3M ${sgn(v("T10Y3M"), 2)} pp, Philly-Fed ${num(v("GACDFSA066MSFRBPHI"))}, Empire-State ${num(v("GACDISA066MSFRBNY"))}.`;
+
+  const drivers = [["Liquidität", liq, liqTxt], ["Zinsen & Inflation", rates, ratesTxt], ["Bewertung", val, valTxt],
+                   ["Kredit & Stress", stress, stressTxt], ["Konjunktur", macro, macroTxt]];
+  const tail = drivers.filter(d => d[1] === "good").length, head = drivers.filter(d => d[1] === "crit").length;
+
+  let verdict, outlook;
+  if (stress === "crit" || macro === "crit") {
+    verdict = "Risikoscheu: Stress- oder Rezessionssignale sind aktiv.";
+    outlook = "Wenn Kreditspreads, Volatilität oder Arbeitsmarkt kippen, folgen Aktienmärkte typischerweise mit Verzögerung nach. Das spricht für Vorsicht, solange diese Signale nicht abklingen.";
+  } else if (head >= 2 && stress === "good" && macro === "good") {
+    verdict = "Aufwärtstrend intakt, aber anfällig: Stress ist niedrig, Bewertung und Zinsen belasten.";
+    outlook = "Solange Kredit- und Arbeitsmarktsignale ruhig bleiben, sprechen die Daten nicht für einen akuten Einbruch. Der Spielraum nach oben ist bei dieser Bewertung und diesen Realzinsen aber begrenzt, und Rücksetzer bei Zins- oder Inflationsüberraschungen sind wahrscheinlicher als in günstigeren Phasen. Eher seitwärts bis holprig als stark steigend.";
+  } else if (head === 0 && tail >= 3) {
+    verdict = "Konstruktiv: Liquidität, Zinsen und Stresslage stützen Risikoassets.";
+    outlook = "Die Daten sprechen für ein günstiges Umfeld. Der Hauptrisikofaktor wäre ein Umschwung bei Zinsen oder Spreads.";
+  } else {
+    verdict = "Gemischtes Bild: Rückenwind und Gegenwind halten sich ungefähr die Waage.";
+    outlook = "Die Daten geben keine klare Richtung vor. Entscheidend sind die nächsten Veränderungen bei Realzinsen, Credit Spreads und Liquidität.";
+  }
+
+  const watch = `Worauf achten: Wechsel in den Risikoaus-Modus bei HY-Spread über ${LIM.BAMLH0A0HYM2.crit.toLocaleString("de-DE")} pp, VIX über ${LIM.VIXCLS.crit.toLocaleString("de-DE")}, Finanzbedingungen über ${LIM.NFCI.crit.toLocaleString("de-DE")}, Sahm-Rule ab ${LIM.SAHMREALTIME.crit.toLocaleString("de-DE")} oder Inversion der Zinskurve. Entlastung käme von fallenden Realzinsen (unter ${LIM.DFII10.warn.toLocaleString("de-DE")} %) und steigender Liquidität.`;
+
+  document.getElementById("fazit").innerHTML = `
+    <div class="head"><h2>Fazit: Ausblick Aktienmärkte</h2><span class="asof">Stand ${last(DATA.series.SP500)[0]} · S&amp;P 500 ${num(v("SP500"), 0)}</span></div>
+    <p class="verdict">${verdict}</p>
+    <p class="outlook">${outlook}</p>
+    <ul class="drivers">${drivers.map(([n, s, t]) => `<li><span class="dn s-${s}"><span aria-hidden="true">${TONE[s][0]}</span>${n}: ${TONE[s][1]}</span><span class="dt">${t}</span></li>`).join("")}</ul>
+    <p class="watch">${watch}</p>
+    <p class="note">Regelbasierte Einordnung aus den Daten dieser Seite. Sie ändert sich mit den Daten, ist keine Prognose und keine Anlageberatung.</p>`;
+}
+
+const stamp = (msg, err) => {
+  const el = document.getElementById("updated");
+  el.className = "sub" + (err ? " err" : "");
+  el.textContent = msg;
+};
+
+async function loadData(manual) {
+  const btn = document.getElementById("refresh");
+  btn.disabled = true; btn.textContent = "↻ Lade …";
+  try {
+    const r = await fetch("data/us.json?ts=" + Date.now(), { cache: "no-store" });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const d = await r.json();
+    const changed = !DATA || d.updated !== DATA.updated;
+    DATA = d;
+    if (changed || !manual) { computeRecessions(); renderSignals(); renderFazit(); buildLayout(); drawCharts(); }
+    stamp("Datenstand: " + new Date(d.updated).toLocaleString("de-DE") + " · Quelle FRED" +
+      (manual ? (changed ? " · aktualisiert" : " · bereits aktuell") : ""));
+  } catch (e) {
+    stamp("Aktualisierung fehlgeschlagen (" + e.message + "). Es werden die zuletzt geladenen Daten angezeigt." +
+      (DATA ? "" : " Seite über einen Webserver öffnen: python3 -m http.server"), true);
+  } finally {
+    btn.disabled = false; btn.textContent = "↻ Aktualisieren";
+  }
+}
+
+buildRanges();
+document.getElementById("refresh").addEventListener("click", () => loadData(true));
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => DATA && drawCharts());
+loadData(false);
+</script>
+</body>
+</html>
