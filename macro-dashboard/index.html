@@ -88,7 +88,7 @@
   <section class="signals" id="signals" aria-label="Signale"></section>
   <div id="panels"></div>
 
-  <footer>Quelle: FRED (Federal Reserve Bank of St. Louis). Graue Flächen = NBER-Rezessionen. Der offizielle ISM-PMI ist nicht frei verfügbar; Philly-Fed und Empire-State dienen als Ersatz. Signalschwellen sind einfache Faustregeln, keine Anlageberatung.</footer>
+  <footer>Quelle: FRED (Federal Reserve Bank of St. Louis). Graue Flächen = NBER-Rezessionen. Gestrichelte Linien: gelb = erhöht, rot = Alarm (rote Fläche = kritischer Bereich). Der offizielle ISM-PMI ist nicht frei verfügbar; Philly-Fed und Empire-State dienen als Ersatz. Signalschwellen sind einfache Faustregeln, keine Anlageberatung.</footer>
 </div>
 
 <script>
@@ -123,22 +123,40 @@ const PANELS = [
   ]},
   { title: "Makro-Bremse", charts: [
     { title: "Kern-PCE (Fed-Zielgröße, YoY)", series: ["PCEPILFE"], fmt: v => v.toFixed(2) + " %", ref: 2 },
-    { title: "Sahm-Rule (Rezessionssignal ab 0,5)", series: ["SAHMREALTIME"], fmt: v => v.toFixed(2) + " pp", ref: 0.5 },
+    { title: "Sahm-Rule (Rezessionssignal ab 0,5)", series: ["SAHMREALTIME"], fmt: v => v.toFixed(2) + " pp" },
   ]},
 ];
+
+// Kritische Grenzen: warn = erhöht, crit = Alarm, dir = Richtung, in der es kritisch wird.
+// Dieselben Werte steuern die Ampeln oben und die Linien in den Charts.
+const LIM = {
+  DFII10: { warn: 1.5, crit: 2.5, dir: "up" },
+  T10Y3M: { warn: 0.5, crit: 0, dir: "down" },
+  BAMLH0A0HYM2: { warn: 4, crit: 5, dir: "up" },
+  VIXCLS: { warn: 20, crit: 30, dir: "up" },
+  NFCI: { warn: -0.3, crit: 0, dir: "up" },
+  SPX_CAPE: { warn: 28, crit: 35, dir: "up" },
+  SPX_ERP: { warn: 0, dir: "down" },
+  PCEPILFE: { warn: 2.5, crit: 3, dir: "up" },
+  SAHMREALTIME: { warn: 0.3, crit: 0.5, dir: "up" },
+  GACDFSA066MSFRBPHI: { warn: 0, dir: "down" },
+};
+const level = (l, v) => l.dir === "up"
+  ? (v >= l.crit ? "crit" : v >= l.warn ? "warn" : "good")
+  : (v <= l.crit ? "crit" : v <= l.warn ? "warn" : "good");
 
 // Signale: [Label, Serie, Formatierer, Bewertungsfunktion -> "good"|"warn"|"crit"]
 const SIGNALS = [
   ["Global M2 (ohne China)", "GLOBALM2", v => v.toFixed(1) + " Bio. $", () => { const y = last(DATA.series.GLOBALM2_YOY)[1]; return y < 0 ? "crit" : y < 4 ? "warn" : "good"; },
     () => (last(DATA.series.GLOBALM2_YOY)[1] >= 0 ? "+" : "") + last(DATA.series.GLOBALM2_YOY)[1].toFixed(1) + " % YoY · US, EZ, JP, UK"],
-  ["10J Realzins", "DFII10", v => v.toFixed(2) + " %", v => v > 2.5 ? "crit" : v > 1.5 ? "warn" : "good"],
-  ["Zinskurve 10J–3M", "T10Y3M", v => v.toFixed(2) + " pp", v => v < 0 ? "crit" : v < 0.5 ? "warn" : "good"],
-  ["Credit Spread (HY)", "BAMLH0A0HYM2", v => v.toFixed(2) + " pp", v => v > 5 ? "crit" : v > 4 ? "warn" : "good"],
-  ["VIX", "VIXCLS", v => v.toFixed(1), v => v > 30 ? "crit" : v > 20 ? "warn" : "good"],
-  ["Finanzbedingungen (NFCI)", "NFCI", v => v.toFixed(2), v => v > 0 ? "crit" : v > -0.3 ? "warn" : "good"],
-  ["Shiller-KGV (CAPE)", "SPX_CAPE", v => v.toFixed(1), v => v > 35 ? "crit" : v > 28 ? "warn" : "good"],
-  ["Kern-PCE (YoY)", "PCEPILFE", v => v.toFixed(2) + " %", v => v > 3 ? "crit" : v > 2.5 ? "warn" : "good"],
-  ["Sahm-Rule", "SAHMREALTIME", v => v.toFixed(2) + " pp", v => v >= 0.5 ? "crit" : v >= 0.3 ? "warn" : "good"],
+  ["10J Realzins", "DFII10", v => v.toFixed(2) + " %", v => level(LIM.DFII10, v)],
+  ["Zinskurve 10J–3M", "T10Y3M", v => v.toFixed(2) + " pp", v => level(LIM.T10Y3M, v)],
+  ["Credit Spread (HY)", "BAMLH0A0HYM2", v => v.toFixed(2) + " pp", v => level(LIM.BAMLH0A0HYM2, v)],
+  ["VIX", "VIXCLS", v => v.toFixed(1), v => level(LIM.VIXCLS, v)],
+  ["Finanzbedingungen (NFCI)", "NFCI", v => v.toFixed(2), v => level(LIM.NFCI, v)],
+  ["Shiller-KGV (CAPE)", "SPX_CAPE", v => v.toFixed(1), v => level(LIM.SPX_CAPE, v)],
+  ["Kern-PCE (YoY)", "PCEPILFE", v => v.toFixed(2) + " %", v => level(LIM.PCEPILFE, v)],
+  ["Sahm-Rule", "SAHMREALTIME", v => v.toFixed(2) + " pp", v => level(LIM.SAHMREALTIME, v)],
 ];
 const STATE = { good: ["●", "Unauffällig"], warn: ["▲", "Erhöht"], crit: ["■", "Alarm"] };
 const RANGES = [["1J", 1], ["5J", 5], ["10J", 10], ["25J", 25], ["Max", 0]];
@@ -193,7 +211,7 @@ function niceTicks(lo, hi, n = 5) {
   const span = hi - lo || 1, raw = span / n, mag = Math.pow(10, Math.floor(Math.log10(raw)));
   const step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(s => s >= raw) || raw;
   const out = [];
-  for (let v = Math.ceil(lo / step) * step; v <= hi + step * 1e-9; v += step) out.push(+v.toFixed(10));
+  for (let v = Math.ceil(lo / step) * step; v <= hi + step * 1e-9; v += step) out.push(+v.toFixed(10) || 0);
   return out;
 }
 
@@ -227,6 +245,16 @@ function drawChart(host, c, from) {
   if (c.zero || c.bar) ys.push(0);
   if (c.ref != null) ys.push(c.ref);
   const log = !!c.log;
+  const lim = LIM[c.series[0]];
+  const limLines = [];
+  if (lim) {
+    const dMin = Math.min(...ys), dMax = Math.max(...ys), near = (dMax - dMin) * 0.6;
+    [["warn", "Erhöht"], ["crit", "Alarm"]].forEach(([k, name]) => {
+      const v = lim[k];
+      if (v != null && v >= dMin - near && v <= dMax + near) limLines.push({ k, v, name });
+    });
+    limLines.forEach(l => ys.push(l.v));
+  }
   const tf = v => log ? Math.log10(v) : v;
   let lo = Math.min(...ys.map(tf)), hi = Math.max(...ys.map(tf));
   const pad = (hi - lo || 1) * 0.06; lo -= pad; hi += pad;
@@ -257,7 +285,7 @@ function drawChart(host, c, from) {
   const xlabel = (x, s) => { if (x < m.l || x > W - m.r) return;
     el("text", { x, y: H - 6, "text-anchor": "middle", style: "fill:var(--text-muted)", "font-size": 11 }, svg).textContent = s; };
   if (span < 3) {  // kurze Zeiträume: Monatsmarken
-    const every = span < 1.5 ? 2 : 4, d0 = new Date(x0);
+    const every = span < 1.5 ? 2 : span < 2 ? 4 : 6, d0 = new Date(x0);
     for (let k = 0, mo = d0.getUTCFullYear() * 12 + d0.getUTCMonth() + 1; k < 40; k++, mo++) {
       if (mo % every) continue;
       const t = Date.UTC(Math.floor(mo / 12), mo % 12, 1); if (t > x1) break;
@@ -266,6 +294,19 @@ function drawChart(host, c, from) {
   } else {
     for (let yr = Math.ceil(y0 / step) * step; yr <= y1; yr += step) xlabel(X(Date.UTC(yr, 0, 1)), yr);
   }
+
+  const crit = limLines.find(l => l.k === "crit");
+  if (crit) {
+    const yc = Y(crit.v), top = lim.dir === "up" ? m.t : yc, ht = lim.dir === "up" ? yc - m.t : m.t + ih - yc;
+    if (ht > 0) el("rect", { x: m.l, y: top, width: iw, height: ht, style: "fill:var(--crit);opacity:.07" }, svg);
+  }
+  limLines.forEach(l => {
+    const y = Y(l.v), col = `var(--${l.k})`;
+    el("line", { x1: m.l, x2: W - m.r, y1: y, y2: y, style: `stroke:${col}`, "stroke-width": 1.25, "stroke-dasharray": "5 3" }, svg);
+    const t = el("text", { x: m.l + 4, y: y + (lim.dir === "up" && l.k === "crit" || lim.dir === "down" && l.k === "warn" ? -4 : 11),
+      style: `fill:${col}`, "font-size": 10, "font-weight": 600 }, svg);
+    t.textContent = `${l.name} ${l.v.toLocaleString("de-DE")}`;
+  });
 
   const hline = (v, dash) => el("line", { x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), style: "stroke:var(--text-muted)",
     "stroke-width": 1, "stroke-dasharray": dash }, svg);
