@@ -38,6 +38,11 @@
   header { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: end; justify-content: space-between; margin-bottom: 16px; }
   h1 { font-size: 22px; margin: 0; }
   .sub { color: var(--text-secondary); font-size: 12px; margin-top: 2px; }
+  .toolbar { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+  .refresh { background: var(--surface-1); color: var(--text-primary); border: 1px solid var(--text-secondary);
+             padding: 6px 12px; border-radius: 6px; cursor: pointer; font: inherit; font-weight: 600; }
+  .refresh:disabled { opacity: .6; cursor: progress; }
+  .refresh:focus-visible, .ranges button:focus-visible { outline: 2px solid var(--series-1); outline-offset: 2px; }
   .ranges { display: flex; gap: 4px; }
   .ranges button { background: var(--surface-1); color: var(--text-secondary); border: 1px solid var(--border);
                    padding: 6px 12px; border-radius: 6px; cursor: pointer; font: inherit; }
@@ -63,7 +68,7 @@
   .tip i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 5px; }
   .tip-d { color: var(--text-secondary); }
   footer { margin-top: 28px; color: var(--text-muted); font-size: 12px; }
-  .err { color: var(--crit); padding: 24px; }
+  .err { color: var(--crit); }
   @media (max-width: 480px) { .grid { grid-template-columns: 1fr; } }
 </style>
 </head>
@@ -74,7 +79,10 @@
       <h1>US Makro-Dashboard</h1>
       <div class="sub" id="updated">Lade Daten …</div>
     </div>
-    <div class="ranges" id="ranges" role="group" aria-label="Zeitraum"></div>
+    <div class="toolbar">
+      <button id="refresh" class="refresh" type="button">↻ Aktualisieren</button>
+      <div class="ranges" id="ranges" role="group" aria-label="Zeitraum"></div>
+    </div>
   </header>
 
   <section class="signals" id="signals" aria-label="Signale"></section>
@@ -321,20 +329,43 @@ function buildRanges() {
   el.innerHTML = RANGES.map(([l, y]) => `<button data-y="${y}" aria-pressed="${y === rangeYears}">${l}</button>`).join("");
   el.onclick = e => {
     const b = e.target.closest("button"); if (!b) return;
+    if (!DATA) return;
     rangeYears = +b.dataset.y;
     el.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
     drawCharts();
   };
 }
 
-fetch("data/us.json").then(r => r.json()).then(d => {
-  DATA = d;
-  document.getElementById("updated").textContent = "Datenstand: " + new Date(d.updated).toLocaleString("de-DE") + " · Quelle FRED";
-  computeRecessions(); renderSignals(); buildLayout(); buildRanges(); drawCharts();
-  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", drawCharts);
-}).catch(e => {
-  document.getElementById("updated").innerHTML = `<span class="err">Daten konnten nicht geladen werden (${e}). Seite über einen Webserver öffnen: <code>python3 -m http.server</code></span>`;
-});
+const stamp = (msg, err) => {
+  const el = document.getElementById("updated");
+  el.className = "sub" + (err ? " err" : "");
+  el.textContent = msg;
+};
+
+async function loadData(manual) {
+  const btn = document.getElementById("refresh");
+  btn.disabled = true; btn.textContent = "↻ Lade …";
+  try {
+    const r = await fetch("data/us.json?ts=" + Date.now(), { cache: "no-store" });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const d = await r.json();
+    const changed = !DATA || d.updated !== DATA.updated;
+    DATA = d;
+    if (changed || !manual) { computeRecessions(); renderSignals(); buildLayout(); drawCharts(); }
+    stamp("Datenstand: " + new Date(d.updated).toLocaleString("de-DE") + " · Quelle FRED" +
+      (manual ? (changed ? " · aktualisiert" : " · bereits aktuell") : ""));
+  } catch (e) {
+    stamp("Aktualisierung fehlgeschlagen (" + e.message + "). Es werden die zuletzt geladenen Daten angezeigt." +
+      (DATA ? "" : " Seite über einen Webserver öffnen: python3 -m http.server"), true);
+  } finally {
+    btn.disabled = false; btn.textContent = "↻ Aktualisieren";
+  }
+}
+
+buildRanges();
+document.getElementById("refresh").addEventListener("click", () => loadData(true));
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => DATA && drawCharts());
+loadData(false);
 </script>
 </body>
 </html>
