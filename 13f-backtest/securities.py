@@ -54,7 +54,7 @@ def prices(ticker):
         return s.iloc[:, 0] if len(s.columns) else pd.Series(dtype=float)
     time.sleep(0.3)
     url = f"https://query2.finance.yahoo.com/v8/finance/chart/{ticker}"
-    r = requests.get(url, params={"range": "max", "interval": "1d"},
+    r = requests.get(url, params={"period1": 0, "period2": int(time.time()) + 86400, "interval": "1d"},
                      headers={"User-Agent": "Mozilla/5.0"}, timeout=30)
     s = pd.Series(dtype=float)
     if r.status_code == 200:
@@ -66,7 +66,7 @@ def prices(ticker):
             s = s[~s.index.duplicated()]
         except (KeyError, TypeError, IndexError):
             pass
-    elif r.status_code == 429:
-        raise RuntimeError("Yahoo rate limit, retry later")
+    elif r.status_code != 404:  # 404 = unknown/delisted ticker, cache as empty
+        raise RuntimeError(f"Yahoo returned {r.status_code} for {ticker}, retry later")
     s.rename("adj").to_csv(path)
     return s
