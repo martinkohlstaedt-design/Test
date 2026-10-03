@@ -14,6 +14,8 @@ SERIES = [
     ("INDPRO", "Industrieproduktion (YoY)", "growth", "yoy", "%", 12, False),
     ("RSAFS", "Einzelhandelsumsatz (YoY)", "growth", "yoy", "%", 12, False),
     ("UMCSENT", "Konsumentenstimmung (U. Michigan)", "growth", "level", "Index", 12, False),
+    ("GACDFSA066MSFRBPHI", "Philly-Fed Industrieindex", "growth", "level", "Index", 12, False),
+    ("GACDISA066MSFRBNY", "Empire-State Index (NY Fed)", "growth", "level", "Index", 12, False),
     # Inflation
     ("CPIAUCSL", "CPI (YoY)", "inflation", "yoy", "%", 12, False),
     ("CPILFESL", "Kern-CPI (YoY)", "inflation", "yoy", "%", 12, False),

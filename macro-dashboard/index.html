@@ -38,6 +38,7 @@
   header { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: end; justify-content: space-between; margin-bottom: 16px; }
   h1 { font-size: 22px; margin: 0; }
   .sub { color: var(--text-secondary); font-size: 12px; margin-top: 2px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px 16px; }
   .ranges { display: flex; gap: 4px; }
   .ranges button { background: var(--surface-1); color: var(--text-secondary); border: 1px solid var(--border);
                    padding: 6px 12px; border-radius: 6px; cursor: pointer; font: inherit; }
@@ -74,13 +75,13 @@
       <h1>US Makro-Dashboard</h1>
       <div class="sub" id="updated">Lade Daten …</div>
     </div>
-    <div class="ranges" id="ranges" role="group" aria-label="Zeitraum"></div>
+    <div class="controls"><div class="ranges" id="freq" role="group" aria-label="Frequenz"></div><div class="ranges" id="ranges" role="group" aria-label="Zeitraum"></div></div>
   </header>
 
   <section class="signals" id="signals" aria-label="Signale"></section>
   <div id="panels"></div>
 
-  <footer>Quelle: FRED (Federal Reserve Bank of St. Louis). Graue Flächen = NBER-Rezessionen. Signalschwellen sind einfache Faustregeln, keine Anlageberatung.</footer>
+  <footer>Quelle: FRED (Federal Reserve Bank of St. Louis). Graue Flächen = NBER-Rezessionen. Der offizielle ISM-PMI ist nicht frei verfügbar; Philly-Fed und Empire-State dienen als Ersatz. Signalschwellen sind einfache Faustregeln, keine Anlageberatung.</footer>
 </div>
 
 <script>
@@ -111,6 +112,9 @@ const PANELS = [
     { title: "S&P 500", series: ["SP500"], fmt: v => v.toLocaleString("de-DE", {maximumFractionDigits: 0}), log: true },
     { title: "Bitcoin (USD)", series: ["CBBTCUSD"], fmt: v => "$" + Math.round(v).toLocaleString("de-DE"), log: true },
   ]},
+  { title: "Konjunktur (Ersatz für ISM)", charts: [
+    { title: "Philly-Fed und Empire-State Industrieindex", series: ["GACDFSA066MSFRBPHI", "GACDISA066MSFRBNY"], fmt: v => v.toFixed(1), zero: true },
+  ]},
   { title: "Makro-Bremse", charts: [
     { title: "Kern-PCE (Fed-Zielgröße, YoY)", series: ["PCEPILFE"], fmt: v => v.toFixed(2) + " %", ref: 2 },
     { title: "Sahm-Rule (Rezessionssignal ab 0,5)", series: ["SAHMREALTIME"], fmt: v => v.toFixed(2) + " pp", ref: 0.5 },
@@ -133,7 +137,7 @@ const SIGNALS = [
 const STATE = { good: ["●", "Unauffällig"], warn: ["▲", "Erhöht"], crit: ["■", "Alarm"] };
 const RANGES = [["1J", 1], ["5J", 5], ["10J", 10], ["25J", 25], ["Max", 0]];
 
-let DATA, rangeYears = 10, recessions = [];
+let DATA, monthly = false, rangeYears = 10, recessions = [];
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const last = s => s.points[s.points.length - 1];
 
@@ -144,6 +148,13 @@ function computeRecessions() {
     if (v === 0 && start) { recessions.push([start, pts[i - 1][0]]); start = null; }
   });
   if (start) recessions.push([start, pts[pts.length - 1][0]]);
+}
+
+function toMonthly(points) {
+  if (!monthly) return points;
+  const out = new Map();
+  points.forEach(p => out.set(p[0].slice(0, 7), p));  // letzter Wert je Monat
+  return [...out.values()];
 }
 
 function fromDate() {
@@ -208,7 +219,7 @@ function drawChart(host, c, from) {
   const data = c.series.map((id, i) => {
     const s = DATA.series[id];
     return { id, name: s.name.replace(/ \((YoY|USD Bio\.)\)/, ""), color: `var(--series-${i + 1})`,
-             pts: s.points.filter(([d]) => d >= from).map(([d, v]) => [T(d), v / (c.div || 1), d]) };
+             pts: toMonthly(s.points).filter(([d]) => d >= from).map(([d, v]) => [T(d), v / (c.div || 1), d]) };
   });
   const all = data.flatMap(s => s.pts);
   if (!all.length) return;
@@ -314,6 +325,17 @@ function drawCharts() {
 let resizeTimer;
 window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(drawCharts, 120); });
 
+function buildFreq() {
+  const el = document.getElementById("freq");
+  el.innerHTML = [["Täglich", false], ["Monatlich", true]].map(([l, m]) => `<button data-m="${m}" aria-pressed="${m === monthly}">${l}</button>`).join("");
+  el.onclick = e => {
+    const b = e.target.closest("button"); if (!b) return;
+    monthly = b.dataset.m === "true";
+    el.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+    drawCharts();
+  };
+}
+
 function buildRanges() {
   const el = document.getElementById("ranges");
   el.innerHTML = RANGES.map(([l, y]) => `<button data-y="${y}" aria-pressed="${y === rangeYears}">${l}</button>`).join("");
@@ -328,7 +350,7 @@ function buildRanges() {
 fetch("data/us.json").then(r => r.json()).then(d => {
   DATA = d;
   document.getElementById("updated").textContent = "Datenstand: " + new Date(d.updated).toLocaleString("de-DE") + " · Quelle FRED";
-  computeRecessions(); renderSignals(); buildLayout(); buildRanges(); drawCharts();
+  computeRecessions(); renderSignals(); buildLayout(); buildRanges(); buildFreq(); drawCharts();
   matchMedia("(prefers-color-scheme: dark)").addEventListener("change", drawCharts);
 }).catch(e => {
   document.getElementById("updated").innerHTML = `<span class="err">Daten konnten nicht geladen werden (${e}). Seite über einen Webserver öffnen: <code>python3 -m http.server</code></span>`;
