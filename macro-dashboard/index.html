@@ -87,9 +87,7 @@
 // Fokus: US-Aktien und Krypto. Die übrigen Reihen liegen weiter in data/us.json (siehe fetch_data.py)
 const PANELS = [
   { title: "Liquidität", charts: [
-    { title: "Global M2 (G4: US, EZ, JP, UK) YoY", series: ["GLOBALM2_YOY"], fmt: v => v.toFixed(1) + " %", zero: true },
-    { title: "Global M2 G4 in USD", series: ["GLOBALM2"], fmt: v => v.toFixed(1) + " Bio." },
-    { title: "Fed-Bilanzsumme", series: ["WALCL"], fmt: v => (v / 1e6).toFixed(2) + " Bio. USD" },
+    { title: "Fed-Bilanzsumme", series: ["WALCL"], div: 1e6, fmt: v => v.toFixed(2) + " Bio. USD" },
   ]},
   { title: "Zinsen & Dollar", charts: [
     { title: "Fed Funds Rate", series: ["FEDFUNDS"], fmt: v => v.toFixed(2) + " %" },
@@ -119,7 +117,8 @@ const PANELS = [
 
 // Signale: [Label, Serie, Formatierer, Bewertungsfunktion -> "good"|"warn"|"crit"]
 const SIGNALS = [
-  ["Global M2 (YoY)", "GLOBALM2_YOY", v => v.toFixed(1) + " %", v => v < 0 ? "crit" : v < 4 ? "warn" : "good"],
+  ["Global M2 (ohne China)", "GLOBALM2", v => v.toFixed(1) + " Bio. $", () => { const y = last(DATA.series.GLOBALM2_YOY)[1]; return y < 0 ? "crit" : y < 4 ? "warn" : "good"; },
+    () => (last(DATA.series.GLOBALM2_YOY)[1] >= 0 ? "+" : "") + last(DATA.series.GLOBALM2_YOY)[1].toFixed(1) + " % YoY · US, EZ, JP, UK"],
   ["10J Realzins", "DFII10", v => v.toFixed(2) + " %", v => v > 2.5 ? "crit" : v > 1.5 ? "warn" : "good"],
   ["Zinskurve 10J–3M", "T10Y3M", v => v.toFixed(2) + " pp", v => v < 0 ? "crit" : v < 0.5 ? "warn" : "good"],
   ["Credit Spread (HY)", "BAMLH0A0HYM2", v => v.toFixed(2) + " pp", v => v > 5 ? "crit" : v > 4 ? "warn" : "good"],
@@ -152,12 +151,12 @@ function fromDate() {
 }
 
 function renderSignals() {
-  document.getElementById("signals").innerHTML = SIGNALS.map(([lbl, id, fmt, rate]) => {
+  document.getElementById("signals").innerHTML = SIGNALS.map(([lbl, id, fmt, rate, note]) => {
     const s = DATA.series[id]; if (!s) return "";
     const [d, v] = last(s), st = rate(v), [icon, text] = STATE[st];
     return `<div class="card signal"><div class="lbl">${lbl}</div><div class="val">${fmt(v)}</div>
       <div class="state s-${st}"><span aria-hidden="true">${icon}</span>${text}</div>
-      <div class="lbl">Stand ${d}</div></div>`;
+      <div class="lbl">${note ? note() + " · " : ""}Stand ${d.slice(0, 7)}</div></div>`;
   }).join("");
 }
 
@@ -169,7 +168,7 @@ function buildLayout() {
       ? `<div class="legend">${c.series.map((id, i) => `<span><i style="background:${colors[i]}"></i>${DATA.series[id].name.replace(/ \((YoY|USD Bio\.)\)/, "")}</span>`).join("")}</div>` : "";
     const [, v] = last(DATA.series[c.series[0]]);
     return `<div class="card"><div class="chart-head"><span class="chart-title">${c.title}</span>
-      <span class="chart-last">${c.series.map(id => c.fmt(last(DATA.series[id])[1])).join(" · ")}</span></div>
+      <span class="chart-last">${c.series.map(id => c.fmt(last(DATA.series[id])[1] / (c.div || 1))).join(" · ")}</span></div>
       ${legend}<div class="plot" id="plot-${pi}-${ci}"></div></div>`;
   }).join("") + `</div>`).join("");
 }
@@ -207,7 +206,7 @@ function drawChart(host, c, from) {
   const data = c.series.map((id, i) => {
     const s = DATA.series[id];
     return { id, name: s.name.replace(/ \((YoY|USD Bio\.)\)/, ""), color: `var(--series-${i + 1})`,
-             pts: s.points.filter(([d]) => d >= from).map(([d, v]) => [T(d), v, d]) };
+             pts: s.points.filter(([d]) => d >= from).map(([d, v]) => [T(d), v / (c.div || 1), d]) };
   });
   const all = data.flatMap(s => s.pts);
   if (!all.length) return;
