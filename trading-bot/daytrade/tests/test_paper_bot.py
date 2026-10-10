@@ -2,7 +2,7 @@ import unittest
 
 import pandas as pd
 
-from daytrade.paper_bot import plan_orders
+from daytrade.paper_bot import plan_orders, with_spy_parking
 
 
 class PlanTests(unittest.TestCase):
@@ -20,6 +20,13 @@ class PlanTests(unittest.TestCase):
     def test_position_not_in_universe_is_closed(self):
         o = plan_orders(pd.Series({"AAA": 0.0}), pd.Series({"AAA": 10.0}), 1000, {"ZZZ": 5})
         self.assertEqual(o, [{"symbol": "ZZZ", "side": "sell", "qty": 5}])
+
+    def test_spy_parking_fills_idle_capital_and_leverage(self):
+        w = pd.Series({"AAA": 0.1, "BBB": 0.1, "CCC": 0.0})
+        out = with_spy_parking(w)
+        self.assertAlmostEqual(out["SPY"], 0.8); self.assertAlmostEqual(out.sum(), 1.0)
+        self.assertAlmostEqual(with_spy_parking(w, 1.5).sum(), 1.5)
+        self.assertEqual(with_spy_parking(pd.Series({"AAA": 1.2}))["SPY"], 0.0)
 
 
 if __name__ == "__main__":

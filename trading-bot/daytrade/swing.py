@@ -130,6 +130,9 @@ def main():
 
     w = equalise(trend_donchian(uni)); report("trend: 50d breakout/20d exit/SMA200", backtest(w, uni, cb), w)
     w = equalise(rsi2_reversion(uni)); report("reversion: RSI2<10, exit>SMA5", backtest(w, uni, cb), w)
+    w = equalise(trend_donchian(uni)).reindex(columns=UNIVERSE + ["SPY"], fill_value=0.0)
+    w["SPY"] = (1 - w[UNIVERSE].sum(axis=1)).clip(lower=0)
+    report("trend + idle capital in SPY", backtest(w, px, cb), w)
     w = xsec_momentum(uni, regime=regime); report("momentum: top8 12-1m, SPY>SMA200", backtest(w, uni, cb), w)
     w = xsec_momentum(uni); report("momentum: top8 12-1m, no regime", backtest(w, uni, cb), w)
 

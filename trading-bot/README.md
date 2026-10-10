@@ -186,3 +186,15 @@ python -m daytrade.paper_bot --execute   # places market-on-open orders on the A
 Run once per trading day after the close. `.github/workflows/paper_bot.yml` automates this
 (add `ALPACA_API_KEY_ID` / `ALPACA_API_SECRET_KEY` as repository secrets; scheduled workflows
 only run from the default branch). The endpoint is hard-coded to paper - there is no live switch.
+
+### Return optimisation (trend filter, 2016-2026 backtest, validated on a 2016-20 / 2021-26 split)
+
+| Variant | CAGR | Max DD | 2016-20 / 2021-26 CAGR |
+|---|---|---|---|
+| Trend filter (baseline) | 16.1 % | 17.6 % | 17.6 / 14.8 |
+| **+ idle capital parked in SPY (bot default)** | **20.3 %** | 32.9 % | 22.9 / 18.1 |
+| + 1.25x / 1.5x leverage (`--leverage`, 5 % financing) | 23.8 % / 27.2 % | 39.7 % / 46.1 % | |
+| Top-5 momentum ranking (rejected) | 23.0 % | 27.3 % | 34.5 / 13.7 - fails out-of-sample |
+
+More return here means more market risk, not free alpha. Survivorship bias still inflates all numbers.
+`python -m daytrade.paper_bot [--no-park-spy] [--leverage 1.25]`
