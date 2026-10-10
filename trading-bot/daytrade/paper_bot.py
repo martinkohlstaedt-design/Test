@@ -18,7 +18,7 @@ import json
 import math
 import os
 import time
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 import pandas as pd
@@ -80,7 +80,7 @@ def plan_orders(weights: pd.Series, last_close: pd.Series, equity: float,
 
 
 def load_panel(universe: list[str]) -> dict:
-    end = date.today().isoformat()
+    end = (datetime.now(timezone.utc) - timedelta(minutes=20)).strftime("%Y-%m-%dT%H:%M:%SZ")  # free SIP plan: >15 min old
     start = (date.today() - timedelta(days=HISTORY_DAYS)).isoformat()
     frames = {s: data.fetch_daily(s, start, end) for s in universe}
     return {k: pd.DataFrame({s: f[k] for s, f in frames.items()}).sort_index()
