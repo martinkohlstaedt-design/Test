@@ -160,3 +160,19 @@ Fills happen at the next bar's open, with slippage on every fill, stop-before-ta
 in ambiguous bars, positions flat by the close. Only out-of-sample walk-forward
 numbers count. A strategy is only worth paper-trading if its OOS result stays
 positive after costs across folds and symbols.
+
+### Findings so far (real Alpaca data, 10 liquid US stocks / 45-stock daily universe)
+
+- **Intraday (5-min, 2023-2026 walk-forward OOS):** ORB, VWAP-reversion and RVOL-momentum
+  all lose after realistic costs (Sharpe -0.4 to -2.2 at 2 bps/side). Even with ZERO costs
+  the gross edge is ~0 (avg 0.00-0.04 R/trade). No intraday edge found.
+- **Swing (daily, 2016-2026):** `python -m daytrade.swing --grid`. The 50d-breakout trend
+  filter has Sharpe ~1.1, stable across its whole parameter grid, but equals buy-and-hold of
+  the same stocks (Sharpe ~1.13) - its benefit is lower drawdown (18 % vs 33 %), not alpha.
+  RSI2 reversion and momentum do not beat buy-and-hold.
+- **Survivorship bias:** the universe is today's large caps; every number is optimistic.
+
+```bash
+python -m daytrade.download_daily      # SIP daily bars 2016-> (free Alpaca plan, ends 2 days ago)
+python -m daytrade.swing --grid
+```

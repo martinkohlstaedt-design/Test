@@ -97,3 +97,35 @@ def synthetic(days: int = 120, bar_minutes: int = 5, seed: int = 0, daily_vol: f
                                     "volume": vol}, index=idx))
         price = closes[-1]
     return pd.concat(frames)
+
+
+def fetch_daily(symbol: str, start: str, end: str, feed: str = "sip") -> pd.DataFrame:
+    """Split/dividend-adjusted daily bars (index = trading date, tz-naive)."""
+    key, secret = os.environ.get("ALPACA_API_KEY_ID"), os.environ.get("ALPACA_API_SECRET_KEY")
+    if not key or not secret:
+        raise RuntimeError("Set ALPACA_API_KEY_ID and ALPACA_API_SECRET_KEY (trading-bot/.env).")
+    headers = {"APCA-API-KEY-ID": key, "APCA-API-SECRET-KEY": secret}
+    params = {"timeframe": "1Day", "start": start, "end": end, "limit": 10000,
+              "adjustment": "all", "feed": feed, "sort": "asc"}
+    rows: list[dict] = []
+    while True:
+        r = requests.get(ALPACA_URL.format(symbol=symbol), headers=headers, params=params, timeout=30)
+        r.raise_for_status()
+        body = r.json()
+        rows.extend(body.get("bars") or [])
+        if not body.get("next_page_token"):
+            break
+        params["page_token"] = body["next_page_token"]
+    if not rows:
+        raise RuntimeError(f"No daily bars for {symbol}.")
+    df = pd.DataFrame(rows).rename(columns={"t": "timestamp", "o": "open", "h": "high",
+                                            "l": "low", "c": "close", "v": "volume"})
+    df.index = pd.to_datetime(df["timestamp"], utc=True).dt.tz_convert(NY).dt.tz_localize(None).dt.normalize()
+    return df[["open", "high", "low", "close", "volume"]].astype(float)
+
+
+def load_daily(symbol: str) -> pd.DataFrame:
+    p = cache_path(symbol, "1Day")
+    if not p.exists():
+        raise FileNotFoundError(f"{p} missing - run `python -m daytrade.download_daily`.")
+    return pd.read_csv(p, index_col=0, parse_dates=True)
