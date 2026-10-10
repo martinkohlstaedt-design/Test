@@ -214,3 +214,19 @@ More return here means more market risk, not free alpha. Survivorship bias still
 Position count (6-20 slots) barely matters (20.5-22.2 %): a plateau, not a tuned peak. QQQ as the
 parking asset leans on the 2016-26 tech bull market - hindsight - so treat 21.8 % as optimistic.
 `python -m daytrade.paper_bot [--park QQQ|SPY|none]`
+
+### "40 % day-trading strategies" from the internet, tested (`python -m daytrade.stocks_in_play`)
+
+The best-known claim is the Zarattini/Barbon/Aziz 5-min opening-range breakout on "Stocks in Play"
+(paper: Sharpe 2.8, ~36 % alpha, 4x leverage, no slippage). Rebuilt on 45 liquid US stocks, 5-min SIP
+bars, Jan 2021 - Oct 2026 (the second half is after the paper's sample), 1 % risk per trade:
+
+| Costs per side | 1x leverage | 4x leverage |
+|---|---|---|
+| 0 bps (the paper's assumption) | 8.6 %/yr, Sharpe 1.3 | 32.3 %/yr, Sharpe 1.4, DD 19 % |
+| 1 bps (optimistic for mega caps) | 3.3 %/yr | 8.6 %/yr, DD 26 % |
+| 2 bps (realistic) | -1.7 %/yr | -10.9 %/yr, DD 48 % |
+
+With a coin flip for the direction the zero-cost result is still positive (4.6 %/yr @1x), so most of the
+"edge" is the payoff structure, not the first-candle signal. Stop width / top-N / RVOL variants do not
+rescue it. Conclusion: ~30-40 % appears only with zero costs AND 4x leverage; it does not survive realistic fills.
