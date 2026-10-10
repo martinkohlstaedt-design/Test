@@ -1,0 +1,27 @@
+name: Paper trading bot (trend filter)
+
+# Runs after the US close on weekdays (21:30 UTC = 16:30/17:30 ET) and places
+# market-on-open orders on Alpaca's PAPER account. Needs repository secrets
+# ALPACA_API_KEY_ID and ALPACA_API_SECRET_KEY (Settings -> Secrets -> Actions).
+# NOTE: scheduled workflows only run from the repository's default branch.
+on:
+  schedule:
+    - cron: "30 21 * * 1-5"
+  workflow_dispatch:
+
+jobs:
+  rebalance:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: trading-bot
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pandas numpy requests python-dotenv
+      - run: python -m daytrade.paper_bot --execute
+        env:
+          ALPACA_API_KEY_ID: ${{ secrets.ALPACA_API_KEY_ID }}
+          ALPACA_API_SECRET_KEY: ${{ secrets.ALPACA_API_SECRET_KEY }}

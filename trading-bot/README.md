@@ -176,3 +176,13 @@ positive after costs across folds and symbols.
 python -m daytrade.download_daily      # SIP daily bars 2016-> (free Alpaca plan, ends 2 days ago)
 python -m daytrade.swing --grid
 ```
+
+### Paper-trading bot (trend filter)
+
+```bash
+python -m daytrade.paper_bot             # dry run: shows the orders it would place
+python -m daytrade.paper_bot --execute   # places market-on-open orders on the Alpaca PAPER account
+```
+Run once per trading day after the close. `.github/workflows/paper_bot.yml` automates this
+(add `ALPACA_API_KEY_ID` / `ALPACA_API_SECRET_KEY` as repository secrets; scheduled workflows
+only run from the default branch). The endpoint is hard-coded to paper - there is no live switch.
