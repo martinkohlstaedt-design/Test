@@ -198,3 +198,19 @@ only run from the default branch). The endpoint is hard-coded to paper - there i
 
 More return here means more market risk, not free alpha. Survivorship bias still inflates all numbers.
 `python -m daytrade.paper_bot [--no-park-spy] [--leverage 1.25]`
+
+### Other strategies tested (no leverage; `python -m daytrade.rotation`)
+
+| Strategy | CAGR | Sharpe | Max DD | dev 16-20 / test 21-26 CAGR |
+|---|---|---|---|---|
+| SPY / QQQ buy&hold | 15.1 / 20.5 % | 0.92 / 0.97 | 32 / 37 % | |
+| Trend stocks + SPY park | 20.3 % | 1.14 | 32.9 % | 22.9 / 18.1 |
+| **Trend stocks + QQQ park (bot default)** | **21.8 %** | **1.18** | 28.2 % | 25.2 / 19.0 |
+| Trend stocks, idle -> SPY or IEF by regime | 16.8 % | 1.12 | 21.4 % | 19.5 / 14.5 |
+| Sector rotation (top 3, 6-12m) | 7.1-13.5 % | 0.50-0.86 | 28-31 % | worse than SPY |
+| Dual momentum | 7.4-10.3 % | 0.46-0.60 | 33-40 % | worse than SPY |
+| ETF trend (Faber, 10m SMA) | 7.4 % | 0.91 | 12.1 % | low return, low risk |
+
+Position count (6-20 slots) barely matters (20.5-22.2 %): a plateau, not a tuned peak. QQQ as the
+parking asset leans on the 2016-26 tech bull market - hindsight - so treat 21.8 % as optimistic.
+`python -m daytrade.paper_bot [--park QQQ|SPY|none]`

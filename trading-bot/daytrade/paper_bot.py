@@ -48,20 +48,20 @@ def api(method: str, path: str, **kw):
     return r.json() if r.text else None
 
 
-def with_spy_parking(w: pd.Series, leverage: float = 1.0) -> pd.Series:
-    """Capital not allocated to trending stocks is parked in SPY (backtest: CAGR 16 % -> 20 %,
-    consistent in both halves of 2016-2026, but drawdown rises to SPY's level). `leverage` > 1
-    scales every weight (financed on margin; backtest at 5 % interest)."""
+def with_parking(w: pd.Series, park: str = "QQQ", leverage: float = 1.0) -> pd.Series:
+    """Capital not allocated to trending stocks is parked in `park` (backtest 2016-2026: baseline 16 %,
+    SPY 20.3 %, QQQ 21.8 % CAGR - QQQ benefits from the tech bull market, i.e. hindsight).
+    `leverage` > 1 scales every weight (margin; backtest at 5 % interest)."""
     out = w.copy()
-    out["SPY"] = max(0.0, 1.0 - float(w.sum()))
+    out[park] = max(0.0, 1.0 - float(w.sum()))
     return out * leverage
 
 
-def target_weights(panel: dict, universe: list[str], park_spy: bool = True, leverage: float = 1.0) -> pd.Series:
+def target_weights(panel: dict, universe: list[str], park: str | None = "QQQ", leverage: float = 1.0) -> pd.Series:
     """Target weight per symbol decided at the latest close."""
     sub = {k: v[universe] for k, v in panel.items()}
     w = swing.equalise(swing.trend_donchian(sub), MIN_SLOTS).iloc[-1]
-    return with_spy_parking(w, leverage) if park_spy else w * leverage
+    return with_parking(w, park, leverage) if park else w * leverage
 
 
 def plan_orders(weights: pd.Series, last_close: pd.Series, equity: float,
@@ -91,7 +91,7 @@ def plan_orders(weights: pd.Series, last_close: pd.Series, equity: float,
 def load_panel(universe: list[str]) -> dict:
     end = (datetime.now(timezone.utc) - timedelta(minutes=20)).strftime("%Y-%m-%dT%H:%M:%SZ")  # free SIP plan: >15 min old
     start = (date.today() - timedelta(days=HISTORY_DAYS)).isoformat()
-    frames = {s: data.fetch_daily(s, start, end) for s in dict.fromkeys(universe + ["SPY"])}
+    frames = {s: data.fetch_daily(s, start, end) for s in dict.fromkeys(universe + ["SPY", "QQQ"])}
     return {k: pd.DataFrame({s: f[k] for s, f in frames.items()}).sort_index()
             for k in ("open", "high", "low", "close")}
 
@@ -99,7 +99,8 @@ def load_panel(universe: list[str]) -> dict:
 def main():
     load_dotenv()
     ap = argparse.ArgumentParser()
-    ap.add_argument("--no-park-spy", action="store_true", help="keep unallocated capital in cash instead of SPY")
+    ap.add_argument("--park", default="QQQ", choices=["QQQ", "SPY", "none"],
+                    help="where unallocated capital sits (default QQQ; 'none' = cash)")
     ap.add_argument("--leverage", type=float, default=1.0, help="gross exposure multiple, 1.0-2.0 (margin; raises risk)")
     ap.add_argument("--execute", action="store_true", help="actually place paper orders (default: dry run)")
     a = ap.parse_args()
@@ -115,7 +116,7 @@ def main():
 
     panel = load_panel(UNIVERSE)
     last_day = panel["close"].index[-1].date()
-    weights = target_weights(panel, UNIVERSE, not a.no_park_spy, a.leverage)
+    weights = target_weights(panel, UNIVERSE, None if a.park == "none" else a.park, a.leverage)
     held = {p["symbol"]: int(float(p["qty"])) for p in api("GET", "/positions")}
     orders = plan_orders(weights, panel["close"].iloc[-1], equity, held)
 

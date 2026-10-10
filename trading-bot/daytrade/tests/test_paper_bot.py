@@ -2,7 +2,7 @@ import unittest
 
 import pandas as pd
 
-from daytrade.paper_bot import plan_orders, with_spy_parking
+from daytrade.paper_bot import plan_orders, with_parking
 
 
 class PlanTests(unittest.TestCase):
@@ -23,10 +23,10 @@ class PlanTests(unittest.TestCase):
 
     def test_spy_parking_fills_idle_capital_and_leverage(self):
         w = pd.Series({"AAA": 0.1, "BBB": 0.1, "CCC": 0.0})
-        out = with_spy_parking(w)
-        self.assertAlmostEqual(out["SPY"], 0.8); self.assertAlmostEqual(out.sum(), 1.0)
-        self.assertAlmostEqual(with_spy_parking(w, 1.5).sum(), 1.5)
-        self.assertEqual(with_spy_parking(pd.Series({"AAA": 1.2}))["SPY"], 0.0)
+        out = with_parking(w, "QQQ")
+        self.assertAlmostEqual(out["QQQ"], 0.8); self.assertAlmostEqual(out.sum(), 1.0)
+        self.assertAlmostEqual(with_parking(w, 1.5).sum(), 1.5)
+        self.assertEqual(with_parking(pd.Series({"AAA": 1.2}), "SPY")["SPY"], 0.0)
 
 
 if __name__ == "__main__":
