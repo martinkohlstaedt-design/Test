@@ -25,7 +25,7 @@ class PlanTests(unittest.TestCase):
         w = pd.Series({"AAA": 0.1, "BBB": 0.1, "CCC": 0.0})
         out = with_parking(w, "QQQ")
         self.assertAlmostEqual(out["QQQ"], 0.8); self.assertAlmostEqual(out.sum(), 1.0)
-        self.assertAlmostEqual(with_parking(w, 1.5).sum(), 1.5)
+        self.assertAlmostEqual(with_parking(w, "QQQ", 1.5).sum(), 1.5)
         self.assertEqual(with_parking(pd.Series({"AAA": 1.2}), "SPY")["SPY"], 0.0)
 
 
