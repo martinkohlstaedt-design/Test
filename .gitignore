@@ -16,3 +16,6 @@ trading-bot/*.db
 
 # OS/editor cruft
 .DS_Store
+
+# Daytrading research (data/ holds downloaded bars, not source)
+data/

@@ -141,3 +141,22 @@ it added for a specific asset class and broker.
 - Backtest fills assume your order executes at the candle's close price
   plus configured slippage — real fills can differ, especially in fast
   moves or on thin order books.
+
+## Daytrading research on US stocks (`daytrade/`)
+
+Intraday research toolkit for liquid US stocks. Research only - no order placement.
+
+```bash
+# 1. put ALPACA_API_KEY_ID / ALPACA_API_SECRET_KEY in .env (free Alpaca paper account)
+python -m daytrade.download --symbols SPY QQQ AAPL MSFT NVDA AMZN META TSLA AMD GOOGL --start 2022-01-01
+# 2. rolling walk-forward validation of ORB, VWAP-reversion, RVOL-momentum
+python -m daytrade.validate
+# sanity check on random-walk data: nothing should be profitable
+python -m daytrade.validate --synthetic --train-days 120 --test-days 40
+python -m unittest discover -s daytrade/tests -t .
+```
+
+Fills happen at the next bar's open, with slippage on every fill, stop-before-target
+in ambiguous bars, positions flat by the close. Only out-of-sample walk-forward
+numbers count. A strategy is only worth paper-trading if its OOS result stays
+positive after costs across folds and symbols.
