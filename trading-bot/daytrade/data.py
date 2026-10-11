@@ -129,3 +129,22 @@ def load_daily(symbol: str) -> pd.DataFrame:
     if not p.exists():
         raise FileNotFoundError(f"{p} missing - run `python -m daytrade.download_daily`.")
     return pd.read_csv(p, index_col=0, parse_dates=True)
+
+
+def fetch_crypto_daily(symbol: str, start: str, end: str) -> pd.DataFrame:
+    """Daily crypto bars from Alpaca (history starts 2021). symbol like 'BTC/USD'."""
+    key, secret = os.environ.get("ALPACA_API_KEY_ID"), os.environ.get("ALPACA_API_SECRET_KEY")
+    headers = {"APCA-API-KEY-ID": key or "", "APCA-API-SECRET-KEY": secret or ""}
+    params = {"symbols": symbol, "timeframe": "1Day", "start": start, "end": end, "limit": 10000}
+    rows: list[dict] = []
+    while True:
+        r = requests.get("https://data.alpaca.markets/v1beta3/crypto/us/bars", headers=headers, params=params, timeout=30)
+        r.raise_for_status()
+        body = r.json()
+        rows.extend((body.get("bars") or {}).get(symbol, []))
+        if not body.get("next_page_token"):
+            break
+        params["page_token"] = body["next_page_token"]
+    df = pd.DataFrame(rows).rename(columns={"t": "timestamp", "o": "open", "h": "high", "l": "low", "c": "close", "v": "volume"})
+    df.index = pd.to_datetime(df["timestamp"], utc=True).dt.tz_localize(None).dt.normalize()
+    return df[["open", "high", "low", "close", "volume"]].astype(float)

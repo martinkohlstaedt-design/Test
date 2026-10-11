@@ -230,3 +230,21 @@ bars, Jan 2021 - Oct 2026 (the second half is after the paper's sample), 1 % ris
 With a coin flip for the direction the zero-cost result is still positive (4.6 %/yr @1x), so most of the
 "edge" is the payoff structure, not the first-candle signal. Stop width / top-N / RVOL variants do not
 rescue it. Conclusion: ~30-40 % appears only with zero costs AND 4x leverage; it does not survive realistic fills.
+
+### Alternatives search (no leverage) - and a correction
+
+`python -m daytrade.broad <constituents.csv>` (S&P 500, eligible only from index "Date added"),
+crypto via `python -m daytrade.download_extra crypto`. 2016-2026 unless noted, 3 bps/side (crypto 25 bps).
+
+| Option | CAGR | Sharpe | Max DD | Note |
+|---|---|---|---|---|
+| QQQ buy&hold | 20.5 % | 0.97 | 36.6 % | benchmark to beat |
+| QQQ vol-target 20 % (max 1x, rest cash) | 19.2 % | 1.11 | 28.3 % | best simple risk-adjusted |
+| QQQ below SMA150 -> cash | 18.0 % | 1.09 | 22.4 % | halves, drawdown |
+| S&P 500 momentum top 20-40 + trend, idle->QQQ | 17-21 % | 0.77-0.83 | 37-38 % | 14 % in 2016-20 vs 23-28 % in 2021-26 |
+| Trend (Donchian) on all S&P members, idle->QQQ | 12.6-13.7 % | 0.84-0.90 | 26 % | |
+| Crypto BTC / BTC+ETH trend (2021-26) | 14-20 % | 0.56-0.69 | 36 % | b&h BTC 19 %, DD 77 % |
+
+**Correction:** the 45-stock trend bot's 21.8 % (Sharpe 1.18) is inflated by hand-picked survivors; the same
+rule on the whole S&P 500 gives ~13 %. Realistic expectation for unlevered long equity in this decade is
+15-20 %; 40 % needs leverage, concentration or luck. Crypto "10-coin 45 %" is pure survivor selection.
