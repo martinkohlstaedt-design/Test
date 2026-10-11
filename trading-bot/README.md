@@ -262,3 +262,24 @@ rule on the whole S&P 500 gives ~13 %. Realistic expectation for unlevered long 
 
 None beats QQQ buy&hold. Published anomalies lose roughly a third of their return after publication
 (McLean & Pontiff) and most shrink to little after costs - consistent with what these tests show.
+
+### QQQ volatility-target bot (`python -m daytrade.qqq_vt_bot [--execute]`)
+
+Weight in QQQ = min(1, 20 % / realised 20-day vol), rest cash, 10 % rebalance band (~10 changes/yr), no leverage.
+Backtest 2016-26: CAGR ~19.4 %, Sharpe 1.12, max DD ~26 % (QQQ b&h: 20.5 % / 0.97 / 36.6 %). The scheduled
+workflow now runs this bot. The trend-stock bot (`paper_bot`) stays available for manual use.
+Do not run both against one account: each assumes it owns the positions it trades.
+
+### Options overlay on QQQ with real option prices (`python -m daytrade.options_test`)
+
+Monthly covered calls / cash-secured puts, Alpaca daily option bars (Feb 2024 - Sep 2026, 31 cycles, ONE bull market).
+Premium = entry-day VWAP minus an assumed spread haircut; missing cycles filled with plain QQQ / cash.
+
+| (5 % haircut) | CAGR | Monthly vol | Sharpe* |
+|---|---|---|---|
+| QQQ buy&hold | 20.1 % | 5.6 % | 1.04 |
+| Covered call ATM / 2 % OTM | 17.3 / 18.1 % | 3.0 / 3.5 % | 1.59 / 1.45 |
+| Cash-secured put ATM / 2 % OTM | 11.2 / 9.9 % | 2.2 / 1.6 % | 1.45 / 1.78 |
+
+*From 31 monthly points - very noisy. Options cut volatility by ~40 % but do not add return; no bid/ask history,
+so real fills may be worse than the haircut assumes.

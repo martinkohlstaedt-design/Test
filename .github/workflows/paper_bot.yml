@@ -1,4 +1,4 @@
-name: Paper trading bot (trend filter)
+name: Paper trading bot (QQQ volatility target)
 
 # Runs after the US close on weekdays (21:30 UTC = 16:30/17:30 ET) and places
 # market-on-open orders on Alpaca's PAPER account. Needs repository secrets
@@ -21,7 +21,7 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install pandas numpy requests python-dotenv
-      - run: python -m daytrade.paper_bot --execute
+      - run: python -m daytrade.qqq_vt_bot --execute
         env:
           ALPACA_API_KEY_ID: ${{ secrets.ALPACA_API_KEY_ID }}
           ALPACA_API_SECRET_KEY: ${{ secrets.ALPACA_API_SECRET_KEY }}
