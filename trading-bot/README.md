@@ -248,3 +248,17 @@ crypto via `python -m daytrade.download_extra crypto`. 2016-2026 unless noted, 3
 **Correction:** the 45-stock trend bot's 21.8 % (Sharpe 1.18) is inflated by hand-picked survivors; the same
 rule on the whole S&P 500 gives ~13 %. Realistic expectation for unlevered long equity in this decade is
 15-20 %; 40 % needs leverage, concentration or luck. Crypto "10-coin 45 %" is pure survivor selection.
+
+### More anomalies tested (`python -m daytrade.more <constituents.csv>`, 2016-2026, S&P 500 / QQQ, no leverage)
+
+| Strategy | CAGR | Sharpe | Max DD |
+|---|---|---|---|
+| QQQ buy&hold (benchmark) | 20.5 % | 0.97 | 36.6 % |
+| 52-week-high momentum top 20-40 + trend, idle->QQQ | 7.9-10.0 % | 0.52-0.68 | 28-31 % |
+| Short-term reversal RSI2, 25-50 slots, idle->QQQ | 10.4-14.1 % | 0.61-0.77 | 34-35 % |
+| Turn-of-the-month QQQ (else SHY) | 4.8 % | 0.47 | 18.1 % |
+| QQQ RSI2 dip-buy (else SHY) | 2.6 % | 0.39 | 14.2 % |
+| Overnight QQQ (close->open) | -3.2 % (3 bps) / 12.6 % (0 cost) | -0.17 / 0.95 | 42 / 27 % |
+
+None beats QQQ buy&hold. Published anomalies lose roughly a third of their return after publication
+(McLean & Pontiff) and most shrink to little after costs - consistent with what these tests show.
