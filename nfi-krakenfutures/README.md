@@ -26,7 +26,7 @@ cp strategies/NFI_KF_Variants.py ~/ft_workdir/user_data/strategies/
 Kursdaten (5m-Futures, 1h-Funding/Mark) laden:
 
 ```bash
-freqtrade download-data --config <config> --userdir user_data \
+freqtrade download-data --config user_data/config_kf86_main.json (Vorlage: backtest-template.json, Coin-Liste: pairs86.json) --userdir user_data \
   --pairs <Liste> --timeframes 5m --trading-mode futures --timerange 20220801-
 ```
 
@@ -36,7 +36,7 @@ Hinweise:
   `"ccxt_config"` und `"ccxt_async_config"` je `{"aiohttp_trust_env": true,
   "requests_trust_env": true, "options": {"defaultType": "swap"}}` und die Umgebungsvariablen
   `SSL_CERT_FILE` / `REQUESTS_CA_BUNDLE` auf das CA-Bundle der Umgebung setzen.
-- Backtest: `freqtrade backtesting --config <config> --strategy NFI_KF_V13
+- Backtest: `freqtrade backtesting --config user_data/config_kf86_main.json (Vorlage: backtest-template.json, Coin-Liste: pairs86.json) --strategy NFI_KF_V13
   --strategy-path user_data/strategies --timerange 20250926-20260315 --timeframe 5m --cache none`.
   Immer nur ein Backtest gleichzeitig (Arbeitsspeicher).
 - Die Config enthält Börsen-Schlüssel und gehört **nicht** ins Repo (`.gitignore`).
