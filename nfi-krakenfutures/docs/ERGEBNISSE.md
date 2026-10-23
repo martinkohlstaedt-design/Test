@@ -81,3 +81,24 @@ Top-Skala ×1,4 und ×1,6, 6 Slots, Stale-Exit 48 h/96 h/+1 %.
   `deploy/nfi_v13_update.py` eingespielt.
 - Beobachtungsfall: SAND 145 (eröffnet 19.10. unter v8, 4x), Derisk Stufe 1 am 22.10.
   ausgelöst, Verlauf normal. Füllquote Limit-Entries: 3 von 4 Signalen (75 %).
+
+## Neuaufbau der Testumgebung (22./23.10.2026)
+
+Die Cloud-Umgebung wurde zurueckgesetzt; alle Daten, Skripte und Ergebnisse gingen verloren.
+Neu aufgebaut mit denselben 86 Coins fuer **alle** Fenster (die frueheren Listen mit
+61/83 Coins sind nicht mehr vorhanden). Folge: W1, W2, W2c und W4a liegen jetzt hoeher als
+in der Tabelle oben; W3, Val, H1 und H2 sind mit den frueheren Werten vergleichbar.
+
+Referenz neu (Gewinn % / Drawdown %), `tools/run8.sh` + `tools/compare.py`:
+
+| Version | W1 | W2 | W2c | W4a | W3 | Val | H1 | H2 |
+|---|---|---|---|---|---|---|---|---|
+| v8 | 65,2/0 | 57,9/4,4 | 26,1/17,2 | 213,0/13,8 | 1437,8/13,9 | 61,6/6,5 | 883,5/15,1 | 253,3/5,1 |
+| v13 | 64,1/0 | 59,2/4,3 | 52,3/12,0 | 243,7/6,2 | 1607,7/6,3 | 60,2/6,7 | 938,1/10,8 | 259,2/5,2 |
+
+**Fallstrick:** Wird BTC nur teilweise geladen (z. B. durch einen Test-Download vorab,
+ohne `--timerange`), ergaenzt `download-data` nur nach vorn. Dann fehlt BTC-Historie, die
+Crash-Erkennung (`_wild`) greift im Backtest nie, und Crash-Kaeufe laufen mit 4x statt 3x
+(Gewinn ca. 5 % zu hoch, Schutz fehlt). Kontrolle: Kaeufe vom 10.10.2025 ab 21:00 UTC
+muessen `leverage 3.0` haben. Im Live-Bot ist BTC in der Whitelist und wird von Kraken
+live geladen; ob der 3x-Hebel greift, steht in der Datenbank-Spalte `leverage`.
