@@ -135,3 +135,27 @@ Ergebnis: Signal 145 weglassen kostet 13-28 % Gewinn in mehreren Fenstern, entsc
 Tail nicht (JASMY bleibt) -> verworfen. Rebuy weglassen entfernt alle Trades mit > 50 %
 Margenverlust bei ca. -1,6 % Gesamtbeitrag, aber gemischte Fenster (W3 -9 %, W4a -8 %, H2 -7 %
 bei DD 11,2 statt 5,2 %; Val +11 %, W2 +10 %) und keine Verbesserung der Monte-Carlo-Werte.
+
+## Coin-Blacklist (verworfen) und Drawdown-Tests (23.10.2026)
+
+**Blacklist JASMY, JUP, LDO, OP, ENS, LPT, ICP** (`NFI_KF_V17_NoWeak7`): im Backtest in jedem Fenster
+gleich oder besser (W3 1607 -> 2111 %, W4a 244 -> 309 %), aber die 7 Coins wurden aus denselben 26
+Trades ausgewaehlt. Geteilter Test (Auswahl in der einen Haelfte der Fenster, Pruefung in der anderen):
+Beitrag der im Training schlechten Coins im Test -2,8 bzw. +6,8 Punkte -> kein stabiles Signal, nicht einspielen.
+
+**Drawdown inkl. offener Positionen** (`tools/mtm.py`, 5m-Tiefstkurse; Mark-to-Market) und Gewinn %:
+
+| | max MtM-DD | W2c | W3 | H1 | Gewinn W3 | Gewinn H1 |
+|---|---|---|---|---|---|---|
+| v8 | 55,5 | 55,5 | 55,3 | 52,0 | 1437,8 | 883,4 |
+| v13 | 51,3 | 47,8 | 51,3 | 50,9 | 1607,7 | 938,1 |
+| CrashHalf (halbe Positionen im Crash) | 53,0 | 45,4 | 53,0 | 28,8 | 1549,7 | 610,5 |
+| CrashStop (kein Kauf im Crash) | 47,0 | 42,4 | 47,0 | 29,9 | 1386,8 | 341,0 |
+| Slow5Half (+ BTC -5 % in 24 h) | 45,4 | 45,4 | 39,0 | 28,0 | 1154,5 | 360,5 |
+
+Ergebnis: Der Drawdown sinkt nur um 4-6 Punkte, kostet aber 14-64 % Gewinn (H1 938 -> 341-610 %).
+Die Crash-Einstiege sind gerade die profitabelsten Trades -> verworfen.
+
+**Fallstrick mtm.py:** pandas 3 erzeugt `date_range` mit Einheit `us`; `asi8 // 10**6` liefert dann
+Sekunden statt Millisekunden, die offenen Positionen fehlen und der Drawdown sieht aus wie der
+realisierte (12 %). Mit `as_unit("ms")` reproduziert das Skript die frueheren Werte (v8 55 %, v13 51 %).

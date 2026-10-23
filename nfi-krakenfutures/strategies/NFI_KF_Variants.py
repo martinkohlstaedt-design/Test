@@ -2826,3 +2826,69 @@ class NFI_KF_V16_NoRebuy(_BlockSignalsMixin, NFI_KF_V13):
 
 class NFI_KF_V16_NoBoth(_BlockSignalsMixin, NFI_KF_V13):
     _BLOCK_TAGS = frozenset({"145", "61", "62", "63", "64", "65", "68"})
+
+
+class _BlockCoinsMixin:
+    _BLOCK_COINS = frozenset()
+
+    def confirm_trade_entry(self, pair, order_type, amount, rate, time_in_force,
+                            current_time, entry_tag, side, **kwargs):
+        if pair.split("/")[0] in self._BLOCK_COINS:
+            from freqtrade.persistence import Trade as _T
+            if not _T.get_trades_proxy(pair=pair, is_open=True):   # nur Erst-Entries
+                return False
+        return super().confirm_trade_entry(
+            pair, order_type, amount, rate, time_in_force, current_time, entry_tag, side, **kwargs)
+
+
+class NFI_KF_V17_NoWeak7(_BlockCoinsMixin, NFI_KF_V13):
+    _BLOCK_COINS = frozenset({"JASMY", "JUP", "LDO", "OP", "ENS", "LPT", "ICP"})
+
+
+# ============================================================================
+# Drawdown-Kandidaten (v18) auf Basis v13: Drawdown inkl. offener Positionen
+# kommt aus Crash-Phasen. Hier: kleinere/keine Erst-Entries bei Crash.
+# ============================================================================
+
+class _CrashStakeMixin:
+    _CRASH_STAKE = 0.5     # Faktor auf Marge/Positionsgroesse bei Erst-Entries im Crash (0 = nicht kaufen)
+    _SLOW_DROP = None      # optional: BTC-Rueckgang ueber 24h (z. B. -0.05) wie Crash behandeln
+
+    def _slow(self):
+        if self._SLOW_DROP is None:
+            return False
+        try:
+            df, _ = self.dp.get_analyzed_dataframe("BTC/USD:USD", self.timeframe)
+            closes = df["close"].iloc[-289:]
+            return len(closes) >= 289 and bool(closes.iloc[-1] / closes.iloc[0] - 1 < self._SLOW_DROP)
+        except Exception:
+            return False
+
+    def _stress(self, pair):
+        return self._wild(pair) or self._slow()
+
+    def custom_stake_amount(self, pair, current_time, current_rate, proposed_stake,
+                            min_stake, max_stake, leverage, entry_tag, side, **kwargs):
+        stake = super().custom_stake_amount(
+            pair, current_time, current_rate, proposed_stake, min_stake, max_stake,
+            leverage, entry_tag, side, **kwargs)
+        if stake and self._CRASH_STAKE < 1.0 and self._stress(pair):
+            if self._CRASH_STAKE <= 0:
+                return 0.0
+            stake *= self._CRASH_STAKE
+            if min_stake is not None and stake < min_stake:
+                return 0.0
+        return stake
+
+
+class NFI_KF_V18_CrashHalf(_CrashStakeMixin, NFI_KF_V13):
+    _CRASH_STAKE = 0.5
+
+
+class NFI_KF_V18_CrashStop(_CrashStakeMixin, NFI_KF_V13):
+    _CRASH_STAKE = 0.0
+
+
+class NFI_KF_V18_Slow5Half(_CrashStakeMixin, NFI_KF_V13):
+    _CRASH_STAKE = 0.5
+    _SLOW_DROP = -0.05
