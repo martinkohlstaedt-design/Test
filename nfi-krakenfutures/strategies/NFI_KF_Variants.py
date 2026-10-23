@@ -2892,3 +2892,54 @@ class NFI_KF_V18_CrashStop(_CrashStakeMixin, NFI_KF_V13):
 class NFI_KF_V18_Slow5Half(_CrashStakeMixin, NFI_KF_V13):
     _CRASH_STAKE = 0.5
     _SLOW_DROP = -0.05
+
+
+# ============================================================================
+# v19-Kandidat: Positionsgroesse nach Kontostand (Equity-Kurve). Liegt das
+# Konto inkl. offener Positionen mehr als _EQ_DD unter seinem bisherigen
+# Hoechststand, werden neue Erst-Entries nur mit _EQ_STAKE der Marge eroeffnet.
+# Der Hoechststand lebt im Prozess (nach Neustart startet er neu).
+# ============================================================================
+
+class _EquityDDStakeMixin:
+    _EQ_DD = 0.15
+    _EQ_STAKE = 0.5
+    _eq_peak = 0.0
+
+    def _equity_mtm(self, current_time):
+        from freqtrade.persistence import Trade as _T
+        eq = self.wallets.get_total_stake_amount()
+        for t in _T.get_trades_proxy(is_open=True):
+            try:
+                df, _ = self.dp.get_analyzed_dataframe(t.pair, self.timeframe)
+                eq += t.calculate_profit(float(df["close"].iloc[-1])).profit_abs
+            except Exception:
+                pass
+        return eq
+
+    def custom_stake_amount(self, pair, current_time, current_rate, proposed_stake,
+                            min_stake, max_stake, leverage, entry_tag, side, **kwargs):
+        stake = super().custom_stake_amount(
+            pair, current_time, current_rate, proposed_stake, min_stake, max_stake,
+            leverage, entry_tag, side, **kwargs)
+        try:
+            eq = self._equity_mtm(current_time)
+            if eq > self._eq_peak:
+                self._eq_peak = eq
+            if stake and self._eq_peak > 0 and eq < self._eq_peak * (1 - self._EQ_DD):
+                stake *= self._EQ_STAKE
+                if min_stake is not None and stake < min_stake:
+                    return 0.0
+        except Exception:
+            pass
+        return stake
+
+
+class NFI_KF_V19_EqDD15(_EquityDDStakeMixin, NFI_KF_V13):
+    _EQ_DD = 0.15
+    _EQ_STAKE = 0.5
+
+
+class NFI_KF_V19_EqDD08(_EquityDDStakeMixin, NFI_KF_V13):
+    _EQ_DD = 0.08
+    _EQ_STAKE = 0.5

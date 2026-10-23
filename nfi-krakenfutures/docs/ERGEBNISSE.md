@@ -159,3 +159,17 @@ Die Crash-Einstiege sind gerade die profitabelsten Trades -> verworfen.
 **Fallstrick mtm.py:** pandas 3 erzeugt `date_range` mit Einheit `us`; `asi8 // 10**6` liefert dann
 Sekunden statt Millisekunden, die offenen Positionen fehlen und der Drawdown sieht aus wie der
 realisierte (12 %). Mit `as_unit("ms")` reproduziert das Skript die frueheren Werte (v8 55 %, v13 51 %).
+
+## Positionsgroesse nach Kontostand (v19, verworfen, 23.10.2026)
+
+Neue Erst-Entries nur mit halber Marge, wenn das Konto inkl. offener Positionen mehr als 8 % bzw. 15 %
+unter seinem Hoechststand liegt (`_EquityDDStakeMixin`, `NFI_KF_V19_EqDD08` / `EqDD15`).
+
+| Gewinn %/MtM-DD % | W2c | W4a | W3 | H1 | max MtM-DD | Mittel MtM-DD |
+|---|---|---|---|---|---|---|
+| v13 | 52,3/47,8 | 243,7/41,7 | 1607,7/51,3 | 938,1/50,9 | 51,3 | 31,1 |
+| EqDD15 | 52,3/47,8 | 243,7/41,7 | 1522,7/51,0 | 852,9/39,5 | 51,0 | 29,7 |
+| EqDD08 | 41,8/47,8 | 219,4/40,7 | 1413,9/46,3 | 735,6/39,5 | 47,8 | 28,6 |
+
+Der Drawdown entsteht durch die beim Crash schon offenen Positionen; kleinere Folgekaeufe kommen zu
+spaet und kosten 5-24 % Gewinn in den Crash-Fenstern. Verworfen.
