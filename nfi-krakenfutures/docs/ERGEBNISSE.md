@@ -173,3 +173,12 @@ unter seinem Hoechststand liegt (`_EquityDDStakeMixin`, `NFI_KF_V19_EqDD08` / `E
 
 Der Drawdown entsteht durch die beim Crash schon offenen Positionen; kleinere Folgekaeufe kommen zu
 spaet und kosten 5-24 % Gewinn in den Crash-Fenstern. Verworfen.
+
+## Stand der Optimierung (23.10.2026, Autopilot beendet)
+
+Gewinn-/Risikohebel auf Basis v13 sind ausgereizt: Hebel, Slots, Positionsgroessen, Crash-Regeln,
+Signal- und Coin-Filter, Kontostand-abhaengige Groesse (siehe oben) bringen entweder weniger Gewinn
+bei kaum weniger Drawdown oder nur In-Sample-Gewinn. Der Drawdown inkl. offener Positionen (~50 %
+an Crash-Tagen) ist strukturell (5 gleichzeitig offene Positionen). Ungetestet blieben nur Eingriffe
+in bestehende Positionen (Teilverkauf bei Crash), die der verworfenen Notbremse/DeriskHold aehneln.
+Empfehlung: v13 live beobachten (Spalte `leverage` der neuen Crash-/145-/Quick-Trades = 3.0).
