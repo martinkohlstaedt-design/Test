@@ -1,5 +1,6 @@
 """Vergleichstabelle aus den Backtest-Logs.
 usage: compare.py [PREFIX] STRAT [STRAT ...]   (Logs: /root/ft_workdir/logs/PREFIX_STRAT_FENSTER.log)
+Argument 'prefix:strategie' waehlt den Log-Praefix je Strategie.
 Ausgabe je Fenster: Gewinn % / Drawdown %.  PREFIX per Umgebungsvariable PREFIX (Standard: ref)."""
 import glob, os, re, sys
 LOGS = "/root/ft_workdir/logs"
@@ -7,10 +8,12 @@ ORDER = ["w1", "w2", "w2c", "w4a", "w3", "val", "h1", "h2"]
 prefix = os.environ.get("PREFIX", "ref")
 strats = sys.argv[1:]
 print(f"{'strategy':26s}" + "".join(f"{w:>14s}" for w in ORDER) + "   maxDD")
-for s in strats:
+for arg in strats:
+    pre, _, s = arg.rpartition(":") if ":" in arg else (prefix, "", arg)
+    pre = pre or prefix
     cells, dds = [], []
     for w in ORDER:
-        f = f"{LOGS}/{prefix}_{s}_{w}.log"
+        f = f"{LOGS}/{pre}_{s}_{w}.log"
         val = "-"
         if os.path.exists(f):
             for line in open(f, errors="ignore"):

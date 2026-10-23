@@ -2793,3 +2793,36 @@ class NFI_KF_V14_Stale72(_StaleBEMixin, NFI_KF_V12):
 class NFI_KF_V13(NFI_KF_V14_Stale72):
     """v13 (live): v12 + Exit zum Einstandspreis (+0,5 %), wenn ein Trade nach
     72h wieder im Plus ist."""
+
+
+# ============================================================================
+# Phase v16: Signal-Auswertung v13 (471 Trades, 7 Fenster): Signal 145 = 20 % der
+# Trades, 9 % des Gewinns, Haelfte aller Verlierer; Rebuy (61-68) = 10 % der
+# Trades, 1 % des Gewinns, 3 der schlimmsten Trades (JASMY -97, LPT -64, ICP -48).
+# Test: diese Signale nicht mehr handeln (Nachkaeufe laufender Trades bleiben).
+# ============================================================================
+
+class _BlockSignalsMixin:
+    _BLOCK_TAGS = frozenset()
+
+    def confirm_trade_entry(self, pair, order_type, amount, rate, time_in_force,
+                            current_time, entry_tag, side, **kwargs):
+        tags = (entry_tag or "").split()
+        if tags and all(t in self._BLOCK_TAGS for t in tags):
+            from freqtrade.persistence import Trade as _T
+            if not _T.get_trades_proxy(pair=pair, is_open=True):   # nur Erst-Entries
+                return False
+        return super().confirm_trade_entry(
+            pair, order_type, amount, rate, time_in_force, current_time, entry_tag, side, **kwargs)
+
+
+class NFI_KF_V16_No145(_BlockSignalsMixin, NFI_KF_V13):
+    _BLOCK_TAGS = frozenset({"145"})
+
+
+class NFI_KF_V16_NoRebuy(_BlockSignalsMixin, NFI_KF_V13):
+    _BLOCK_TAGS = frozenset({"61", "62", "63", "64", "65", "68"})
+
+
+class NFI_KF_V16_NoBoth(_BlockSignalsMixin, NFI_KF_V13):
+    _BLOCK_TAGS = frozenset({"145", "61", "62", "63", "64", "65", "68"})
