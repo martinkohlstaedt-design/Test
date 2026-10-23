@@ -102,3 +102,36 @@ Crash-Erkennung (`_wild`) greift im Backtest nie, und Crash-Kaeufe laufen mit 4x
 (Gewinn ca. 5 % zu hoch, Schutz fehlt). Kontrolle: Kaeufe vom 10.10.2025 ab 21:00 UTC
 muessen `leverage 3.0` haben. Im Live-Bot ist BTC in der Whitelist und wird von Kraken
 live geladen; ob der 3x-Hebel greift, steht in der Datenbank-Spalte `leverage`.
+
+## Signal-Auswertung v13 (471 Trades, 7 Fenster ohne W4a, 23.10.2026)
+
+`tools/signals.py`. Top-Coins-Signale 141-145 = 73 % der Trades und 81 % des Gewinns.
+142: 23 % der Trades, 33 % des Gewinns (97 % Gewinner); 141: 21 % / 25 %; 145: 20 % der Trades,
+9 % des Gewinns, 11 von 22 Verlierern (88 % Gewinner, Gewinn/Verlust 3,0); 143/144 selten, aber
+sehr gut (Gewinn/Verlust ca. 70). Rebuy (61-68): 10 % der Trades, 1 % des Gewinns, enthaelt
+JASMY -97 %, LPT -64 %, ICP -48 %. Grind (120): 38/38 Gewinner, ca. 20 h Dauer, wenig Ertrag.
+Normal (1-13): nur 19 Trades, 100 % Gewinner. Signale mit < 10 Trades sind nicht aussagekraeftig.
+
+### Test: Signale nicht mehr handeln (Erst-Entries blockiert, Nachkaeufe bleiben)
+
+| Gewinn %/DD % | W1 | W2 | W2c | W4a | W3 | Val | H1 | H2 |
+|---|---|---|---|---|---|---|---|---|
+| v13 | 64,1/0 | 59,2/4,3 | 52,3/12,0 | 243,7/6,2 | 1607,7/6,3 | 60,2/6,7 | 938,1/10,8 | 259,2/5,2 |
+| ohne 145 | 66,7/0 | 59,1/0 | 59,2/10,8 | 203,7/6,5 | 1579,4/6,6 | 43,2/6,4 | 755,9/10,6 | 224,5/6,1 |
+| ohne Rebuy | 61,5/0 | 65,0/4,3 | 50,5/12,0 | 223,4/6,2 | 1468,8/6,3 | 67,1/0,3 | 916,6/10,8 | 241,1/11,2 |
+| ohne beides | 64,1/0 | 64,9/0 | 57,3/10,8 | 185,5/6,5 | 1459,6/6,6 | 49,2/0 | 741,9/10,6 | 232,9/0 |
+
+Risiko (7 Fenster, `tools/risk.py`):
+
+| | Trades | < -50 % | < -80 % | schlechtester | MC-DD med / 95 % | Summe Beitrag |
+|---|---|---|---|---|---|---|
+| v8 | 478 | 5 | 1 | -97 % | 20,0 / 29,6 | 832 |
+| v13 | 471 | 2 | 1 | -97 % | 13,4 / 19,6 | 868 |
+| ohne 145 | 398 | 2 | 1 | -97 % | 10,9 / 17,4 | 833 |
+| ohne Rebuy | 427 | 0 | 0 | -49 % | 13,4 / 20,0 | 854 |
+| ohne beides | 352 | 0 | 0 | -49 % | 10,9 / 15,7 | 832 |
+
+Ergebnis: Signal 145 weglassen kostet 13-28 % Gewinn in mehreren Fenstern, entschaerft den
+Tail nicht (JASMY bleibt) -> verworfen. Rebuy weglassen entfernt alle Trades mit > 50 %
+Margenverlust bei ca. -1,6 % Gesamtbeitrag, aber gemischte Fenster (W3 -9 %, W4a -8 %, H2 -7 %
+bei DD 11,2 statt 5,2 %; Val +11 %, W2 +10 %) und keine Verbesserung der Monte-Carlo-Werte.
