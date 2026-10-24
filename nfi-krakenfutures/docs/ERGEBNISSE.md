@@ -261,3 +261,10 @@ H2-Drawdown 11,2 % entsteht durch Platzvergabe (SUSHI-145 -1618 USD statt ICP-Re
 
 Wie schon bei Rebuy 3x kippt H2 bei doppelten Gebuehren (-85 Punkte Gewinn, Drawdown 24 %). Der Tail-Vorteil
 (schlechtester Trade -62 % statt -97 %) ist klein, die Instabilitaet gross -> verworfen.
+
+## Signal 120 (Grind-Modus): Verlauf der Trades (v13, `SIGNAL=120 tools/trades145.py`, 24.10.2026)
+
+38 Trades (5 Fenster), alle im Plus (Median +8,1 %, 19,7 h, max. 72 h), nur 0,2 Nachkaeufe, aber im Median 2,1
+Teilverkaeufe. Tiefster Stand: Median -4,7 %; 6 Trades unter -25 % (ZEC 16.10.25 -58 %, BTC 13.04.24 -40 %,
+AVAX -38 %), alle erholten sich innerhalb von 34 h und endeten mit +2 bis +9 %. Beitrag zum Gesamtgewinn klein
+(ca. 4.800 USD ueber alle Fenster), dafuer Kennzahl "kein einziger Verlierer". Grafiken: `docs/img/out120_*.png`.

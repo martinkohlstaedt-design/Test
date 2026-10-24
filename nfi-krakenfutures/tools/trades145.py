@@ -1,5 +1,5 @@
 """Verlauf aller Signal-145-Trades (v13): Rendite auf eingesetzte Marge ueber die Zeit seit Eroeffnung.
-usage: trades145.py [STRAT] [ZIP-PRAEFIX]   (Python mit matplotlib, z. B. /root/plotvenv/bin/python)
+usage: SIGNAL=145 trades145.py [STRAT] [ZIP-PRAEFIX]   (Python mit matplotlib, z. B. /root/plotvenv/bin/python)
 Ausgabe: /root/ft_workdir/out145_*.png und trades145_paths.csv"""
 import glob, json, os, sys, zipfile
 import numpy as np, pandas as pd
@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 
 BT = "/root/ft_workdir/user_data/backtest_results/"
 DATA = "/root/ft_workdir/user_data/data/krakenfutures/futures/"
+SIG = os.environ.get("SIGNAL", "145")
 strat = sys.argv[1] if len(sys.argv) > 1 else "NFI_KF_V13"
 after = sys.argv[2] if len(sys.argv) > 2 else "backtest-result-2026-10-23_04-3"
 WIN = {"2022-08-24": "w1", "2023-05-01": "w2", "2024-01-01": "w2c", "2024-10-01": "w3",
@@ -36,7 +37,7 @@ for z in sorted(glob.glob(BT + "backtest-result-*.zip")):
     seen.add(w)
     for t in s["trades"]:
         tags = (t["enter_tag"] or "").split()
-        if not tags or tags[0] != "145":
+        if not tags or tags[0] != SIG:
             continue
         cd = candles(t["pair"])
         o = pd.Timestamp(t["open_date"]); c = pd.Timestamp(t["close_date"])
@@ -63,7 +64,7 @@ for z in sorted(glob.glob(BT + "backtest-result-*.zip")):
         paths.append((hours, mc, ml, t))
 d = pd.DataFrame(rows)
 d["win"] = d.final > 0
-print(f"{strat}: {len(d)} Trades mit Signal 145 an erster Stelle, Fenster {sorted(seen)}\n")
+print(f"{strat}: {len(d)} Trades mit Signal {SIG} an erster Stelle, Fenster {sorted(seen)}\n")
 
 def summ(g, name):
     print(f"{name:12s} n={len(g):3d}  Dauer h med {g.hours.median():5.1f} / max {g.hours.max():6.1f}  tiefster Stand med {g.dip.median():6.1f} %"
@@ -77,8 +78,8 @@ for lo, hi in [(0, -10), (-10, -25), (-25, -50), (-50, -101)]:
     g = d[(d.dip <= lo) & (d.dip > hi)]
     if len(g): print(f"  Dip {lo:4d} bis {hi:5d} %: n={len(g):3d}  Gewinner {g.win.mean()*100:4.0f} %  Endergebnis med {g.final.median():6.1f} %  Dauer med {g.hours.median():5.1f} h")
 print("\nVerlierer im Detail:")
-print(d[~d.win].sort_values("final")[["coin", "window", "open", "final", "dip", "hours", "grinds", "sells", "lev", "exit"]].to_string(index=False, float_format=lambda v: f"{v:.1f}"))
-d.to_csv("/root/ft_workdir/trades145_summary.csv", index=False)
+print(d[~d.win] if (~d.win).any() else d.sort_values("dip").head(12).sort_values("final")[["coin", "window", "open", "final", "dip", "hours", "grinds", "sells", "lev", "exit"]].to_string(index=False, float_format=lambda v: f"{v:.1f}"))
+d.to_csv(f"/root/ft_workdir/trades{SIG}_summary.csv", index=False)
 
 # Grafik 1: alle Verlaeufe
 fig, ax = plt.subplots(1, 2, figsize=(15, 6), gridspec_kw={"width_ratios": [3, 2]})
@@ -88,7 +89,7 @@ for (h, mc, ml, t), r in zip(paths, rows):
 ax[0].axhline(0, color="k", lw=0.8); ax[0].set_xlim(0, 168)
 ax[0].set_ylim(-100, 25)
 ax[0].set_xlabel("Stunden seit Eroeffnung (bis 168 h)"); ax[0].set_ylabel("Rendite auf eingesetzte Marge (%)")
-ax[0].set_title(f"Signal 145: {len(d)} Trades (gruen = Gewinner {d.win.sum()}, rot = Verlierer {(~d.win).sum()})")
+ax[0].set_title(f"Signal {SIG}: {len(d)} Trades (gruen = Gewinner {d.win.sum()}, rot = Verlierer {(~d.win).sum()})")
 grid = np.arange(0, 169, 2)
 med = []
 for gh in grid:
@@ -102,21 +103,24 @@ ax[1].set_xlabel("tiefster Stand waehrend des Trades (% Marge, 5m-Tief)"); ax[1]
 ax[1].set_title("Wie tief ging es vs. wie endete es (Punktgroesse = Dauer)")
 for _, r in d[d.final < -15].iterrows():
     ax[1].annotate(f"{r.coin} {r.open:%d.%m.%y}", (r.dip, r.final), fontsize=7, xytext=(3, 3), textcoords="offset points")
-plt.tight_layout(); plt.savefig("/root/ft_workdir/out145_alle.png", dpi=110); plt.close()
+plt.tight_layout(); plt.savefig(f"/root/ft_workdir/out{SIG}_alle.png", dpi=110); plt.close()
 
 # Grafik 2: Verlierer einzeln
 los = sorted([(r, p) for r, p in zip(rows, paths) if r["final"] <= 0], key=lambda x: x[0]["final"])
+LABEL = "Verlierer"
+if len(los) < 8:   # kaum Verlierer: stattdessen die 12 Trades mit dem tiefsten Stand zeigen
+    los = sorted(zip(rows, paths), key=lambda x: x[0]["dip"])[:12]; LABEL = "tiefste Staende"
 n = len(los); cols = 4; rws = int(np.ceil(n / cols))
 fig, axs = plt.subplots(rws, cols, figsize=(16, 3.1 * rws), squeeze=False)
 for a in axs.ravel(): a.axis("off")
 for a, (r, (h, mc, ml, t)) in zip(axs.ravel(), los):
-    a.axis("on"); a.plot(h, mc, color="#d1342f", lw=1.3); a.plot(h, ml, color="#d1342f", lw=0.5, alpha=0.4)
+    a.axis("on"); a.plot(h, mc, color="#d1342f" if r["final"] <= 0 else "#2a9d4b", lw=1.3); a.plot(h, ml, color="#d1342f" if r["final"] <= 0 else "#2a9d4b", lw=0.5, alpha=0.4)
     a.axhline(0, color="k", lw=0.6)
     for x in t["orders"][1:]:
         hx = (pd.Timestamp(x["order_filled_timestamp"], unit="ms", tz="UTC") - pd.Timestamp(t["open_date"])).total_seconds() / 3600
         a.axvline(hx, color="#1b3a8a" if x["ft_order_side"] == "buy" else "#e08a00", lw=0.8, ls=":")
     a.set_title(f"{r['coin']} {r['open']:%d.%m.%y}  Ende {r['final']:.0f} %  ({r['hours']:.0f} h, {r['lev']:.0f}x)", fontsize=9)
     a.tick_params(labelsize=7)
-fig.suptitle("Verlierer-Trades Signal 145 (blau = Nachkauf, orange = Teilverkauf/Derisk)", y=1.0)
-plt.tight_layout(); plt.savefig("/root/ft_workdir/out145_verlierer.png", dpi=100); plt.close()
-print("\nGrafiken: out145_alle.png, out145_verlierer.png")
+fig.suptitle(f"{LABEL}: Signal {SIG} (blau = Nachkauf, orange = Teilverkauf/Derisk)", y=1.0)
+plt.tight_layout(); plt.savefig(f"/root/ft_workdir/out{SIG}_verlierer.png", dpi=100); plt.close()
+print(f"\nGrafiken: out{SIG}_alle.png, out{SIG}_verlierer.png")
