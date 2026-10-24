@@ -197,3 +197,16 @@ Bei akutem BTC-Crash (> 3 % in 60 min) wird jede offene Position mit > 10 % Marg
 Weniger Gewinn bei gleichem oder hoeherem Drawdown (Verluste werden realisiert, die Erholung fehlt,
 der normale Drawdown steigt auf 14-22 %). Verworfen; restliche Fenster nicht mehr gelaufen.
 Damit sind alle Ideen zur Drawdown-Senkung ausgereizt.
+
+## Kleinkonto-Test: v13 mit 400 statt 10.000 USD (24.10.2026)
+
+`EXTRA="--dry-run-wallet 400" tools/run8.sh s400 NFI_KF_V13`, Gewinn %/Drawdown %/Trades:
+
+| | H2 | H1 | Val |
+|---|---|---|---|
+| 10.000 USD | 259,2/5,2/77 | 938,1/10,8/105 | 60,2/6,7/50 |
+| 400 USD | 305,4/5,4/76 | 968,1/10,7/104 | 62,7/6,4/50 |
+
+Keine Signale scheitern an Mindestordergroessen oder Marge (fast gleiche Tradezahl, keine
+Warnungen im Log). Der leicht hoehere Gewinn kommt aus Rundungen kleiner Ordergroessen, kein Vorteil.
+Nicht abgedeckt: Fuellquote der Limit-Orders und Slippage (live bisher 3 von 4 Signalen gefuellt).
