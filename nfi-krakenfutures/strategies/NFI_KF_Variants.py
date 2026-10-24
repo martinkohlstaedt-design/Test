@@ -2980,3 +2980,16 @@ class NFI_KF_V20_Trim30(_CrashTrimMixin, NFI_KF_V13):
 
 class NFI_KF_V20_Trim50(_CrashTrimMixin, NFI_KF_V13):
     _TRIM_FRACTION = 0.5
+
+
+class NFI_KF_V21_145Lev2(NFI_KF_V13):
+    """v13, aber Erst-Entries mit Signal 145 mit 2x statt 3x Hebel (gleiches Notional,
+    Marge x2 statt x4/3; Schwellen/ROI pro Trade mit Hebel/4 skaliert)."""
+    _LEV_145 = 2.0
+
+    def leverage(self, pair, current_time, current_rate, proposed_leverage, max_leverage,
+                 entry_tag, side, **kwargs):
+        if _is_145_only(entry_tag):
+            return min(self._LEV_145, max_leverage)
+        return super().leverage(pair, current_time, current_rate, proposed_leverage,
+                                max_leverage, entry_tag, side, **kwargs)

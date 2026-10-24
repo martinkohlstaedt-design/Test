@@ -10,7 +10,7 @@ rng = np.random.default_rng(1)
 def load(strat):
     seen, out = {}, []
     for z in sorted(glob.glob(BT + "backtest-result-*.zip")):
-        if os.path.basename(z) < after: continue
+        if os.path.basename(z) < after or os.path.basename(z) >= os.environ.get("BEFORE", "~"): continue
         try:
             if list(json.load(open(z.replace(".zip", ".meta.json"))).keys()) != [strat]: continue
             zf = zipfile.ZipFile(z); jn = [n for n in zf.namelist() if n.endswith(".json") and "config" not in n and "meta" not in n][0]

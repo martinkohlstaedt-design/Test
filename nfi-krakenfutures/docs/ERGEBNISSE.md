@@ -228,3 +228,18 @@ Autopilot-Ende: Empfehlung weiterhin v13 live beobachten.
 Stunden nicht unter ca. -25 % faellt, endet immer im Plus; wer darunter faellt, braucht Tage und endet meist im
 Minus. 7 von 11 Verlierern sind Grind-Faelle mit 3-9 Nachkaeufen (ENS, JUP x2, SUSHI, LDO, NEAR, BCH), ein
 Trade (JASMY) scheitert in 3 h am Stop-Loss, FET/HYPE/ZEC enden fast bei null. Grafiken: `docs/img/out145_*.png`.
+
+## Signal 145 mit 2x statt 3x Hebel (v21, verworfen, 24.10.2026)
+
+`NFI_KF_V21_145Lev2`: Erst-Entries mit Signal 145 mit 2x (gleiches Notional). Gewinn %/Drawdown %:
+
+| | W1 | W2 | W2c | W4a | W3 | Val | H1 | H2 |
+|---|---|---|---|---|---|---|---|---|
+| v13 | 64,1/0 | 59,2/4,3 | 52,3/12,0 | 243,7/6,2 | 1607,7/6,3 | 60,2/6,7 | 938,1/10,8 | 259,2/5,2 |
+| 145 mit 2x | 64,1/0 | 59,1/4,4 | 49,3/12,0 | 235,8/6,3 | 1430,7/8,4 | 60,1/6,8 | 933,3/10,9 | 258,3/5,3 |
+
+Drawdown inkl. offener Positionen: max 50,9 statt 51,3 %, Mittel 30,4 statt 31,1 %. Risiko (7 Fenster):
+Trades < -50 %: 2 (v13: 2), < -80 %: 1 (1, JASMY Rebuy), MC-DD 95 % 19,9 (19,6), Summe Beitrag 854 (868).
+Fazit: kein Risikovorteil (die Fast-Liquidationen kommen nicht aus 145), W3 -11 %, W2c -6 %. Verworfen.
+`tools/risk.py` hat die Umgebungsvariable `BEFORE` (obere Grenze des Dateinamens), damit spaetere Laeufe
+derselben Strategie (z. B. 400-USD-Test) die Referenz nicht ueberschreiben.
