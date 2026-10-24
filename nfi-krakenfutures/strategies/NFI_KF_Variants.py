@@ -2993,3 +2993,15 @@ class NFI_KF_V21_145Lev2(NFI_KF_V13):
             return min(self._LEV_145, max_leverage)
         return super().leverage(pair, current_time, current_rate, proposed_leverage,
                                 max_leverage, entry_tag, side, **kwargs)
+
+
+class NFI_KF_V22_RebuyLev2(NFI_KF_V13):
+    """v13, aber Erst-Entries im Rebuy-Modus (61-68) mit 2x statt 4x Hebel (gleiches Notional)."""
+    _LEV_REBUY = 2.0
+
+    def leverage(self, pair, current_time, current_rate, proposed_leverage, max_leverage,
+                 entry_tag, side, **kwargs):
+        if _is_rebuy_mode(self, entry_tag):
+            return min(self._LEV_REBUY, max_leverage)
+        return super().leverage(pair, current_time, current_rate, proposed_leverage,
+                                max_leverage, entry_tag, side, **kwargs)

@@ -243,3 +243,21 @@ Trades < -50 %: 2 (v13: 2), < -80 %: 1 (1, JASMY Rebuy), MC-DD 95 % 19,9 (19,6),
 Fazit: kein Risikovorteil (die Fast-Liquidationen kommen nicht aus 145), W3 -11 %, W2c -6 %. Verworfen.
 `tools/risk.py` hat die Umgebungsvariable `BEFORE` (obere Grenze des Dateinamens), damit spaetere Laeufe
 derselben Strategie (z. B. 400-USD-Test) die Referenz nicht ueberschreiben.
+
+## Rebuy mit 2x statt 4x Hebel (v22, verworfen, 24.10.2026)
+
+`NFI_KF_V22_RebuyLev2`: Erst-Entries im Rebuy-Modus (61-68) mit 2x (gleiches Notional). Normale Gebuehren,
+Gewinn %/Drawdown %: W4a 246,0/6,2 (v13 243,7), W3 1634,6/6,3 (1607,7), Val 60,8/6,8 (60,2), H1 929,7/10,8
+(938,1), H2 255,8/11,2 (259,2/5,2); W1, W2, W2c identisch. Risiko (7 Fenster): Trades < -50 %: 1 (2),
+< -80 %: 0 (1), schlechtester -62 % (-97 %), MC-DD 95 % 20,5 (19,6), max MtM-DD 51,3 (51,3).
+H2-Drawdown 11,2 % entsteht durch Platzvergabe (SUSHI-145 -1618 USD statt ICP-Rebuy -967 USD), nicht systematisch.
+
+**Gebuehren-Stresstest (doppelte Gebuehren, `--fee 0.001`)**, Gewinn %/Drawdown %:
+
+| | H2 | H1 |
+|---|---|---|
+| v13 | 244,1/5,3 | 913,9/10,9 |
+| Rebuy 2x | 158,7/24,0 | 906,1/10,9 |
+
+Wie schon bei Rebuy 3x kippt H2 bei doppelten Gebuehren (-85 Punkte Gewinn, Drawdown 24 %). Der Tail-Vorteil
+(schlechtester Trade -62 % statt -97 %) ist klein, die Instabilitaet gross -> verworfen.
