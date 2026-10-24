@@ -210,3 +210,12 @@ Damit sind alle Ideen zur Drawdown-Senkung ausgereizt.
 Keine Signale scheitern an Mindestordergroessen oder Marge (fast gleiche Tradezahl, keine
 Warnungen im Log). Der leicht hoehere Gewinn kommt aus Rundungen kleiner Ordergroessen, kein Vorteil.
 Nicht abgedeckt: Fuellquote der Limit-Orders und Slippage (live bisher 3 von 4 Signalen gefuellt).
+
+## Robustheit v13 gegen v8 (24.10.2026, aus den Referenzlaeufen, ohne neue Backtests)
+
+Gewinn v13 besser als v8 in 6 von 8 Fenstern (W2, W2c, W4a, W3, H1, H2), schlechter in W1 (-1,1) und Val
+(-1,4); Drawdown inkl. offener Positionen niedriger oder gleich in allen 8 Fenstern. In den nie zum Tuning
+benutzten Fenstern W1/W2 ist v13 neutral (-1,1 / +1,3 Punkte): Der belastbare Vorteil ist der
+Liquidationsschutz in den Crash-Fenstern, nicht der Mehrgewinn. Weitere geteilte Tests sind ohne neue,
+unabhaengige Kursdaten nicht moeglich (alle Fenster wurden schon zum Auswaehlen benutzt). Mit
+Autopilot-Ende: Empfehlung weiterhin v13 live beobachten.
