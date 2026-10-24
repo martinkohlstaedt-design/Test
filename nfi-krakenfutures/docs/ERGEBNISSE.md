@@ -219,3 +219,12 @@ benutzten Fenstern W1/W2 ist v13 neutral (-1,1 / +1,3 Punkte): Der belastbare Vo
 Liquidationsschutz in den Crash-Fenstern, nicht der Mehrgewinn. Weitere geteilte Tests sind ohne neue,
 unabhaengige Kursdaten nicht moeglich (alle Fenster wurden schon zum Auswaehlen benutzt). Mit
 Autopilot-Ende: Empfehlung weiterhin v13 live beobachten.
+
+## Signal 145: Verlauf der einzelnen Trades (v13, `tools/trades145.py`, 24.10.2026)
+
+95 Trades (7 Fenster, alle 3x). 84 Gewinner (Median +6,4 %, 4,8 h), 11 Verlierer (Median -23 %, 132 h, im Mittel
+4,3 Nachkaeufe und 5,1 Teilverkaeufe). Tiefster Stand auf Marge: bis -10 % 60 Trades, alle im Plus; -10 bis -25 %
+19 Trades, alle im Plus (Median 13,5 h); -25 bis -50 % 15 Trades, nur 5 im Plus. Faustregel: Wer in den ersten
+Stunden nicht unter ca. -25 % faellt, endet immer im Plus; wer darunter faellt, braucht Tage und endet meist im
+Minus. 7 von 11 Verlierern sind Grind-Faelle mit 3-9 Nachkaeufen (ENS, JUP x2, SUSHI, LDO, NEAR, BCH), ein
+Trade (JASMY) scheitert in 3 h am Stop-Loss, FET/HYPE/ZEC enden fast bei null. Grafiken: `docs/img/out145_*.png`.
