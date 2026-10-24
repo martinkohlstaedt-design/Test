@@ -182,3 +182,18 @@ bei kaum weniger Drawdown oder nur In-Sample-Gewinn. Der Drawdown inkl. offener 
 an Crash-Tagen) ist strukturell (5 gleichzeitig offene Positionen). Ungetestet blieben nur Eingriffe
 in bestehende Positionen (Teilverkauf bei Crash), die der verworfenen Notbremse/DeriskHold aehneln.
 Empfehlung: v13 live beobachten (Spalte `leverage` der neuen Crash-/145-/Quick-Trades = 3.0).
+
+## Crash-Trim (v20, verworfen, 24.10.2026)
+
+Bei akutem BTC-Crash (> 3 % in 60 min) wird jede offene Position mit > 10 % Margenverlust einmalig um
+30 % (`NFI_KF_V20_Trim30`) bzw. 50 % (`Trim50`) verkleinert. Nur Crash-Fenster getestet (Gewinn %/MtM-DD %):
+
+| | W2c | W4a | W3 | H1 |
+|---|---|---|---|---|
+| v13 | 52,3/47,8 | 243,7/41,7 | 1607,7/51,3 | 938,1/50,9 |
+| Trim30 | 38,1/55,9 | 209,4/41,9 | 1144,2/53,0 | 910,9/51,6 |
+| Trim50 | 48,1/42,0 | 209,0/41,9 | 978,6/52,2 | 763,7/44,8 |
+
+Weniger Gewinn bei gleichem oder hoeherem Drawdown (Verluste werden realisiert, die Erholung fehlt,
+der normale Drawdown steigt auf 14-22 %). Verworfen; restliche Fenster nicht mehr gelaufen.
+Damit sind alle Ideen zur Drawdown-Senkung ausgereizt.

@@ -2943,3 +2943,40 @@ class NFI_KF_V19_EqDD15(_EquityDDStakeMixin, NFI_KF_V13):
 class NFI_KF_V19_EqDD08(_EquityDDStakeMixin, NFI_KF_V13):
     _EQ_DD = 0.08
     _EQ_STAKE = 0.5
+
+
+# ============================================================================
+# v20-Kandidat: Crash-Trim. Faellt BTC akut (>3 % in 60 min), wird jede offene
+# Position, die schon mehr als _TRIM_LOSS Margenverlust hat, einmalig um
+# _TRIM_FRACTION verkleinert (weniger Exposure beim Crash).
+# ============================================================================
+
+class _CrashTrimMixin:
+    _TRIM_LOSS = -0.10
+    _TRIM_FRACTION = 0.3
+
+    def adjust_trade_position(self, trade, current_time, current_rate, current_profit,
+                              min_stake, max_stake, *args, **kwargs):
+        try:
+            done = trade.get_custom_data("crash_trim")
+        except Exception:
+            done = None
+        if (not done and current_profit is not None and current_profit <= self._TRIM_LOSS
+                and self._wild(trade.pair)):
+            sell = (trade.stake_amount or 0.0) * self._TRIM_FRACTION
+            if min_stake is None or sell > min_stake:
+                try:
+                    trade.set_custom_data("crash_trim", True)
+                except Exception:
+                    pass
+                return -sell, "crash_trim"
+        return super().adjust_trade_position(trade, current_time, current_rate, current_profit,
+                                             min_stake, max_stake, *args, **kwargs)
+
+
+class NFI_KF_V20_Trim30(_CrashTrimMixin, NFI_KF_V13):
+    _TRIM_FRACTION = 0.3
+
+
+class NFI_KF_V20_Trim50(_CrashTrimMixin, NFI_KF_V13):
+    _TRIM_FRACTION = 0.5
