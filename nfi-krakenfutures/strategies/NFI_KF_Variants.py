@@ -3005,3 +3005,15 @@ class NFI_KF_V22_RebuyLev2(NFI_KF_V13):
             return min(self._LEV_REBUY, max_leverage)
         return super().leverage(pair, current_time, current_rate, proposed_leverage,
                                 max_leverage, entry_tag, side, **kwargs)
+
+
+class NFI_KF_V23_Grind3(NFI_KF_V13):
+    """v13, aber Erst-Entries im Grind-Modus (Tag 120) mit dem 3-fachen Einsatz
+    (ca. 12 % statt 4 % des Kontos als Marge)."""
+    _GRIND_SCALE = 3.0
+
+    def _scale_for(self, entry_tag):
+        tags = (entry_tag or "").split()
+        if tags and all(c in self.long_grind_mode_tags for c in tags):
+            return self._GRIND_SCALE
+        return super()._scale_for(entry_tag)

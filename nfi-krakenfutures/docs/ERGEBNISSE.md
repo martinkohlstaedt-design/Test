@@ -268,3 +268,20 @@ Wie schon bei Rebuy 3x kippt H2 bei doppelten Gebuehren (-85 Punkte Gewinn, Draw
 Teilverkaeufe. Tiefster Stand: Median -4,7 %; 6 Trades unter -25 % (ZEC 16.10.25 -58 %, BTC 13.04.24 -40 %,
 AVAX -38 %), alle erholten sich innerhalb von 34 h und endeten mit +2 bis +9 %. Beitrag zum Gesamtgewinn klein
 (ca. 4.800 USD ueber alle Fenster), dafuer Kennzahl "kein einziger Verlierer". Grafiken: `docs/img/out120_*.png`.
+
+## Grind-Modus (Signal 120) mit 3-fachem Einsatz (v23, schwacher Kandidat, 24.10.2026)
+
+Ursache des kleinen Einsatzes: NFI startet im Grind-Modus mit Faktor 0,2 auf den Grundeinsatz (20 % Konto bei 5 Slots)
+= 4 % Marge (Top-Signale 29,7 %, Rebuy 5 %). `NFI_KF_V23_Grind3`: Faktor 3 -> ca. 12 % Marge. Gewinn %/Drawdown %:
+
+| | W1 | W2 | W2c | W4a | W3 | Val | H1 | H2 |
+|---|---|---|---|---|---|---|---|---|
+| v13 | 64,1/0 | 59,2/4,3 | 52,3/12,0 | 243,7/6,2 | 1607,7/6,3 | 60,2/6,7 | 938,1/10,8 | 259,2/5,2 |
+| Grind x3 | 64,1/0 | 59,2/4,3 | 57,2/12,0 | 257,5/6,2 | 1741,6/6,3 | 68,0/6,7 | 1015,0/10,8 | 237,7/11,2 |
+
+Risiko: max MtM-DD 51,2 % (51,3), Trades < -50 %: 2 (2), < -80 %: 1 (1), MC-DD 95 % 20,3 (19,6), Summe Beitrag 882 (868).
+H2-Rueckgang durch Platzvergabe: Am 04.06.2026 belegten groessere Grind-Positionen (AVAX, ARB) Slots, danach wurde ein
+SUSHI-145-Trade eroeffnet (-1599 USD). Gebuehren-Stresstest (doppelte Gebuehren), Gewinn %/DD %:
+H2 223,6/11,1 (v13 244,1/5,3), H1 990,5/10,9 (913,9/10,9) -> kein Kippen wie bei Rebuy 2x/3x.
+Fazit: kleiner Vorteil (+5-8 % Gewinn in 5 von 8 Fenstern, -8 % in H2), Risiko unveraendert; nur ein Wert (x3) getestet, nicht gesucht.
+Praktisch fuer ein 400-USD-Konto: Marge 12 % (ca. 48 USD) statt 4 % (ca. 16 USD) liegt eher ueber der Mindestordergroesse.
