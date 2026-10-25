@@ -285,3 +285,19 @@ SUSHI-145-Trade eroeffnet (-1599 USD). Gebuehren-Stresstest (doppelte Gebuehren)
 H2 223,6/11,1 (v13 244,1/5,3), H1 990,5/10,9 (913,9/10,9) -> kein Kippen wie bei Rebuy 2x/3x.
 Fazit: kleiner Vorteil (+5-8 % Gewinn in 5 von 8 Fenstern, -8 % in H2), Risiko unveraendert; nur ein Wert (x3) getestet, nicht gesucht.
 Praktisch fuer ein 400-USD-Konto: Marge 12 % (ca. 48 USD) statt 4 % (ca. 16 USD) liegt eher ueber der Mindestordergroesse.
+
+## Drawdown: Positionsgroesse global und LossGate (v24, 25.10.2026)
+
+`NFI_KF_V24_Scale75/50` (alle Erst-Entries x0,75 bzw. x0,5), `NFI_KF_V24_LossGate2` (keine neuen Erst-Entries, solange
+>= 2 offene Positionen mehr als 15 % Margenverlust haben). Gewinn %/MtM-DD %:
+
+| | W2c | W4a | W3 | H1 | H2 | max MtM-DD | Mittel MtM-DD |
+|---|---|---|---|---|---|---|---|
+| v13 | 52,3/47,8 | 243,7/41,7 | 1607,7/51,3 | 938,1/50,9 | 259,2/19,4 | 51,3 | 31,1 |
+| Scale75 | 45,1/40,2 | 181,5/34,7 | 1009,9/47,1 | 510,3/41,4 | 163,2/14,7 | 47,1 | 25,8 |
+| Scale50 | 31,3/27,5 | 102,6/24,3 | 441,1/38,2 | 258,1/28,0 | 93,2/9,9 | 38,2 | 18,4 |
+| LossGate2 | 46,6/47,8 | 195,7/42,0 | 1206,2/46,2 | 888,1/50,9 | 220,2/19,4 | 50,9 | 30,5 |
+
+Gewinn/Drawdown (H1): v13 18,4; Scale75 12,3; Scale50 9,2 -> Verkleinern senkt den Gewinn (Zinseszins) staerker als den
+Drawdown. LossGate2 laesst den Drawdown fast unveraendert (50,9) und kostet 5-25 % Gewinn. Beide verworfen als
+Verbesserung; Scale ist nur ein Regler fuer wen weniger Risiko wichtiger ist als Gewinn.

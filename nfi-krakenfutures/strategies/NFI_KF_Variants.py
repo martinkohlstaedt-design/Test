@@ -3017,3 +3017,63 @@ class NFI_KF_V23_Grind3(NFI_KF_V13):
         if tags and all(c in self.long_grind_mode_tags for c in tags):
             return self._GRIND_SCALE
         return super()._scale_for(entry_tag)
+
+
+# ============================================================================
+# v24-Kandidaten (Drawdown): (a) alle Erst-Entries kleiner (Effizienzlinie:
+# Drawdown gegen Gewinn), (b) LossGate: keine neuen Erst-Entries, solange
+# bereits _GATE_N offene Positionen mehr als _GATE_LOSS Margenverlust haben.
+# ============================================================================
+
+class _GlobalScaleMixin:
+    _GLOBAL_SCALE = 0.75
+
+    def custom_stake_amount(self, pair, current_time, current_rate, proposed_stake,
+                            min_stake, max_stake, leverage, entry_tag, side, **kwargs):
+        stake = super().custom_stake_amount(
+            pair, current_time, current_rate, proposed_stake, min_stake, max_stake,
+            leverage, entry_tag, side, **kwargs)
+        if not stake:
+            return stake
+        stake *= self._GLOBAL_SCALE
+        if min_stake is not None and stake < min_stake:
+            return min_stake
+        return stake
+
+
+class NFI_KF_V24_Scale75(_GlobalScaleMixin, NFI_KF_V13):
+    _GLOBAL_SCALE = 0.75
+
+
+class NFI_KF_V24_Scale50(_GlobalScaleMixin, NFI_KF_V13):
+    _GLOBAL_SCALE = 0.50
+
+
+class _LossGateMixin:
+    _GATE_N = 2
+    _GATE_LOSS = -0.15
+
+    def _n_underwater(self):
+        from freqtrade.persistence import Trade as _T
+        n = 0
+        for t in _T.get_trades_proxy(is_open=True):
+            try:
+                df, _ = self.dp.get_analyzed_dataframe(t.pair, self.timeframe)
+                if t.calc_profit_ratio(float(df["close"].iloc[-1])) <= self._GATE_LOSS:
+                    n += 1
+            except Exception:
+                pass
+        return n
+
+    def confirm_trade_entry(self, pair, order_type, amount, rate, time_in_force,
+                            current_time, entry_tag, side, **kwargs):
+        from freqtrade.persistence import Trade as _T
+        if not _T.get_trades_proxy(pair=pair, is_open=True) and self._n_underwater() >= self._GATE_N:
+            return False
+        return super().confirm_trade_entry(
+            pair, order_type, amount, rate, time_in_force, current_time, entry_tag, side, **kwargs)
+
+
+class NFI_KF_V24_LossGate2(_LossGateMixin, NFI_KF_V13):
+    _GATE_N = 2
+    _GATE_LOSS = -0.15
