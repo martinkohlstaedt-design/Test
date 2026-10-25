@@ -301,3 +301,11 @@ Praktisch fuer ein 400-USD-Konto: Marge 12 % (ca. 48 USD) statt 4 % (ca. 16 USD)
 Gewinn/Drawdown (H1): v13 18,4; Scale75 12,3; Scale50 9,2 -> Verkleinern senkt den Gewinn (Zinseszins) staerker als den
 Drawdown. LossGate2 laesst den Drawdown fast unveraendert (50,9) und kostet 5-25 % Gewinn. Beide verworfen als
 Verbesserung; Scale ist nur ein Regler fuer wen weniger Risiko wichtiger ist als Gewinn.
+
+## Signal 141: Verlauf der Trades (v13, `SIGNAL=141 tools/trades145.py`, 25.10.2026)
+
+98 Trades (7 Fenster), 96 Gewinner (Median +5,3 %, 3,2 h), 2 Verlierer: ZEC 01.12.25 (-20,9 %, 84 h, 7 Nachkaeufe,
+-9143 USD) und LDO 03.02.25 (-10,9 %, -2084 USD). Tiefster Stand: 60 Trades bis -10 %, 27 bis -25 %, 8 bis -50 %
+(alle im Plus), 3 darunter (DOGE 12.04.24 -56 % endet +0,4 %, ZEC -72 %, LDO -65 %). Summe Gewinn 74.468 USD, groesster
+Einzelverlust frisst ca. 12 % davon. Beste Trades: AXS +25 %, XMR +19 %, ONDO +25 % (ROI-Deckel ca. 25 %).
+Grafiken: `docs/img/out141_*.png`.
