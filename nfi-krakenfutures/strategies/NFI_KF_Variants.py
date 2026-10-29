@@ -3077,3 +3077,29 @@ class _LossGateMixin:
 class NFI_KF_V24_LossGate2(_LossGateMixin, NFI_KF_V13):
     _GATE_N = 2
     _GATE_LOSS = -0.15
+
+
+# ============================================================================
+# v25: mehr Signale. 19 Coins und mehrere Modi liefern nie Trades; Slots sind
+# meist frei (Trades dauern median 3 h). Experimentelle NFI-Signale einschalten.
+# ============================================================================
+
+class NFI_KF_V25_Exp7to11(NFI_KF_V13):
+    long_entry_signal_params = {
+        **NFI_KF_V13.long_entry_signal_params,
+        **{f"long_entry_condition_{i}_enable": True for i in range(7, 12)},
+    }
+
+
+class NFI_KF_V25_Rapid105(NFI_KF_V13):
+    long_entry_signal_params = {
+        **NFI_KF_V13.long_entry_signal_params,
+        "long_entry_condition_105_enable": True,
+    }
+
+
+class NFI_KF_V25_Btc121(NFI_KF_V13):
+    long_entry_signal_params = {
+        **NFI_KF_V13.long_entry_signal_params,
+        "long_entry_condition_121_enable": True,
+    }

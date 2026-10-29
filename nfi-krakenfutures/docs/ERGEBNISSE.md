@@ -328,3 +328,17 @@ Bei 24 h verbessern sich die 16 Verlierer (> 24 h) um 15 Punkte (-91,0 -> -75,8)
 94 Punkte (+42,4 -> -52,0): Sie sind nach 24 h noch tief im Minus und erholen sich (DOGE 141 -55 % -> +2,4 %, EGLD,
 INJ, WLD, FET). Es gibt keine Frist, die netto etwas bringt, auch 5 Tage nicht (alle 6 Trades > 7 Tage enden zwar
 im Verlust, aber ein Stopp nach 5 Tagen waere trotzdem schlechter als halten). Verworfen.
+
+## Zusatzsignale einschalten (v25, alle verworfen, 29.10.2026)
+
+Idee: Slots sind meist frei (Trades median 3 h), Signale sind der Engpass. NFI-Signale, die standardmaessig aus sind:
+Gewinn %/Drawdown %/Trades (v13: H2 259,2/5,2/77, W3 1607,7/6,3/125):
+
+| | H2 | W3 |
+|---|---|---|
+| Signale 7-11 (`NFI_KF_V25_Exp7to11`) | -80,8/96,6/589 | nicht gelaufen |
+| Signal 105 Rapid (`_Rapid105`) | 141,3/64,9/313 | -93,0/99,0/427 |
+| Signal 121 BTC (`_Btc121`) | 38,1/24,4/340 | abgebrochen |
+
+Alle loesen 4-7x mehr Trades aus, die im Median laenger laufen und oefter verlieren; die Marge ist ausgelastet,
+die Top-Signale finden keinen freien Slot mehr. Die Signale sind zu Recht aus. Verworfen.
