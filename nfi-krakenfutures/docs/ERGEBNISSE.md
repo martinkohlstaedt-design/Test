@@ -342,3 +342,10 @@ Gewinn %/Drawdown %/Trades (v13: H2 259,2/5,2/77, W3 1607,7/6,3/125):
 
 Alle loesen 4-7x mehr Trades aus, die im Median laenger laufen und oefter verlieren; die Marge ist ausgelastet,
 die Top-Signale finden keinen freien Slot mehr. Die Signale sind zu Recht aus. Verworfen.
+
+## Update-Paket v23 (Grind x3) vorbereitet (29.10.2026)
+
+`deploy/nfi_v23_update.py`: haengt `NFI_KF_V23_Grind3` an die Strategie-Datei an, stellt `--strategy` in der
+`docker-compose.yml` von `NFI_KF_V13` auf `NFI_KF_V23_Grind3`, legt Backups `*.vorv23` an, fasst `config.json` und
+Datenbank nicht an. Lokal gegen einen simulierten Serverstand getestet (zweimal ausgefuehrt, Klasse nur einmal,
+`_scale_for("120") = 3.0`, 141-145/Rebuy unveraendert). Noch nicht auf dem Server eingespielt.
