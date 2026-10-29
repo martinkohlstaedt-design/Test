@@ -326,5 +326,5 @@ ohne Funding) statt des echten Ausstiegs; + = besser als heute. Summe in % vom K
 
 Bei 24 h verbessern sich die 16 Verlierer (> 24 h) um 15 Punkte (-91,0 -> -75,8), aber die 41 Gewinner > 24 h verlieren
 94 Punkte (+42,4 -> -52,0): Sie sind nach 24 h noch tief im Minus und erholen sich (DOGE 141 -55 % -> +2,4 %, EGLD,
-INJ, WLD, FET). Es gibt keine Frist, die netto etwas bringt, auch 5 Tage nicht. Nur 3 von 6 Trades > 7 Tage enden
-spaet im Verlust, die anderen halten durch Nachkaeufe. Verworfen.
+INJ, WLD, FET). Es gibt keine Frist, die netto etwas bringt, auch 5 Tage nicht (alle 6 Trades > 7 Tage enden zwar
+im Verlust, aber ein Stopp nach 5 Tagen waere trotzdem schlechter als halten). Verworfen.
