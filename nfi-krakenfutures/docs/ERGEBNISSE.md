@@ -371,3 +371,25 @@ Gewinn %, Crash-Fenster:
 
 Beim 10.10.25 faellt BTC in 1 h fast 11 %, die Staffel erlaubt sofort 4 Positionen; blockiert werden vor allem
 spaetere Kaeufe in der Erholung (die profitabelsten). Drawdown kaum besser, W3 -28 bis -30 %. Verworfen.
+
+## Crash-Limit tiefer (v27, nicht belastbar -> verworfen, 29.10.2026)
+
+Im akuten Crash Erst-Entries als Limit 1,5/3/5 % unter dem vorgeschlagenen Kurs (`NFI_KF_V27_CrashDip15/30/50`).
+5m-Backtest Crash-Fenster, Gewinn %/MtM-DD %: v13 W2c 52,3/47,8, W3 1607,7/51,3, H1 938,1/50,9; Dip15 75,6/42,4,
+1676,8/41,7, 406,2/30,0; Dip30 68,8/41,9, 1772,7/41,7, 469,2/30,1; Dip50 60,2/41,9, 1444,8/42,2, 566,0/30,2.
+
+**Artefakt:** Die tieferen Limits werden im 5m-Backtest in derselben Kerze gefuellt und sofort zum Eroeffnungskurs
+der Kerze wieder verkauft (Dauer 0, z. B. HYPE 10.10.25 +4,3 % statt +50 % bei v13) - real unmoeglich.
+
+**Gegenprobe mit 1m-Detail** (`tools/runcrash.sh`, nur 10.-13.10.2025, 1m-Kerzen aller 86 Coins in `data_d1`):
+
+| 10.-13.10.25, Start 10.000 USD | nur 5m | mit 1m-Detail |
+|---|---|---|
+| v13 | 293,6 % | 440,9 % |
+| Dip 1,5 % | 129,7 % | 331,1 % |
+| Dip 3 % | 157,3 % | 334,5 % |
+
+Mit realistischer Simulation kostet das tiefere Limit am Crash-Tag rund ein Viertel des Gewinns. Der MtM-Drawdown
+(22 statt 51 %) ist bei 1m-Detail nicht sauber messbar (mtm.py nutzt 5m-Tiefs, Positionen laufen nur 1-4 min).
+Verworfen. Nebenbefund: Crash-Fenster reagieren stark auf die Simulationsgenauigkeit (v13 294 vs 441 % am
+selben Tag); die Crash-Gewinne im 5m-Backtest sind entsprechend unsicher.
