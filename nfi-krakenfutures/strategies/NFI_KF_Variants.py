@@ -3103,3 +3103,85 @@ class NFI_KF_V25_Btc121(NFI_KF_V13):
         **NFI_KF_V13.long_entry_signal_params,
         "long_entry_condition_121_enable": True,
     }
+
+
+# ============================================================================
+# v26: Crash-Staffel. Befund (tools/troughs): An allen vier Drawdown-Tiefpunkten
+# wurden ALLE Slots innerhalb von 20-30 min im fallenden Messer gefuellt (je
+# 20-48 % Marge), die Positionen enden meist im Plus, ziehen das Konto aber
+# auf -41 bis -51 %. Statt Crash-Kaeufe zu verbieten: nach Tiefe staffeln.
+# Erlaubte Zahl frischer Positionen (eroeffnet in den letzten _COHORT_H Stunden)
+# waechst mit dem BTC-Abstand zum 24h-Hoch: 1 + (Abstand - _LADDER_START) / _LADDER_STEP.
+# ============================================================================
+
+class _CrashLadderMixin:
+    _LADDER_START = 0.03
+    _LADDER_STEP = 0.02
+    _COHORT_H = 2.0
+
+    def _btc_dd24(self):
+        try:
+            df, _ = self.dp.get_analyzed_dataframe("BTC/USD:USD", self.timeframe)
+            c = df["close"].iloc[-288:]
+            if len(c) < 24:
+                return 0.0
+            return float(1 - c.iloc[-1] / c.max())
+        except Exception:
+            return 0.0
+
+    def confirm_trade_entry(self, pair, order_type, amount, rate, time_in_force,
+                            current_time, entry_tag, side, **kwargs):
+        from datetime import timedelta
+        from freqtrade.persistence import Trade as _T
+        if not _T.get_trades_proxy(pair=pair, is_open=True):
+            dd = self._btc_dd24()
+            if dd >= self._LADDER_START:
+                allowed = 1 + int((dd - self._LADDER_START) / self._LADDER_STEP)
+                since = current_time - timedelta(hours=self._COHORT_H)
+                fresh = sum(1 for t in _T.get_trades_proxy(is_open=True)
+                            if t.open_date_utc >= since)
+                if fresh >= allowed:
+                    return False
+        return super().confirm_trade_entry(
+            pair, order_type, amount, rate, time_in_force, current_time, entry_tag, side, **kwargs)
+
+
+class NFI_KF_V26_Ladder2(_CrashLadderMixin, NFI_KF_V13):
+    _LADDER_STEP = 0.02
+
+
+class NFI_KF_V26_Ladder15(_CrashLadderMixin, NFI_KF_V13):
+    _LADDER_STEP = 0.015
+
+
+class NFI_KF_V26_Ladder3(_CrashLadderMixin, NFI_KF_V13):
+    _LADDER_STEP = 0.03
+
+
+# ============================================================================
+# v27: Crash-Limit tiefer. Im akuten Crash (BTC > 3 % in 60 min) Erst-Entries
+# als Limit _CRASH_DIP unter dem vorgeschlagenen Kurs: faellt das Messer weiter
+# (Tiefpunkte lagen 10-30 min nach den Kaeufen), wird billiger gefuellt; dreht der
+# Markt sofort, entfaellt der Kauf (Order-Timeout 10 min). Normale Phasen unveraendert.
+# ============================================================================
+
+class _CrashDipMixin:
+    _CRASH_DIP = 0.015
+
+    def custom_entry_price(self, pair, trade, current_time, proposed_rate, entry_tag, side, **kwargs):
+        rate = super().custom_entry_price(pair, trade, current_time, proposed_rate, entry_tag, side, **kwargs)
+        if trade is None and side == "long" and rate and self._wild(pair):
+            return rate * (1.0 - self._CRASH_DIP)
+        return rate
+
+
+class NFI_KF_V27_CrashDip15(_CrashDipMixin, NFI_KF_V13):
+    _CRASH_DIP = 0.015
+
+
+class NFI_KF_V27_CrashDip30(_CrashDipMixin, NFI_KF_V13):
+    _CRASH_DIP = 0.03
+
+
+class NFI_KF_V27_CrashDip50(_CrashDipMixin, NFI_KF_V13):
+    _CRASH_DIP = 0.05

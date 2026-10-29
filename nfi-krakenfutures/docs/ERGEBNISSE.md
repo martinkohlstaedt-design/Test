@@ -349,3 +349,25 @@ die Top-Signale finden keinen freien Slot mehr. Die Signale sind zu Recht aus. V
 `docker-compose.yml` von `NFI_KF_V13` auf `NFI_KF_V23_Grind3`, legt Backups `*.vorv23` an, fasst `config.json` und
 Datenbank nicht an. Lokal gegen einen simulierten Serverstand getestet (zweimal ausgefuehrt, Klasse nur einmal,
 `_scale_for("120") = 3.0`, 141-145/Rebuy unveraendert). Noch nicht auf dem Server eingespielt.
+
+## Anatomie der Drawdown-Tiefpunkte (`tools/troughs.py`, 29.10.2026)
+
+An allen vier Tiefpunkten (13.04.24, 20.12.24, 03.02.25, 10.10.25; BTC 8-11 % unter 24h-Hoch) wurden alle Slots
+innerhalb von 20-30 min im fallenden Markt gefuellt (je 20-48 % Marge), Konto unrealisiert -41 bis -51 %. Die
+meisten dieser Positionen enden im Plus (HYPE 10.10.25 +50 %). Der Drawdown ist also "alles gleichzeitig am Anfang
+des Falls gekauft", nicht schlechte Trades.
+
+## Crash-Staffel (v26, verworfen)
+
+Erlaubte Zahl frischer Positionen (letzte 2 h) waechst mit BTC-Abstand zum 24h-Hoch (ab 3 %, je Stufe +1).
+Gewinn %, Crash-Fenster:
+
+| | W2c | W4a | W3 | H1 | max MtM-DD |
+|---|---|---|---|---|---|
+| v13 | 52,3 | 243,7 | 1607,7 | 938,1 | 51,3 |
+| Stufe 1,5 % | 54,0 | 202,6 | 1161,3 | 864,8 | 50,9 |
+| Stufe 2 % | 52,1 | 195,5 | 1135,0 | 579,4 | 50,9 |
+| Stufe 3 % | 35,0 | - | - | 701,3 | - |
+
+Beim 10.10.25 faellt BTC in 1 h fast 11 %, die Staffel erlaubt sofort 4 Positionen; blockiert werden vor allem
+spaetere Kaeufe in der Erholung (die profitabelsten). Drawdown kaum besser, W3 -28 bis -30 %. Verworfen.
