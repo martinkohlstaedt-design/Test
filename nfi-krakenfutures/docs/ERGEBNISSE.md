@@ -309,3 +309,22 @@ Verbesserung; Scale ist nur ein Regler fuer wen weniger Risiko wichtiger ist als
 (alle im Plus), 3 darunter (DOGE 12.04.24 -56 % endet +0,4 %, ZEC -72 %, LDO -65 %). Summe Gewinn 74.468 USD, groesster
 Einzelverlust frisst ca. 12 % davon. Beste Trades: AXS +25 %, XMR +19 %, ONDO +25 % (ROI-Deckel ca. 25 %).
 Grafiken: `docs/img/out141_*.png`.
+
+## Zeitstopp: Trades nach X Stunden schliessen? (v13, `tools/timestop.py`, 29.10.2026)
+
+Simulation auf den 471 Trades (7 Fenster): Wert der Position nach X h (5m-Schlusskurs, Gebuehren 0,05 % je Seite,
+ohne Funding) statt des echten Ausstiegs; + = besser als heute. Summe in % vom Kontostand bei Eroeffnung
+(heutiger Gesamtbeitrag 868):
+
+| Frist | betroffene Trades | alle schliessen | nur die im Minus schliessen |
+|---|---|---|---|
+| 12 h | 104 | -142,6 | -128,7 |
+| 24 h | 57 | -79,4 | -74,7 |
+| 48 h | 27 | -30,7 | -31,6 |
+| 72 h | 18 | -18,8 | -18,8 |
+| 120 h | 11 | -10,0 | -10,0 |
+
+Bei 24 h verbessern sich die 16 Verlierer (> 24 h) um 15 Punkte (-91,0 -> -75,8), aber die 41 Gewinner > 24 h verlieren
+94 Punkte (+42,4 -> -52,0): Sie sind nach 24 h noch tief im Minus und erholen sich (DOGE 141 -55 % -> +2,4 %, EGLD,
+INJ, WLD, FET). Es gibt keine Frist, die netto etwas bringt, auch 5 Tage nicht. Nur 3 von 6 Trades > 7 Tage enden
+spaet im Verlust, die anderen halten durch Nachkaeufe. Verworfen.
