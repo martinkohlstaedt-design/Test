@@ -393,3 +393,20 @@ Mit realistischer Simulation kostet das tiefere Limit am Crash-Tag rund ein Vier
 (22 statt 51 %) ist bei 1m-Detail nicht sauber messbar (mtm.py nutzt 5m-Tiefs, Positionen laufen nur 1-4 min).
 Verworfen. Nebenbefund: Crash-Fenster reagieren stark auf die Simulationsgenauigkeit (v13 294 vs 441 % am
 selben Tag); die Crash-Gewinne im 5m-Backtest sind entsprechend unsicher.
+
+## Grind x3 an den vier Crash-Tagen mit 1m-Detail (30.10.2026)
+
+`tools/runcrash.sh`, je 3-4 Tage ab leerem Konto (10.000 USD), 1m-Kerzen aller 86 Coins (`data_d1`..`data_d4`).
+Gewinn %/Drawdown %:
+
+| Crash | v13 1m-Detail | Grind x3 1m-Detail | v13 nur 5m | Grind x3 nur 5m |
+|---|---|---|---|---|
+| 12.-16.04.2024 | -16,5/34,7 | -16,7/34,7 | -44,7/53,4 | -45,6/53,4 |
+| 19.-22.12.2024 | -1,1/17,8 | -3,5/19,8 | 8,7/7,9 | 6,2/10,0 |
+| 02.-05.02.2025 | 64,7/0,5 | 67,2/0,5 | 63,8/10,0 | 60,1/10,1 |
+| 10.-13.10.2025 | 440,9/1,6 | 443,9/1,6 | 293,6/2,3 | 295,8/2,3 |
+
+Grind x3 ist an Crash-Tagen praktisch neutral (-2,4 bis +3,1 Punkte), das Crash-Risiko steigt nicht. Der
+Vorteil aus dem 5m-Backtest (+5-8 % in 5 von 8 Fenstern) entsteht in normalen Phasen und ist mit 1m-Detail
+nicht nachgerechnet (dafuer fehlen 1m-Daten fuer ganze Fenster). Nebenbefund: Der 5m-Backtest liegt an
+Crash-Tagen in beide Richtungen deutlich daneben (13.04.24: -45 % statt -17 %; 10.10.25: 294 % statt 441 %).
