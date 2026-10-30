@@ -486,3 +486,6 @@ Neue NFI v18.0.181 mit v23, Risiko: max/Mittel MtM-DD 51,3/32,5 (alte NFI 51,2/3
 Liquidationen 0, MC-DD 95 % 19,8 (20,3), Summe Beitrag 886 (882) -> praktisch gleich, kein Umstieg.
 Hinweis: mtm.py/risk.py nehmen je Fenster den letzten passenden Lauf ab dem Praefix; bei mehreren Laeufen derselben
 Strategie (alte/neue NFI) `BEFORE` setzen bzw. Praefix eng waehlen.
+
+**Live seit 30.10.2026 18:06 UTC: `NFI_KF_V23L`** (v23F + selbst berechneter Liquidationspreis + Telegram-Warnung).
+Backups auf dem Server: `*.vorv23` (v13), `*.vorv23f` (v23), `*.vorv23l` (v23F).
