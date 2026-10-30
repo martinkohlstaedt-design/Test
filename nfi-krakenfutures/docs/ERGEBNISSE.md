@@ -455,3 +455,29 @@ lokal mit simuliertem Serverstand und Kraken-artigen Orders getestet. Ausserdem:
 
 **Live seit 30.10.2026 16:25 UTC: `NFI_KF_V23F`** (v23 Grind x3 + Timeout-Fix), Log ohne Fehler beim Start.
 Backups auf dem Server: `*.vorv23` (Stand v13) und `*.vorv23f` (Stand v23).
+
+## Recherche NFI-GitHub/Foren (30.10.2026)
+
+- Live-NFI v18.0.61, aktuell v18.0.181 (367 X8-Commits, v. a. neue Signal-Schutzfilter, near-liquidation de-risk PR #1464).
+  Test v23 mit neuer NFI (`sd_new`, `SPATH=sd_new tools/run8.sh`): W1 59,9 (64,1), W2 59,2 (59,2), W2c 69,1 (57,2),
+  W4a 249,5 (257,5), W3 1814,3 (1741,6), Val 60,5 (68,0), H1 1003,7 (1015,0), H2 236,7/7,3 (237,7/11,2). Kein klarer
+  Vorteil, kein Umstieg.
+- Issue #1035: NFI-Schwellen sind auf 3x ausgelegt. Issue #1038: Liquidation ist der letzte Stop. Issue #1036:
+  Derisk und Grind koennen sich gegenseitig aufheben.
+- **Liquidationspreis:** Der Backtest setzt ihn (freqtrade rechnet aus Krakens Margin-Stufen, 4x ca. -22 bis -24 %
+  Kurs, 3x ca. -31 bis -33 %), live liefert Kraken None. NFIs Logik nahe der Liquidation wirkt also nur im Backtest.
+  Fix `deploy/nfi_v23l_update.py` (`NFI_KF_V23L` = v23F + `_LiqAwareMixin`: berechnet den Preis live wie der
+  Backtest, Telegram-Warnung bei < 10 % Abstand, je Trade hoechstens alle 6 h). Lokal getestet.
+
+## 3x Hebel fuer alle (v29, verworfen)
+
+| Gewinn %/DD % | W1 | W2 | W2c | W4a | W3 | Val | H1 | H2 |
+|---|---|---|---|---|---|---|---|---|
+| v23 | 64,1/0 | 59,2/4,3 | 57,2/12,0 | 257,5/6,2 | 1741,6/6,3 | 68,0/6,7 | 1015,0/10,8 | 237,7/11,2 |
+| 3x gleicher Positionswert (`Lev3Eq`) | 65,8/0 | 56,6/4,3 | 46,2/12,0 | 218,2/7,3 | 1309,0/6,4 | 57,1/7,0 | 943,0/11,7 | 280,7/10,3 |
+| 3x wie NFI (`Lev3Nat`) | 41,5/0 | 47,0/3,5 | 62,8/8,9 | 192,3/0 | 1069,8/6,4 | 46,0/7,8 | 569,4/10,8 | 177,3/6,1 |
+
+Risiko: max/Mittel MtM-DD v23 51,3/32,5, Lev3Eq 50,9/30,4, Lev3Nat 45,0/26,3. Trades < -50/-80 %, Liquidationen:
+v23 2/1/0, Lev3Eq 1/1/1, Lev3Nat 3/2/1. MC-DD 95 %: 20,3 / 20,4 / 17,6.
+Lev3Eq: mehr Marge je Trade, weniger Kapital fuer weitere Signale, Risiko gleich. Lev3Nat: wirkt wie kleinere Positionen
+(aehnlich Scale75), dazu spaeteres Derisk -> mehr tiefe Verluste. Der gemischte Hebel von v23 bleibt besser.

@@ -3219,3 +3219,127 @@ class NFI_KF_V28_Confirm1(_ConfirmEntryMixin, NFI_KF_V13):
 
 class NFI_KF_V28_Confirm2(_ConfirmEntryMixin, NFI_KF_V13):
     _CONFIRM_BARS = 2
+
+
+# ============================================================================
+# v30: Liquidationspreis selbst berechnen. Kraken liefert freqtrade keinen
+# Liquidationspreis (live None) und der Backtest setzt ihn nie -> NFIs
+# Liquidations-Logik (grind_4-Rettung u. a.) ist tot und der Backtest kennt keine
+# Liquidation (nur Stop -99 % Marge). Hier aus Krakens Margin-Stufen
+# (dry_run_liquidation_price) nach jeder Pruefung neu gesetzt: wirkt live UND im
+# Backtest (freqtrade simuliert dann Liquidationen). Live zusaetzlich Telegram-
+# Warnung, wenn der Kurs naeher als _LIQ_WARN an die Liquidation kommt.
+# ============================================================================
+
+class _LiqAwareMixin:
+    _LIQ_WARN = 0.10
+    _liq_warned = None
+
+    def _estimate_liq(self, trade):
+        ex = self.dp._exchange
+        return ex.dry_run_liquidation_price(
+            pair=trade.pair, open_rate=trade.open_rate, is_short=trade.is_short,
+            amount=trade.amount, stake_amount=trade.stake_amount, leverage=trade.leverage,
+            wallet_balance=trade.stake_amount, open_trades=[])
+
+    def adjust_trade_position(self, trade, current_time, current_rate, *args, **kwargs):
+        try:
+            lp = self._estimate_liq(trade)
+            if lp:
+                trade.set_liquidation_price(lp)
+                if (self.config["runmode"].value in ("live", "dry_run") and not trade.is_short
+                        and current_rate < lp * (1 + self._LIQ_WARN)):
+                    if self._liq_warned is None:
+                        self._liq_warned = {}
+                    last = self._liq_warned.get(trade.id)
+                    if last is None or (current_time - last).total_seconds() > 6 * 3600:
+                        self._liq_warned[trade.id] = current_time
+                        self.dp.send_msg(f"LIQUIDATIONS-WARNUNG {trade.pair}: Kurs {current_rate:.6g}, "
+                                         f"Liquidation ca. {lp:.6g} ({(current_rate / lp - 1) * 100:.1f} % Abstand)")
+        except Exception:
+            pass
+        return super().adjust_trade_position(trade, current_time, current_rate, *args, **kwargs)
+
+
+class NFI_KF_V30_Liq(_LiqAwareMixin, NFI_KF_V23_Grind3):
+    """v23 + selbst berechneter Liquidationspreis (+ Live-Warnung)."""
+
+
+class NFI_KF_V29_Lev3Eq(_LiqAwareMixin, NFI_KF_V23_Grind3):
+    """Alle Trades 3x bei gleichem Positionswert (Marge x4/3); Schwellen wie bisher
+    in Kursbewegung (skaliert mit Hebel/4)."""
+    _CALM_LEV = 3.0
+
+
+class NFI_KF_V29_Lev3Nat(_LiqAwareMixin, NFI_KF_V23_Grind3):
+    """Alle Trades 3x wie von NFI ausgelegt: NFI-Schwellen und ROI unskaliert
+    (Basis 3x), Marge-Anteil wie bisher (Positionswert -25 %)."""
+    _BASE_LEV = 3.0
+    _CALM_LEV = 3.0
+
+
+class NFI_KF_DebugLiq(NFI_KF_V13):
+    """Nur zur Diagnose: protokolliert, ob freqtrade im Backtest einen Liquidationspreis setzt."""
+    _seen_liq = None
+
+    def adjust_trade_position(self, trade, current_time, current_rate, *args, **kwargs):
+        if self._seen_liq is None:
+            self._seen_liq = set()
+        if trade.id not in self._seen_liq:
+            self._seen_liq.add(trade.id)
+            print(f"DEBUGLIQ {trade.pair} lev={trade.leverage} open={trade.open_rate} liq={trade.liquidation_price}", flush=True)
+        return super().adjust_trade_position(trade, current_time, current_rate, *args, **kwargs)
+
+
+
+# ============================================================================
+# v23F = v23 + Fix: Kraken Futures liefert order.price = None. NFIs
+# check_entry_timeout/check_exit_timeout rechnen order.price * 1.03 und werfen
+# TypeError; hier mit dem angefragten Preis (ft_price) bzw. safe_price.
+# ============================================================================
+
+class _OrderTimeoutFixMixin:
+    def _order_ref_price(self, order):
+        for attr in ("price", "ft_price", "safe_price", "average"):
+            v = getattr(order, attr, None)
+            if v:
+                return float(v)
+        return None
+
+    def _top_of_book(self, pair):
+        ob = self.dp.orderbook(pair, 1)
+        return ob["bids"][0][0], ob["asks"][0][0]
+
+    def check_entry_timeout(self, pair, trade, order, current_time, **kwargs):
+        p = self._order_ref_price(order)
+        if p is None:
+            return False
+        try:
+            bids, asks = self._top_of_book(pair)
+        except Exception:
+            return False
+        if trade.is_short:
+            return asks < p * 0.97
+        return bids > p * 1.03
+
+    def check_exit_timeout(self, pair, trade, order, current_time, **kwargs):
+        if order.ft_order_tag is not None and order.ft_order_tag == "force_exit":
+            return False
+        p = self._order_ref_price(order)
+        if p is None:
+            return False
+        try:
+            bids, asks = self._top_of_book(pair)
+        except Exception:
+            return False
+        if trade.is_short:
+            return bids > p * 1.03
+        return asks < p * 0.97
+
+
+class NFI_KF_V23F(_OrderTimeoutFixMixin, NFI_KF_V23_Grind3):
+    """v23 (Grind x3) + Fix der Order-Timeout-Pruefung fuer Kraken Futures."""
+
+
+class NFI_KF_V23L(_LiqAwareMixin, NFI_KF_V23F):
+    """Live-Kandidat: v23F + selbst berechneter Liquidationspreis (wie im Backtest) + Telegram-Warnung."""
