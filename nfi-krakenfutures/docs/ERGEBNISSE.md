@@ -509,3 +509,18 @@ Live bleibt alte NFI (v18.0.61).
 
 Hinweis Testumgebung: freqtrade ignoriert `datadir` in der Config; fuer Spot liegt `user_data/data/kraken` als Link auf
 `data_spot` (Futures-Kerzen als Spot-Ersatz, `user_data/config_spot.json`, `CFG=... tools/run8.sh`).
+
+## NFI auf Spot (Kraken, alte NFI v18.0.61 unveraendert, 30.10.2026)
+
+83 der 86 Coins als Spot-Paare (/USD), 5 Slots, 10.000 USD, ohne Hebel. Kraken-Futures-Kerzen als Spot-Ersatz
+(Kraken-Spot-API liefert nur 720 Kerzen, Binance aus dieser Umgebung gesperrt). Gewinn %/Drawdown %:
+
+| | W1 | W2 | W2c | W4a | W3 | Val | H1 | H2 |
+|---|---|---|---|---|---|---|---|---|
+| Futures v23 (live) | 64,1/0 | 59,2/4,3 | 57,2/12,0 | 257,5/6,2 | 1741,6/6,3 | 68,0/6,7 | 1015,0/10,8 | 237,7/11,2 |
+| Spot, Kraken-Gebuehr 0,25 % | 6,2/0 | 6,4/2,5 | -9,3/14,2 | 23,2/4,6 | 34,6/20,0 | 7,3/3,6 | 4,1/28,5 | 16,1/5,0 |
+| Spot, Gebuehr 0,1 % | 7,3/0 | 7,1/2,4 | 3,0/5,5 | 25,6/4,0 | 83,8/7,1 | 7,8/2,2 | 27,1/13,9 | 18,4/4,5 |
+
+Spot bringt einen Bruchteil des Futures-Gewinns (kein Hebel, Trades laufen 2-7 Tage), bei Kraken-Spot-Gebuehren in
+Crash-Fenstern sogar Verlust bzw. 28,5 % Drawdown. Fuer dieses Konto kein Wechsel. Config-Vorlage ohne Schluessel:
+`backtest-template-spot.json`.
