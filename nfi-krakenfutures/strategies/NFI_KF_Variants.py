@@ -3185,3 +3185,37 @@ class NFI_KF_V27_CrashDip30(_CrashDipMixin, NFI_KF_V13):
 
 class NFI_KF_V27_CrashDip50(_CrashDipMixin, NFI_KF_V13):
     _CRASH_DIP = 0.05
+
+
+# ============================================================================
+# v28: Einstieg bestaetigen. 36 % der Trades liegen nach der ersten Kerze im
+# Minus, der Kurs faellt nach dem Einstieg median noch 1,8 % (25 %: >4,4 %).
+# Statt sofort zu kaufen: Signal eine Kerze aufschieben und nur kaufen, wenn
+# diese Kerze hoeher schliesst als die Signal-Kerze (das Messer hat gedreht).
+# ============================================================================
+
+class _ConfirmEntryMixin:
+    _CONFIRM_BARS = 1
+
+    def populate_entry_trend(self, dataframe, metadata):
+        df = super().populate_entry_trend(dataframe, metadata)
+        if "enter_long" not in df.columns:
+            return df
+        n = self._CONFIRM_BARS
+        sig = df["enter_long"].shift(n).fillna(0).astype(bool)
+        up = df["close"] > df["close"].shift(n)
+        for k in range(1, n):
+            up &= df["close"].shift(k) > df["close"].shift(n)
+        tag = df["enter_tag"].shift(n) if "enter_tag" in df.columns else None
+        df["enter_long"] = (sig & up).astype(int)
+        if tag is not None:
+            df["enter_tag"] = tag.where(df["enter_long"] == 1, None)
+        return df
+
+
+class NFI_KF_V28_Confirm1(_ConfirmEntryMixin, NFI_KF_V13):
+    _CONFIRM_BARS = 1
+
+
+class NFI_KF_V28_Confirm2(_ConfirmEntryMixin, NFI_KF_V13):
+    _CONFIRM_BARS = 2

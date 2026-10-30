@@ -410,3 +410,23 @@ Grind x3 ist an Crash-Tagen praktisch neutral (-2,4 bis +3,1 Punkte), das Crash-
 Vorteil aus dem 5m-Backtest (+5-8 % in 5 von 8 Fenstern) entsteht in normalen Phasen und ist mit 1m-Detail
 nicht nachgerechnet (dafuer fehlen 1m-Daten fuer ganze Fenster). Nebenbefund: Der 5m-Backtest liegt an
 Crash-Tagen in beide Richtungen deutlich daneben (13.04.24: -45 % statt -17 %; 10.10.25: 294 % statt 441 %).
+
+## Trades am Anfang im Minus (v13, `tools/underwater.py`, 30.10.2026)
+
+471 Trades: 36 % nach der ersten 5m-Kerze im Minus, 28 % nach 1 h. Der Kurs faellt nach dem Einstieg median noch
+1,8 % (25 %: > 4,4 %, 10 %: > 7,5 %). Trotzdem erstmals im Plus: sofort 354 Trades (97 % Gewinner), < 1 h 81 (95 %),
+1-6 h 25 (88 %), 6-24 h 5 (60 %), > 24 h 6 (50 %, Ergebnis median -5,9 %). Rebuy startet am haeufigsten im Minus (49 %).
+
+## Einstieg bestaetigen (v28, verworfen)
+
+Signal eine bzw. zwei Kerzen aufschieben, nur kaufen wenn danach hoeher geschlossen (`NFI_KF_V28_Confirm1/2`).
+Gewinn %/Drawdown %:
+
+| | W3 | Val | H1 | H2 |
+|---|---|---|---|---|
+| v13 | 1607,7/6,3 | 60,2/6,7 | 938,1/10,8 | 259,2/5,2 |
+| 1 Kerze | 275,4/52,4 | 47,4/7,5 | 80,7/24,0 | 125,8/13,2 |
+| 2 Kerzen | 124,4/70,5 | 25,4/7,1 | 51,0/41,2 | 26,0/34,6 |
+
+Die NFI-Signale treffen den Dip; wer wartet, verpasst die sofortigen Gewinner und kauft die anderen teurer.
+Gewinn bricht ein, Drawdown steigt massiv. Verworfen.
