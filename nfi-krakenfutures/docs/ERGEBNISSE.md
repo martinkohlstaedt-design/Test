@@ -489,3 +489,23 @@ Strategie (alte/neue NFI) `BEFORE` setzen bzw. Praefix eng waehlen.
 
 **Live seit 30.10.2026 18:06 UTC: `NFI_KF_V23L`** (v23F + selbst berechneter Liquidationspreis + Telegram-Warnung).
 Backups auf dem Server: `*.vorv23` (v13), `*.vorv23f` (v23), `*.vorv23l` (v23F).
+
+## Opt-in-Funktionen der neuen NFI v18.0.181 (v31, alle verworfen, 30.10.2026)
+
+Getestet mit v23 auf der neuen NFI (`sd_new`, Klassen in `strategies/NFI_KF_Variants_newNFI.py`). Gewinn %/DD %,
+nur Fenster mit Unterschied (sonst identisch zur Basis):
+
+| | W2c | W3 | H1 | H2 |
+|---|---|---|---|---|
+| v23 neue NFI (Basis) | 69,1/12,0 | 1814,3/6,3 | 1003,7/10,8 | 236,7/7,3 |
+| CapGate (keine Nachkaeufe bei 4h-Kapitulation) | 66,2/13,4 | 1939,8/8,6 | 1015,9/9,8 | = |
+| GrindPre (Nachkaeufe vor Derisk) | = | 1824,5/6,5 | = | 246,5/10,2 |
+| InclBad (Bad-Trade-Exit fuer Restpositionen) | = | = | = | = |
+| DeriskHold (kein Derisk bei intaktem Tagestrend) | 65,0/12,0 | 2053,1/5,9 | 891,7/18,8 | 239,4/7,8 |
+
+Keine Option ist klar besser: CapGate und GrindPre greifen selten und gemischt, InclBad nie, DeriskHold wie
+die eigene fruehere DeriskHold-Idee (H1-Drawdown 18,8 statt 10,8 %). Nichts davon in die alte NFI uebernommen.
+Live bleibt alte NFI (v18.0.61).
+
+Hinweis Testumgebung: freqtrade ignoriert `datadir` in der Config; fuer Spot liegt `user_data/data/kraken` als Link auf
+`data_spot` (Futures-Kerzen als Spot-Ersatz, `user_data/config_spot.json`, `CFG=... tools/run8.sh`).
