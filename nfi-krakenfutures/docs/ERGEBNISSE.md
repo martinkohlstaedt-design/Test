@@ -452,3 +452,6 @@ Regel "Order abbrechen, wenn Kurs > 3 % weggelaufen" greift nie; der normale 10-
 Fix `deploy/nfi_v23f_update.py` (Klasse `NFI_KF_V23F` = v23 + `_OrderTimeoutFixMixin`, nimmt `ft_price`),
 lokal mit simuliertem Serverstand und Kraken-artigen Orders getestet. Ausserdem: Kraken-API 503/502 am 30.10.
 08:04 und 09:54 (voruebergehend, freqtrade wiederholt selbst).
+
+**Live seit 30.10.2026 16:25 UTC: `NFI_KF_V23F`** (v23 Grind x3 + Timeout-Fix), Log ohne Fehler beim Start.
+Backups auf dem Server: `*.vorv23` (Stand v13) und `*.vorv23f` (Stand v23).
