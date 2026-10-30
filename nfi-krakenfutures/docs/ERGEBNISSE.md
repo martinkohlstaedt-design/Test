@@ -438,3 +438,17 @@ Eingespielt mit `deploy/nfi_v23_update.py`, Backups `*.vorv23` auf dem Server. O
 WLD 145 (3x), XMR 64 (4x). SAND (v8, 4x) wurde am 29./30.10. an der Boerse liquidiert und aus der Bot-Datenbank
 geloescht (freqtrade erkennt Liquidationen live nicht; Verlust nur im Kontostand, nicht in /profit).
 Live-Trades 1-11 passen zum Backtest: 8 von 8 abgeschlossenen im Plus, Hebel je Signal wie vorgesehen.
+
+## Live-Pruefung aller Trades und Logs (30.10.2026)
+
+Trades 1-11 und 28 Orders: Hebel je Signal korrekt, Positionsgroessen wie vorgesehen (Top 30 %, 145 20 %, Grind 4 %,
+Rebuy 5 % Marge), fast nur Maker-Gebuehren (0,02 %), Fuellung in Sekunden, Grind/Derisk-Ablaeufe wie vorgesehen.
+Hinweise: 5 Slots x 30 % Marge > 100 % Konto (4. Top-Position bekommt nur den Rest, z. B. BNB 68 statt 124 USD);
+`liquidation_price` ist bei Kraken Futures immer None (Bot kennt keine Liquidationspreise).
+
+**Fehler im Log:** `TypeError ... NoneType * float` in NFIs `check_exit_timeout` (und gleich gebaut
+`check_entry_timeout`): Kraken Futures liefert `order.price = None`, NFI rechnet `order.price * 0.97`. Folge: NFIs
+Regel "Order abbrechen, wenn Kurs > 3 % weggelaufen" greift nie; der normale 10-min-Timeout funktioniert.
+Fix `deploy/nfi_v23f_update.py` (Klasse `NFI_KF_V23F` = v23 + `_OrderTimeoutFixMixin`, nimmt `ft_price`),
+lokal mit simuliertem Serverstand und Kraken-artigen Orders getestet. Ausserdem: Kraken-API 503/502 am 30.10.
+08:04 und 09:54 (voruebergehend, freqtrade wiederholt selbst).
