@@ -430,3 +430,11 @@ Gewinn %/Drawdown %:
 
 Die NFI-Signale treffen den Dip; wer wartet, verpasst die sofortigen Gewinner und kauft die anderen teurer.
 Gewinn bricht ein, Drawdown steigt massiv. Verworfen.
+
+## Live-Stand 30.10.2026
+
+`NFI_KF_V23_Grind3` laeuft live seit 30.10.2026 16:15 UTC (Log: "Using resolved strategy NFI_KF_V23_Grind3").
+Eingespielt mit `deploy/nfi_v23_update.py`, Backups `*.vorv23` auf dem Server. Offene Trades beim Wechsel:
+WLD 145 (3x), XMR 64 (4x). SAND (v8, 4x) wurde am 29./30.10. an der Boerse liquidiert und aus der Bot-Datenbank
+geloescht (freqtrade erkennt Liquidationen live nicht; Verlust nur im Kontostand, nicht in /profit).
+Live-Trades 1-11 passen zum Backtest: 8 von 8 abgeschlossenen im Plus, Hebel je Signal wie vorgesehen.
