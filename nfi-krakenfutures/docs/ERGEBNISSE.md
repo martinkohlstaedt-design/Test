@@ -477,7 +477,12 @@ Backups auf dem Server: `*.vorv23` (Stand v13) und `*.vorv23f` (Stand v23).
 | 3x gleicher Positionswert (`Lev3Eq`) | 65,8/0 | 56,6/4,3 | 46,2/12,0 | 218,2/7,3 | 1309,0/6,4 | 57,1/7,0 | 943,0/11,7 | 280,7/10,3 |
 | 3x wie NFI (`Lev3Nat`) | 41,5/0 | 47,0/3,5 | 62,8/8,9 | 192,3/0 | 1069,8/6,4 | 46,0/7,8 | 569,4/10,8 | 177,3/6,1 |
 
-Risiko: max/Mittel MtM-DD v23 51,3/32,5, Lev3Eq 50,9/30,4, Lev3Nat 45,0/26,3. Trades < -50/-80 %, Liquidationen:
+Risiko: max/Mittel MtM-DD v23 51,2/32,1 (Lauf 24.10.), Lev3Eq 50,9/30,4, Lev3Nat 45,0/26,3. Trades < -50/-80 %, Liquidationen:
 v23 2/1/0, Lev3Eq 1/1/1, Lev3Nat 3/2/1. MC-DD 95 %: 20,3 / 20,4 / 17,6.
 Lev3Eq: mehr Marge je Trade, weniger Kapital fuer weitere Signale, Risiko gleich. Lev3Nat: wirkt wie kleinere Positionen
 (aehnlich Scale75), dazu spaeteres Derisk -> mehr tiefe Verluste. Der gemischte Hebel von v23 bleibt besser.
+
+Neue NFI v18.0.181 mit v23, Risiko: max/Mittel MtM-DD 51,3/32,5 (alte NFI 51,2/32,1), Trades < -50/-80 % 2/1,
+Liquidationen 0, MC-DD 95 % 19,8 (20,3), Summe Beitrag 886 (882) -> praktisch gleich, kein Umstieg.
+Hinweis: mtm.py/risk.py nehmen je Fenster den letzten passenden Lauf ab dem Praefix; bei mehreren Laeufen derselben
+Strategie (alte/neue NFI) `BEFORE` setzen bzw. Praefix eng waehlen.
