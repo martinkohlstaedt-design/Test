@@ -642,3 +642,17 @@ Kombination 50/50 (Gewinn % je Fenster W1..H2, max/Mittel MtM-DD):
 Fazit: Getrennte Listen funktionieren technisch, kosten aber mehr Gewinn als die Variante mit gemeinsamen Coins
 (NASMAO ist auf den grossen Coins staerker). Bevorzugt: Unterkonto. NFI nur auf Liste A senkt allein schon den
 Drawdown (48,9/27,0 statt 51,2/32,1), kostet aber H1 (633 statt 1015 %).
+
+## NASMAO auf Kraken Spot (1x, 83 Coins, Futures-Kerzen als Spot-Ersatz, 31.10.2026)
+
+Kraken Spot und Futures sind getrennte Konten -> kein Positionskonflikt mit dem NFI-Futures-Bot. Gewinn %/DD %:
+
+| | W1 | W2 | W2c | W4a | W3 | Val | H1 | H2 |
+|---|---|---|---|---|---|---|---|---|
+| NASMAO Futures 1x (0,05 %) | 105,2/11,7 | 157,3/6,0 | 54,0/9,6 | 89,1/7,1 | 59,4/15,6 | 54,5/4,8 | 1094,9/7,1 | 110,7/6,9 |
+| Spot 0,40 % (Taker, Market-Orders) | 10,1/13,7 | 56,3/6,5 | 20,5/7,3 | 23,3/9,5 | -11,9/30,8 | 27,2/8,5 | 419,1/10,3 | 45,6/7,4 |
+| Spot 0,25 % (Maker, nur mit Limit-Orders) | 29,9/12,7 | 81,9/6,3 | 30,0/6,6 | 39,2/8,5 | 6,6/25,5 | 38,0/8,2 | 525,5/8,4 | 66,8/6,9 |
+| NFI Spot 0,25 % | 6,2/0 | 6,4/2,5 | -9,3/14,2 | 23,2/4,6 | 34,6/20,0 | 7,3/3,6 | 4,1/28,5 | 16,1/5,0 |
+
+Spot-Gebuehren kosten 50-80 % des Futures-Gewinns; ohne Limit-Orders wird W3 negativ. Fuer die Kombination ist
+NASMAO auf Futures (Unterkonto oder getrennte Coin-Listen) deutlich staerker. Config-Vorlage: `backtest-template-spot-ext.json`.
