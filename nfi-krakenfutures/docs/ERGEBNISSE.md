@@ -540,3 +540,43 @@ Risiko (7 Fenster): Trades < -50 % v23 2, WeakCap1 3, WeakCap2 2, ohne Rebuy 0 (
 MC-DD 95 % 20,3 / 19,0 / 19,1 / 19,3; Summe Beitrag 882 / 890 / 887 / 885; max MtM-DD ueberall ca. 51 %.
 Gebuehren-Stress (0,1 %) ohne Rebuy: H2 182,3/18,9 (v23 223,6/11,1), H1 955,8/10,9 (990,5/10,9), W3 1554,4/6,3.
 Ohne Rebuy kippt in H2 bei doppelten Gebuehren (Drawdown 18,9 %) wie schon frueher -> nicht robust. Verworfen.
+
+## Fremde Freqtrade-Strategien (Freqle-Top-Liste), 1x Hebel, Kraken Futures (31.10.2026)
+
+Quellen: E0V1E (TheoBrigitte/freqtrade, strategies/e0v1e), NotAnotherSMAOffsetStrategyHO (davidzr/freqtrade-strategies,
+letzter Commit 11/2023), NASOSv4_SMA und BinClucMadSMA (remiotore/ccxt-freqtrade). Nicht im Repo (fremder Code);
+fuer freqtrade 2026.8 angepasst: veraltete Namen (sell->exit, buy->enter_long, populate_buy/sell_trend,
+order_time_in_force buy/sell -> entry/exit), np.NAN -> np.nan, bool-Spalten in BinClucMadSMA als 0 statt False.
+Logik unveraendert. Config `backtest-template-ext.json` (price_side "other", wegen Market-Orders).
+
+| Gewinn %/DD % | W1 | W2 | W2c | W4a | W3 | Val | H1 | H2 |
+|---|---|---|---|---|---|---|---|---|
+| v23 (live, 3-4x) | 64,1/0 | 59,2/4,3 | 57,2/12,0 | 257,5/6,2 | 1741,6/6,3 | 68,0/6,7 | 1015,0/10,8 | 237,7/11,2 |
+| NotAnotherSMAOffsetHO | 105,2/11,7 | 157,3/6,0 | 54,0/9,6 | 89,1/7,1 | 59,4/15,6 | 54,5/4,8 | 1094,9/7,1 | 110,7/6,9 |
+| NASOSv4_SMA | 259,5/24,6 | 370,9/10,5 | 93,2/18,8 | 239,8/13,6 | 217,4/34,4 | 179,7/21,0 | 293,2/18,5 | 314,2/22,3 |
+| E0V1E | 48,4/13,1 | 93,3/1,9 | 34,9/5,9 | 131,5/1,5 | 178,6/3,5 | 25,2/2,4 | 168,0/7,8 | 62,2/3,2 |
+| BinClucMadSMA | 16,6/18,9 | 37,7/20,0 | 47,5/11,8 | 66,4/18,5 | 16,1/41,6 | 12,3/27,1 | 51,5/22,3 | 178,1/12,4 |
+
+Risiko (max/Mittel MtM-DD, MC-DD 95 %, Summe Beitrag, schlechtester Trade): v23 51,2/32,1, 20,3, 882, -97 %;
+NotAnotherSMA 29,2/17,2, 16,5, 674, -48 %; NASOS 46,8/26,4, 28,6, 902, -46 %; E0V1E 34,8/15,9, 10,9, 415, -37 %;
+BinCluc 44,9/28,3, 31,0, 281, -37 %.
+
+Gebuehren-Stress (0,1 %): NotAnotherSMA 89,9/141,4/50,0/80,0/45,3/52,2/908,4/95,7 (DD kaum hoeher), NASOS
+202,8/315,0/81,6/185,0/160,2/140,5/188,9/192,2 -> beide stabil.
+
+1m-Detail an Crash-Tagen (Gewinn %, 10.000 USD, mit 1m / nur 5m): NotAnotherSMA 13.04.24 -6,5/-8,3, 20.12.24 7,7/7,5,
+03.02.25 -5,7/-2,3, 10.10.25 259,2/367,8; NASOS -7,9/1,1, 2,9/2,3, 12,7/10,2, 97,0/66,5 (v23: -16,7/-45,6, -3,5/6,2,
+67,2/60,1, 443,9/295,8). H1 ist bei allen stark vom 10.10.2025 gepraegt.
+
+Aufteilung des Kapitals v23 + NotAnotherSMA (zwei Konten, `tools/portfolio.py`), Gewinn %/MtM-DD %:
+
+| v23-Anteil | W1 | W2 | W2c | W4a | W3 | Val | H1 | H2 | max DD | Mittel DD |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 100 % | 64,1/9,6 | 59,2/14,2 | 57,2/49,1 | 257,5/41,6 | 1741,6/51,2 | 68,0/14,1 | 1015,0/50,9 | 237,7/26,5 | 51,2 | 32,1 |
+| 70 % | 76,5/6,5 | 88,6/9,0 | 56,2/40,2 | 207,0/34,3 | 1236,9/48,2 | 63,9/10,5 | 1038,9/40,9 | 199,6/18,9 | 48,2 | 26,1 |
+| 50 % | 84,7/10,8 | 108,2/7,5 | 55,6/34,3 | 173,3/28,0 | 900,5/45,1 | 61,3/7,9 | 1054,9/34,8 | 174,2/14,9 | 45,1 | 22,9 |
+| 30 % | 92,9/15,0 | 127,9/7,5 | 54,9/28,7 | 139,6/20,0 | 564,0/40,4 | 58,6/5,8 | 1070,9/29,0 | 148,8/11,0 | 40,4 | 19,7 |
+| 0 % | 105,2/23,4 | 157,3/10,5 | 54,0/23,0 | 89,1/11,2 | 59,4/29,2 | 54,5/5,9 | 1094,9/23,8 | 110,7/10,8 | 29,2 | 17,2 |
+
+Bewertung: NotAnotherSMAOffsetHO ist der erste Kandidat, der in ungesehenen Fenstern (Val/H1/H2, nach Commit 11/2023)
+mit v23 mithaelt bei etwa halbem Drawdown. Empfehlung: erst Dry-Run (Papierhandel) parallel zum Live-Bot.

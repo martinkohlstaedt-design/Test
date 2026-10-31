@@ -17,7 +17,7 @@ for arg in strats:
         val = "-"
         if os.path.exists(f):
             for line in open(f, errors="ignore"):
-                if line.startswith("│ " + s + " ") or line.startswith("│ " + s + "│"):
+                if line.startswith("│") and line.strip("│ \n").split("│")[0].strip() == s:
                     p = [x.strip() for x in line.strip("│\n ").split("│")]
                     dd = re.search(r"([\d.]+)%", p[-1])
                     val = f"{float(p[4]):.1f}/{float(dd.group(1)):.1f}"
