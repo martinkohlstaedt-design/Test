@@ -623,3 +623,22 @@ Risiko (max/Mittel MtM-DD, Trades < -50 %, schlechtester, MC-DD 95 %, Summe Beit
 47,6/25,8, 5, -72 %, 24,5, 839; Prot 34,3/20,4, 5, -72 %, 24,2, 765.
 Prot (Pause 12 h nach 3 Stops in 24 h, Pause bei > 15 % Konto-Drawdown in 24 h, 2 Kerzen Cooldown) senkt den
 Drawdown deutlich und ist in W1-W4a/Val/H2 fast gleich; es verpasst vor allem den Rebound am 10.10.2025 (H1).
+
+## Getrennte Coin-Listen NFI + NASMAO (31.10.2026)
+
+Grund: Kraken Futures fuehrt je Coin nur eine Position pro Konto; zwei Bots im selben Coin stoeren sich. Regel-Aufteilung
+(`docs/split_lists.json`): Liste A = 48 Coins der NFI-Top-Liste -> NFI, Liste B = 38 uebrige -> NASMAO.
+Einzeln, Gewinn %/DD %: NFI(A) 47,4/0, 51,1/4,3, 63,6/9,6, 218,8/6,7, 1638,7/6,3, 59,9/0,3, 632,6/10,8, 232,1/5,1;
+NASMAO 1x(B) 45,7/10,4, 118,2/6,0, 35,9/10,8, 73,2/3,5, 56,3/11,4, 37,6/4,8, 240,1/20,7, 99,6/4,6;
+NASMAO 1,5x(B) 86,6/15,1, 221,4/9,0, 67,0/16,0, 131,1/5,1, 100,1/16,5, 67,9/7,1, 626,9/10,7, 198,1/6,8;
+NASMAO 1,5x+Schutz(B) H1 100,3/44,5 (Schutzregeln auf Liste B nicht robust -> verworfen).
+
+Kombination 50/50 (Gewinn % je Fenster W1..H2, max/Mittel MtM-DD):
+- NFI(86) allein (heute): 64,1 / 59,2 / 57,2 / 257,5 / 1741,6 / 68,0 / 1015,0 / 237,7; 51,2 / 32,1
+- NFI(A)+NASMAO 1x(B): 46,5 / 84,6 / 49,7 / 146,0 / 847,5 / 48,7 / 436,3 / 165,8; 43,9 / 20,9
+- NFI(A)+NASMAO 1,5x(B): 67,0 / 136,3 / 65,3 / 175,0 / 869,4 / 63,9 / 629,8 / 215,1; 46,6 / 23,8
+- zum Vergleich gleiche Coins (braucht Unterkonto) NFI(86)+NASMAO 1x(86): 84,7 / 108,2 / 55,6 / 173,3 / 900,5 / 61,3 /
+  1054,9 / 174,2; 45,1 / 22,9
+Fazit: Getrennte Listen funktionieren technisch, kosten aber mehr Gewinn als die Variante mit gemeinsamen Coins
+(NASMAO ist auf den grossen Coins staerker). Bevorzugt: Unterkonto. NFI nur auf Liste A senkt allein schon den
+Drawdown (48,9/27,0 statt 51,2/32,1), kostet aber H1 (633 statt 1015 %).
