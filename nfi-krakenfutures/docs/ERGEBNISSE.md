@@ -580,3 +580,24 @@ Aufteilung des Kapitals v23 + NotAnotherSMA (zwei Konten, `tools/portfolio.py`),
 
 Bewertung: NotAnotherSMAOffsetHO ist der erste Kandidat, der in ungesehenen Fenstern (Val/H1/H2, nach Commit 11/2023)
 mit v23 mithaelt bei etwa halbem Drawdown. Empfehlung: erst Dry-Run (Papierhandel) parallel zum Live-Bot.
+
+## NotAnotherSMAOffset optimieren (31.10.2026)
+
+Varianten (in der lokalen Kopie angehaengt): 2x Hebel mit auf Kursbewegung umgerechneten ROI/Stop/Trailing, Stop -20 %,
+ohne Trailing-Stop, 8 statt 5 Slots. Gewinn %/DD % (Auswahl auf W1-W3, Pruefung auf Val/H1/H2):
+
+| | W1 | W2 | W2c | W4a | W3 | Val | H1 | H2 |
+|---|---|---|---|---|---|---|---|---|
+| Basis 1x | 105,2/11,7 | 157,3/6,0 | 54,0/9,6 | 89,1/7,1 | 59,4/15,6 | 54,5/4,8 | 1094,9/7,1 | 110,7/6,9 |
+| 2x | 460,2/21,2 | 623,9/11,9 | 145,4/19,0 | 259,9/14,0 | 137,9/33,8 | 156,8/9,5 | 22754,0/12,9 | 402,4/13,6 |
+| Stop -20 % | 97,1/16,1 | 159,7/4,1 | 50,0/12,1 | 87,5/7,9 | 122,2/8,4 | 54,0/5,1 | 970,2/11,1 | 106,3/6,3 |
+| ohne Trailing | 138,8/14,1 | 169,2/7,9 | 68,2/7,7 | 99,0/7,1 | 55,5/22,3 | 55,1/7,0 | 508,0/7,2 | 137,2/7,4 |
+| 8 Slots | 80,5/9,2 | 109,7/3,8 | 35,8/8,3 | 62,0/4,4 | 43,9/10,2 | 39,3/3,0 | 599,6/3,7 | 66,8/4,3 |
+
+Risiko (max/Mittel MtM-DD, Trades < -50 %, schlechtester, MC-DD 95 %, Summe Beitrag): Basis 29,2/17,2, 0, -48 %, 16,5,
+674; 2x 58,9/35,0, 7, -96 %, 30,7, 1589; Stop -20 % 36,1/18,3, 0, -29 %, 15,6, 696; ohne Trailing 39,4/20,0, 0, -48 %,
+17,6, 612; 8 Slots 27,7/15,7, 0, -48 %, 10,5, 501.
+Bewertung: 2x verdoppelt das Risiko (max MtM-DD 59 %, ein Trade -96 %), H1 durch den 10.10.2025 aufgeblaeht -> nein.
+Stop -20 % und ohne Trailing sind Abwaegungen ohne klaren Sieger; ohne Trailing ist in 6 von 8 Fenstern besser und
+haengt weniger am Trailing-Artefakt, verliert aber H1 (10.10.25). 8 Slots = nur kleinere Positionen.
+Empfehlung: Basis 1x unveraendert in den Dry-Run; ohne Trailing als Vergleich beobachten.
