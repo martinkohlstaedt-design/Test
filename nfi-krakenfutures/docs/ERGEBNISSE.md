@@ -524,3 +524,19 @@ Hinweis Testumgebung: freqtrade ignoriert `datadir` in der Config; fuer Spot lie
 Spot bringt einen Bruchteil des Futures-Gewinns (kein Hebel, Trades laufen 2-7 Tage), bei Kraken-Spot-Gebuehren in
 Crash-Fenstern sogar Verlust bzw. 28,5 % Drawdown. Fuer dieses Konto kein Wechsel. Config-Vorlage ohne Schluessel:
 `backtest-template-spot.json`.
+
+## Deckel fuer langsame Signale / ohne Rebuy auf v23 (v32, verworfen, 31.10.2026)
+
+Langsame Signale = 145, Rebuy 61-68, Quick 41-53 (live WLD 145, XMR 64, SAND 145). Gewinn %/DD %:
+
+| | W1 | W2 | W2c | W4a | W3 | Val | H1 | H2 |
+|---|---|---|---|---|---|---|---|---|
+| v23 | 64,1/0 | 59,2/4,3 | 57,2/12,0 | 257,5/6,2 | 1741,6/6,3 | 68,0/6,7 | 1015,0/10,8 | 237,7/11,2 |
+| WeakCap1 (max 1 gleichzeitig) | 68,0/0 | 59,2/4,3 | 60,4/10,8 | 234,4/6,2 | 1719,9/6,3 | 56,9/6,4 | 896,0/10,8 | 304,2/5,9 |
+| WeakCap2 (max 2) | 64,1/0 | 59,2/4,3 | 57,2/12,0 | 249,4/6,2 | 1659,0/6,4 | 68,0/6,7 | 979,2/10,8 | 275,0/5,1 |
+| ohne Rebuy | 61,5/0 | 65,0/4,3 | 55,3/12,0 | 236,8/6,2 | 1606,0/6,3 | 75,1/0,3 | 989,8/10,8 | 265,6/10,3 |
+
+Risiko (7 Fenster): Trades < -50 % v23 2, WeakCap1 3, WeakCap2 2, ohne Rebuy 0 (schlechtester -49 % statt -97 %);
+MC-DD 95 % 20,3 / 19,0 / 19,1 / 19,3; Summe Beitrag 882 / 890 / 887 / 885; max MtM-DD ueberall ca. 51 %.
+Gebuehren-Stress (0,1 %) ohne Rebuy: H2 182,3/18,9 (v23 223,6/11,1), H1 955,8/10,9 (990,5/10,9), W3 1554,4/6,3.
+Ohne Rebuy kippt in H2 bei doppelten Gebuehren (Drawdown 18,9 %) wie schon frueher -> nicht robust. Verworfen.

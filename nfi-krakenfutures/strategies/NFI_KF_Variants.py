@@ -3343,3 +3343,45 @@ class NFI_KF_V23F(_OrderTimeoutFixMixin, NFI_KF_V23_Grind3):
 
 class NFI_KF_V23L(_LiqAwareMixin, NFI_KF_V23F):
     """Live-Kandidat: v23F + selbst berechneter Liquidationspreis (wie im Backtest) + Telegram-Warnung."""
+
+
+# ============================================================================
+# v32: Deckel fuer "langsame" Signale. Die lange im Minus haengenden Trades sind
+# fast immer 145, Rebuy (61-68) oder Quick (41-53) (live: WLD 145, XMR 64, SAND 145).
+# Hoechstens _WEAK_CAP solcher Positionen gleichzeitig; die Slots bleiben fuer
+# die starken Top-Signale 141-144 frei (73 % der Trades, 81 % des Gewinns).
+# ============================================================================
+
+def _is_weak_tag(strategy, entry_tag):
+    tags = (entry_tag or "").split()
+    if not tags:
+        return False
+    if _is_145_only(entry_tag) or _is_rebuy_mode(strategy, entry_tag):
+        return True
+    return all(c in strategy.long_quick_mode_tags for c in tags)
+
+
+class _WeakCapMixin:
+    _WEAK_CAP = 2
+
+    def confirm_trade_entry(self, pair, order_type, amount, rate, time_in_force,
+                            current_time, entry_tag, side, **kwargs):
+        from freqtrade.persistence import Trade as _T
+        if _is_weak_tag(self, entry_tag) and not _T.get_trades_proxy(pair=pair, is_open=True):
+            weak_open = sum(1 for t in _T.get_trades_proxy(is_open=True) if _is_weak_tag(self, t.enter_tag))
+            if weak_open >= self._WEAK_CAP:
+                return False
+        return super().confirm_trade_entry(
+            pair, order_type, amount, rate, time_in_force, current_time, entry_tag, side, **kwargs)
+
+
+class NFI_KF_V32_WeakCap1(_WeakCapMixin, NFI_KF_V23_Grind3):
+    _WEAK_CAP = 1
+
+
+class NFI_KF_V32_WeakCap2(_WeakCapMixin, NFI_KF_V23_Grind3):
+    _WEAK_CAP = 2
+
+
+class NFI_KF_V32_NoRebuy(_BlockSignalsMixin, NFI_KF_V23_Grind3):
+    _BLOCK_TAGS = frozenset({"61", "62", "63", "64", "65", "68"})
