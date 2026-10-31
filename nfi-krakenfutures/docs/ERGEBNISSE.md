@@ -607,3 +607,19 @@ ca. -64 %): W1 242,2/16,6, W2 338,1/9,0, W2c 95,9/14,3, W4a 160,8/10,6, W3 94,2/
 (10.10.25 aufgeblaeht), H2 234,9/10,2. Max/Mittel MtM-DD 45,0/25,6, Trades < -50 % 5 (Stop-Ausloesungen, keine
 < -80 %), schlechtester -72 %, MC-DD 95 % 23,7, Summe Beitrag 1148 (v23: 51,2/32,1, 2, -97 %, 20,3, 882).
 Kandidat fuer den Dry-Run neben 1x.
+
+NASMAO 1,5x weiter optimiert (Gewinn %/DD %):
+
+| | W1 | W2 | W2c | W4a | W3 | Val | H1 | H2 |
+|---|---|---|---|---|---|---|---|---|
+| 1,5x Basis | 242,2/16,6 | 338,1/9,0 | 95,9/14,3 | 160,8/10,6 | 94,2/25,4 | 98,6/7,1 | 6322,9/10,2 | 234,9/10,2 |
+| Stop -20 % Kurs | 222,5/23,8 | 339,6/7,3 | 87,9/17,6 | 157,3/11,8 | 282,4/12,8 | 97,5/7,6 | 5062,3/16,1 | 222,8/9,6 |
+| ohne Trailing | 262,1/20,8 | 336,6/11,8 | 115,8/11,5 | 177,9/10,5 | 89,5/32,3 | 92,3/10,4 | 1241,3/10,7 | 257,9/11,0 |
+| Crash-Stopp BTC | 282,0/4,0 | 268,1/9,0 | 105,8/9,5 | 135,7/10,6 | 80,8/27,8 | 94,8/7,1 | 910,2/9,6 | 222,1/10,2 |
+| Schutzregeln (Prot) | 237,3/11,5 | 345,4/9,0 | 100,4/9,2 | 158,7/10,6 | 85,4/27,6 | 106,6/7,1 | 366,5/25,9 | 215,9/10,2 |
+
+Risiko (max/Mittel MtM-DD, Trades < -50 %, schlechtester, MC-DD 95 %, Summe Beitrag): Basis 45,0/25,6, 5, -72 %,
+23,7, 1148; Stop -20 % 51,9/27,3, 0, -44 %, 21,9, 1201; ohne Trailing 57,6/29,4, 6, -72 %, 25,6, 913; Crash-Stopp
+47,6/25,8, 5, -72 %, 24,5, 839; Prot 34,3/20,4, 5, -72 %, 24,2, 765.
+Prot (Pause 12 h nach 3 Stops in 24 h, Pause bei > 15 % Konto-Drawdown in 24 h, 2 Kerzen Cooldown) senkt den
+Drawdown deutlich und ist in W1-W4a/Val/H2 fast gleich; es verpasst vor allem den Rebound am 10.10.2025 (H1).
