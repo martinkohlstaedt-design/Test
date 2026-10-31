@@ -601,3 +601,9 @@ Bewertung: 2x verdoppelt das Risiko (max MtM-DD 59 %, ein Trade -96 %), H1 durch
 Stop -20 % und ohne Trailing sind Abwaegungen ohne klaren Sieger; ohne Trailing ist in 6 von 8 Fenstern besser und
 haengt weniger am Trailing-Artefakt, verliert aber H1 (10.10.25). 8 Slots = nur kleinere Positionen.
 Empfehlung: Basis 1x unveraendert in den Dry-Run; ohne Trailing als Vergleich beobachten.
+
+NASMAO mit 1,5x (ROI/Stop/Trailing auf gleiche Kursbewegung, Stop -52,5 % Marge = -35 % Kurs, Liquidation erst
+ca. -64 %): W1 242,2/16,6, W2 338,1/9,0, W2c 95,9/14,3, W4a 160,8/10,6, W3 94,2/25,4, Val 98,6/7,1, H1 6322,9/10,2
+(10.10.25 aufgeblaeht), H2 234,9/10,2. Max/Mittel MtM-DD 45,0/25,6, Trades < -50 % 5 (Stop-Ausloesungen, keine
+< -80 %), schlechtester -72 %, MC-DD 95 % 23,7, Summe Beitrag 1148 (v23: 51,2/32,1, 2, -97 %, 20,3, 882).
+Kandidat fuer den Dry-Run neben 1x.
