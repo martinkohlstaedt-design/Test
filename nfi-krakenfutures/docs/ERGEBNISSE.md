@@ -673,3 +673,20 @@ Spot, Limit-Orders (Maker 0,25 %), 83 Coins, Auswahl nur nach Trainingsfenstern 
 Training: ohne Trailing (240) vor Gewinnziele x1,5 (233) und tiefere Einstiege (224). Pruefung: Gewinnziele x1,5 haelt
 (H1 545, H2 86), ohne Trailing und tiefere Einstiege verlieren H1 (Drawdown 21-23 %). Runde 1b: Coin-Sets fuer beide
 Spitzenreiter; Runde 2: Kombinationen NASS_C1-C3.
+
+### Runde 1b: Coin-Sets (Kraken Spot, Maker 0,25 %)
+
+Sets nach festen Regeln (`docs/spot_coinsets.json`): A = NFI-Top-Liste (48), B = Rest (35), L = 20 Large Caps,
+N = ohne Meme-Coins (77). Gewinn %/DD %, Trainingssumme W1-W3:
+
+| Gewinnziele x1,5 | W1 | W2 | W2c | W4a | W3 | Summe | Val | H1 | H2 |
+|---|---|---|---|---|---|---|---|---|---|
+| alle 83 | 48,5/15,7 | 97,3/6,3 | 32,8/6,2 | 44,6/8,0 | 9,3/25,4 | 232,5 | 35,2/8,0 | 545,1/7,9 | 86,1/7,4 |
+| A NFI-Top | 48,1/9,4 | 56,8/3,0 | 6,0/6,3 | 25,4/5,8 | 8,8/13,3 | 145,1 | 23,9/0,9 | 216,7/16,5 | 8,2/7,4 |
+| B Rest | 10,7/11,4 | 69,9/6,3 | 23,3/8,1 | 38,1/3,2 | 10,2/21,0 | 152,2 | 24,4/8,0 | 174,5/22,0 | 91,1/4,2 |
+| L Large20 | 53,5/6,6 | 42,2/0,6 | -4,2/7,9 | 17,5/2,9 | 35,2/3,5 | 144,2 | 6,1/0,0 | 64,4/1,9 | 2,1/2,5 |
+| N ohne Memes | 40,5/15,7 | 88,7/6,3 | 18,4/5,7 | 44,7/8,0 | 13,4/23,8 | 205,7 | 39,5/3,7 | 557,7/7,8 | 91,2/7,4 |
+
+Ohne Trailing zeigt dasselbe Muster (alle 83: 240,2; N: 207,4; A: 156,4; B: 146,0; L: 131,5). Ergebnis: alle Coins
+gewinnen im Training; weniger Coins = weniger gute Gelegenheiten. Large Caps sehr ruhig (max DD 7,9 %), aber wenig
+Gewinn. Ohne Memes in der Pruefung minimal besser, im Training schlechter -> alle 83 Coins behalten.
