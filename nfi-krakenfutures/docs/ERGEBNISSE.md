@@ -656,3 +656,20 @@ Kraken Spot und Futures sind getrennte Konten -> kein Positionskonflikt mit dem 
 
 Spot-Gebuehren kosten 50-80 % des Futures-Gewinns; ohne Limit-Orders wird W3 negativ. Fuer die Kombination ist
 NASMAO auf Futures (Unterkonto oder getrennte Coin-Listen) deutlich staerker. Config-Vorlage: `backtest-template-spot-ext.json`.
+
+## NASMAO fuer Kraken Spot optimieren - Runde 1 (31.10.2026 nachts)
+
+Spot, Limit-Orders (Maker 0,25 %), 83 Coins, Auswahl nur nach Trainingsfenstern W1-W3 (Summe Gewinn %), Pruefung Val/H1/H2.
+
+| | W1 | W2 | W2c | W4a | W3 | Training-Summe | Val | H1 | H2 |
+|---|---|---|---|---|---|---|---|---|---|
+| Basis | 29,9/12,7 | 81,9/6,3 | 30,0/6,6 | 39,2/8,5 | 6,6/25,5 | 187,6 | 38,0/8,2 | 525,5/8,4 | 66,8/6,9 |
+| ROI deckt Gebuehren (+1 % statt 0 %) | 38,0/13,4 | 87,1/6,3 | 29,7/6,9 | 40,6/8,2 | 6,1/26,0 | 201,5 | 37,2/8,2 | 573,6/8,0 | 71,1/6,9 |
+| Stop -20 % | 17,1/17,1 | 79,1/5,5 | 27,3/7,9 | 38,0/9,3 | 34,5/15,0 | 196,1 | 37,5/8,6 | 519,9/11,2 | 68,6/4,0 |
+| tiefere Einstiege | 47,5/7,1 | 79,5/3,5 | 23,5/4,9 | 43,1/3,5 | 30,6/12,5 | 224,2 | 20,6/7,0 | 385,3/23,2 | 52,0/3,8 |
+| ohne Trailing | 46,4/15,5 | 96,0/6,7 | 42,2/5,8 | 46,2/8,4 | 9,5/26,5 | 240,2 | 40,2/7,8 | 271,8/21,4 | 82,4/7,5 |
+| Gewinnziele x1,5 (+ROI-Gebuehr) | 48,5/15,7 | 97,3/6,3 | 32,8/6,2 | 44,6/8,0 | 9,3/25,4 | 232,5 | 35,2/8,0 | 545,1/7,9 | 86,1/7,4 |
+
+Training: ohne Trailing (240) vor Gewinnziele x1,5 (233) und tiefere Einstiege (224). Pruefung: Gewinnziele x1,5 haelt
+(H1 545, H2 86), ohne Trailing und tiefere Einstiege verlieren H1 (Drawdown 21-23 %). Runde 1b: Coin-Sets fuer beide
+Spitzenreiter; Runde 2: Kombinationen NASS_C1-C3.
