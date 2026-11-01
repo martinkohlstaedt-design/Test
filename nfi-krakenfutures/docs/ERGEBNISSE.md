@@ -719,3 +719,22 @@ Vergleich 50/50 mit NASMAO auf Futures: gleiche Coins (Unterkonto) 45,1/22,9 bei
 NASMAO 1,5x 46,6/23,8 bei H1 629,8.
 Fazit: Spot-Kombination senkt den Drawdown aehnlich wie die Futures-Varianten (Mittel 24 statt 32 %), bringt aber
 weniger Gewinn; Vorteil: getrenntes Konto, keine Liquidation, keine Positionskonflikte, einfach umzusetzen.
+
+## NASS_Roi15 auf echten OKX-Spotdaten (USDT, 78 Coins) – 01.11.2026
+Daten: OKX 5m USDT (7 Coins ab 2022, Rest ab 18.03.2025), daher nur Val/H1/H2.
+Gewinn % / Max-DD % (Trades):
+| Gebuehr | Val | H1 | H2 |
+|---|---|---|---|
+| OKX 0,10 % | 24,3 / 6,1 (98) | 234,2 / 45,7 (286) | 11,3 / 10,1 (174) |
+| OKX 0,25 % | 17,6 / 6,6 (98) | 176,6 / 48,0 (283) | 1,1 / 13,4 (173) |
+| Kraken-Daten 0,10 % | 49,7 / 7,8 (152) | 786,6 / 7,6 (437) | 116,5 / 7,3 (258) |
+| Kraken-Daten 0,25 % | 35,2 / 5,1 (165) | 545,1 (s.o.) | 86,1 |
+
+Ursache H1-Drawdown: Crash 10.10.2025, auf OKX-Spot Dochte von -35 bis -72 % (PENGU -72, APE -65, ADA -53,
+1INCH -43, ALGO -35, CVX -35; Stop-Loss ueberspringt die Kerze). In den Kraken-Futures-Kerzen gab es diese
+Dochte nicht, die Strategie hatte dort am 10.10. nur kleine Gewinne/Verluste.
+Wichtig: die "Kraken-Spot"-Tests liefen auf Kraken-FUTURES-Kerzen (Symlink). Echte Kraken-Spot-Kerzen koennen
+am 10.10. aehnliche Dochte wie OKX haben -> Spot-Ergebnisse vermutlich zu optimistisch.
+Auch ohne Crash (H2) deutlich schwaecher: weniger Signale (174 statt 258 Trades) -> Strategie reagiert stark
+auf boersenspezifische Kursdaten. Fazit: 0,1 % Gebuehr gleicht das nicht aus; vor Spot-Live erst Test mit
+echten Kraken-Spot-Daten (Trades-Download) noetig.
