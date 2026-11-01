@@ -796,3 +796,11 @@ NoEwo2 +30/15 vs +161/1 (Docht-Kaeufe, unzuverlaessig); Only1 -1/1 beide.
 Fazit: Crash-Risiko kommt vom Signal ewo2. Empfehlung NASO-Spot OKX: SFP_Ewo2Max1 (Crash -14 % in 5m und 1m
 stabil, normaler DD <=16,5 %). Vorsichtig: SFP_Only1 (DD 9 %, halber Gewinn). Ertrag zuletzt schwach
 (Val/H2 ca. 1–2,5 % pro Monat), fruehere Fenster deutlich besser.
+
+## Dry-Run-Paket NASMAO_OKX (01.11.2026)
+- Strategie NASMAO_OKX = SFP_Ewo2Max1 (Backtest-Kontrolle identisch: Val 13,0/6,1, H2 5,2/11,2), zusaetzlich
+  order_time_in_force GTC (OKX unterstuetzt in freqtrade kein IOC).
+- Boerse MyOKX (EEA), Spot, 78 USDT-Paare (alle dort handelbar), dry_run_wallet 400 USDT, keine Schluessel.
+- Installer nasmao_okx_dryrun_setup.py -> ~/nasmao-okx-dryrun, Container nasmao-okx-dryrun, eigene DB.
+  (Installer enthaelt Fremdcode, daher nicht im Repo.)
+- Bewertung nach 4–8 Wochen: >= 1–2 %/Monat, DD < 15 %, keine Fehler im Log.
