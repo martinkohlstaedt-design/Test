@@ -852,3 +852,10 @@ Hinweis: 4 parallele Backtests auf H1/W3 -> Speichermangel (Killed); max. 2 para
   Container als ftuser laeuft; Installer entsprechend ergaenzt). Speicher: NFI 1018 MiB, NASMAO 312 MiB, frei 1,9 GiB, kein Swap.
 - 01.11.2026: Telegram fuer NASMAO-Dry-Run (eigener Bot, Chat-ID vom Live-Bot; Token nur auf dem Server eingegeben).
   Swap 2 GB eingerichtet (/swapfile, fstab, vm.swappiness=10) als Schutz gegen Speicherengpaesse (4-GB-Server).
+
+## v23M: Liquidationspreis live zuverlaessig (01.11.2026)
+Befund: unter v23L blieb liquidation_price live leer (WLD, XMR), obwohl WLD seit dem Update zweimal nachgekauft hat und
+die Berechnung im Live-Container mit den echten Trade-Daten funktioniert (WLD 0,2742, XMR 465,20 ohne Puffer).
+v23M: setzt den Wert zusaetzlich in bot_loop_start (vor Trade.commit) mit freqtrades liquidation_buffer (5 %),
+protokolliert Wert und Fehler (Logger NFI_KF_V23M). Lokal im Dry-Run mit erzwungenem WLD- und XMR-Trade getestet:
+Wert gesetzt und gespeichert, identisch mit freqtrades eigenem Dry-Run-Wert (XMR 458,61). Deploy: deploy/nfi_v23m_update.py.

@@ -3385,3 +3385,77 @@ class NFI_KF_V32_WeakCap2(_WeakCapMixin, NFI_KF_V23_Grind3):
 
 class NFI_KF_V32_NoRebuy(_BlockSignalsMixin, NFI_KF_V23_Grind3):
     _BLOCK_TAGS = frozenset({"61", "62", "63", "64", "65", "68"})
+
+
+# ============================================================================
+# v23M = v23L + Liquidationspreis zusaetzlich in jedem Bot-Durchlauf setzen
+# (bot_loop_start, direkt vor freqtrades Trade.commit) und Fehler protokollieren.
+# Hintergrund: Unter v23L blieb liquidation_price live in der DB leer, obwohl die
+# Berechnung im Container funktioniert; v23L hat Fehler still verschluckt.
+# ============================================================================
+
+import logging as _v23m_logging
+_v23m_log = _v23m_logging.getLogger("NFI_KF_V23M")
+
+
+class _LiqLoopMixin:
+    _liq_state = None
+
+    def _liq_loop_update(self, current_time):
+        from freqtrade.persistence import Trade as _T
+        if self._liq_state is None:
+            self._liq_state = {}
+        for t in _T.get_open_trades():
+            if not t.has_open_position or t.is_short:
+                continue
+            try:
+                lp = self._estimate_liq(t)
+            except Exception as e:
+                key = ("err", t.pair, type(e).__name__)
+                if key not in self._liq_state:
+                    self._liq_state[key] = True
+                    _v23m_log.warning(f"V23M: Liquidationspreis {t.pair} nicht berechenbar: {type(e).__name__}: {e}")
+                continue
+            if not lp:
+                continue
+            before = t.liquidation_price
+            t.set_liquidation_price(lp)
+            last = self._liq_state.get(t.id)
+            if last is None or abs(last / lp - 1) > 0.005:
+                self._liq_state[t.id] = lp
+                _v23m_log.info(f"V23M: Liquidationspreis {t.pair} = {lp:.6g} (vorher {before}, "
+                               f"Einstieg {t.open_rate:.6g}, Hebel {t.leverage})")
+            try:
+                df, _ = self.dp.get_analyzed_dataframe(t.pair, self.timeframe)
+                rate = float(df["close"].iloc[-1])
+                if rate < lp * (1 + self._LIQ_WARN):
+                    if self._liq_warned is None:
+                        self._liq_warned = {}
+                    w = self._liq_warned.get(t.id)
+                    if w is None or (current_time - w).total_seconds() > 6 * 3600:
+                        self._liq_warned[t.id] = current_time
+                        self.dp.send_msg(f"LIQUIDATIONS-WARNUNG {t.pair}: Kurs {rate:.6g}, "
+                                         f"Liquidation ca. {lp:.6g} ({(rate / lp - 1) * 100:.1f} % Abstand)")
+            except Exception:
+                pass
+
+    def bot_loop_start(self, current_time, **kwargs):
+        try:
+            if self.config["runmode"].value in ("live", "dry_run"):
+                self._liq_loop_update(current_time)
+        except Exception as e:
+            _v23m_log.warning(f"V23M: bot_loop_start Fehler: {type(e).__name__}: {e}")
+        return super().bot_loop_start(current_time=current_time, **kwargs)
+
+
+class NFI_KF_V23M(_LiqLoopMixin, NFI_KF_V23L):
+    """v23L + Liquidationspreis je Durchlauf setzen (vor Trade.commit) + Fehler-Log.
+    Mit freqtrades Sicherheitspuffer (liquidation_buffer, Standard 5 %) wie im Dry-Run."""
+
+    def _estimate_liq(self, trade):
+        lp = super()._estimate_liq(trade)
+        if lp:
+            buf = getattr(self.dp._exchange, "liquidation_buffer", 0.05) or 0.0
+            d = abs(trade.open_rate - lp) * buf
+            lp = lp - d if trade.is_short else lp + d
+        return lp
