@@ -850,3 +850,5 @@ Hinweis: 4 parallele Backtests auf H1/W3 -> Speichermangel (Killed); max. 2 para
   NFI v23 ca. 2–25 Trades/Monat (Median 2–5 h, max. bis 12 Tage, ca. 91–100 % Gewinner).
 - 01.11.2026 18:12 UTC: Dry-Run NASMAO_KF15 auf dem Server gestartet (Rechte-Fix: chown -R 1000:1000 user_data, da
   Container als ftuser laeuft; Installer entsprechend ergaenzt). Speicher: NFI 1018 MiB, NASMAO 312 MiB, frei 1,9 GiB, kein Swap.
+- 01.11.2026: Telegram fuer NASMAO-Dry-Run (eigener Bot, Chat-ID vom Live-Bot; Token nur auf dem Server eingegeben).
+  Swap 2 GB eingerichtet (/swapfile, fstab, vm.swappiness=10) als Schutz gegen Speicherengpaesse (4-GB-Server).
