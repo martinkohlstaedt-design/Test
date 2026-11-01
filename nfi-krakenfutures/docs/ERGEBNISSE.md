@@ -829,3 +829,15 @@ NFI v23 + NASMAO 50/50 (zwei Konten/Unterkonto), max/Mittel MtM-DD: + 1x E2M2 45
 Fazit: Empfehlung NASMAO Kraken Futures = 1,5x E2M2 (KF15_E2M2): Gewinn ohne H1 ca. 1.200 % (NFI ca. 2.490 %, davon
 W3 1.742), DD max 44,8 (NFI 51,2), Mittel 19,2 (NFI 32,1). 1x E2M2 als vorsichtige Variante (29,3/12,6).
 2x erreicht NFI-Risiko (58,6). Naechster Schritt: Dry-Run KF15_E2M2.
+
+## NASMAO Kraken Futures Runde K4 (Feinschliff 1,5x E2M2)
+Gewinn % / DD % (W1 | W2 | W2c | W4a | W3 | Val | H2), MtM-DD max:
+- Basis KF15_E2M2: 316/11 | 180/11 | 135/8 | 137/11 | 154/16 | 70/7 | 204/10; MtM max 44,8 (W3)
+- Stop -30/-25/-20 % Kurs: W3 DD 31/28/39 % -> schlechter
+- halber Einsatz bei Konto -15 %: praktisch identisch (W3 148/16)
+- Gewinnziele x1,25: 298/11 | 182/11 | 121/8 | 143/11 | 166/16 | 73/7 | 218/10; MtM identisch zur Basis
+- max. 3 ewo2: 339/8 | 236/11 | 135/9 | 149/11 | 160/16 | 83/7 | 209/10; MtM hoeher (W1 21,4, W2c 22,1, H1 28,6)
+- 4 Slots: 473/5 | 250/13 | 175/10 | 175/13 | 186/23 | 94/9 | 297/13 (DD hoeher); 6 Slots: weniger Gewinn
+- Coin-Sperrliste: Trainings-Verlierer in Val/H2 positiv -> verworfen
+Fazit: keine robuste Verbesserung; KF15_E2M2 bleibt Favorit (W3-Crash Feb. 2025 = strukturelles Maximum 44,8 %).
+Hinweis: 4 parallele Backtests auf H1/W3 -> Speichermangel (Killed); max. 2 parallel.
