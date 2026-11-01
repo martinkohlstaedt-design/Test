@@ -777,3 +777,22 @@ Fazit: Engere Stops (-20/-12 %) helfen nur im Crash 10.10., schaden aber in norm
 Empfehlung von oben (StopFix20Prot) zurueckgezogen. Robustester Kompromiss: NASO_StopFixProt (Stop -35 % wird nicht
 blockiert + Kaufpause nach 2 Stops) – sonst gleich wie Roi15, H1-Crash-DD 35 statt 46 %. Ohne Crash-Artefakt
 ca. 2–4 % pro Monat, DD normal 6–17 %, im Crash 25–45 %. OKX-Ergebnisse fast ueberall deutlich unter Kraken-Futures-Kerzen.
+
+## NASMAO auf OKX-Spot – Runden 4/5 (alle 8 Fenster, 0,10 %, Basis NASO_StopFixProt = SFP)
+Signal-Analyse (Summe Trade-%): ewo1 in allen Fenstern positiv; ewo2 (RSI<25, tief ueberverkauft) sehr schwankend
+(W2 +422, H1 -125 = Crash); ewolow klein.
+Summe Gewinn % (8 Fenster) / max DD % / H1 (Crash) Gewinn/DD:
+- SFP (Basis): 349 / 35,3 / -7/35
+- SFP_NoEwo2 (ohne ewo2): 264 / 16,7 / 68/17
+- SFP_Only1 (nur ewo1): 159 / 9,0 / 21/3
+- SFP_Ewo2Half: 234 / 18,1; SFP_Ewo2Deep: 428 / 35,3; SFP_Roi20: 399 / 35,3; SFP_Block: 379 / 35,3; SFP_T48 = Basis
+- max_open_trades 3/4/7/10 (Basis): Crash-DD bleibt 33–36 %
+- SFP_Ewo2Max1 (max. 1 offener ewo2): 289 / 16,5 / 20/14; SFP_Ewo2Max2: 336 / 16,4 / 21/15
+- SFP_NoEwo2Block: 276 / 16,7; SFP_NoEwo2Roi20 245 / 13,0; SFP_Ewo2DeepHalf 288 / 18,1; SFP_Ewo2Guard 260 / 35,3
+- 3 Slots: SFP_Ewo2Max1 496 / 23,2; SFP_NoEwo2 1347 / 20,3 (H1 1009 % = Docht-Kaeufe, Artefakt)
+Crash-Fenster 08.–13.10.2025, 5m vs. 1m-Detail (Gewinn/DD):
+Roi15 +135/45,7 vs -6/53,6; SFP -35/35 vs -35/35; Ewo2Max1 -14/14 vs -14/14; Ewo2Max2 -14/15 vs -21/21;
+NoEwo2 +30/15 vs +161/1 (Docht-Kaeufe, unzuverlaessig); Only1 -1/1 beide.
+Fazit: Crash-Risiko kommt vom Signal ewo2. Empfehlung NASO-Spot OKX: SFP_Ewo2Max1 (Crash -14 % in 5m und 1m
+stabil, normaler DD <=16,5 %). Vorsichtig: SFP_Only1 (DD 9 %, halber Gewinn). Ertrag zuletzt schwach
+(Val/H2 ca. 1–2,5 % pro Monat), fruehere Fenster deutlich besser.
