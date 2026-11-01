@@ -765,3 +765,15 @@ Gewinn % / Max-DD % (Val | H1 | H2):
 Fazit: Die hohen H1-Gewinne (234 %) stammen fast nur aus Docht-Kaeufen im Crash (Backtest-Artefakt).
 Realistisch auf OKX: ca. 3–5 % pro Monat bei 6–10 % DD im Normalbetrieb; Crash-Risiko mit StopFix20Prot
 ca. 24 % statt 46 %. Favorit: NASO_StopFix20Prot. Naechster Schritt: alle 8 Fenster, sobald volle OKX-Historie geladen ist.
+
+## NASMAO auf OKX-Spot, alle 8 Fenster (volle OKX-Historie ab 06/2022, 0,10 %, --enable-protections)
+Gewinn % / Max-DD % (W1 | W2 | W2c | W4a | W3 | Val | H1 | H2):
+- NASS_Roi15:         43,0/11,8 | 225,0/5,4 | 25,9/15,0 | 19,8/8,0 | 10,5/17,0 | 24,3/6,1 | 234,2/45,7 | 11,3/10,1
+- NASO_StopFixProt:   43,1/11,9 | 223,2/5,4 | 25,9/15,0 | 18,8/8,0 |  7,9/17,0 | 24,3/6,1 |  -7,1/35,3 | 12,6/8,6
+- NASO_StopFix20Prot: 22,5/20,1 | 214,9/5,3 |  0,6/22,3 | 10,1/13,3 | -17,6/29,2 | 24,0/6,3 | 13,1/23,8 | 16,1/7,2
+- NASO_StopFix12Prot: 35,6/15,1 | 220,6/4,8 | -6,9/26,8 |  3,4/17,6 | -14,7/25,9 | 22,4/5,7 | 18,2/14,9 |  6,6/8,0
+Vergleich Roi15 auf Kraken-Futures-Kerzen (0,10 %): 74,5 | 130,2 | 47,6 | 62,4 | 30,3 | 49,7 | 786,6 | 116,5.
+Fazit: Engere Stops (-20/-12 %) helfen nur im Crash 10.10., schaden aber in normalen Dip-Phasen (W2c, W3, W4a) ->
+Empfehlung von oben (StopFix20Prot) zurueckgezogen. Robustester Kompromiss: NASO_StopFixProt (Stop -35 % wird nicht
+blockiert + Kaufpause nach 2 Stops) – sonst gleich wie Roi15, H1-Crash-DD 35 statt 46 %. Ohne Crash-Artefakt
+ca. 2–4 % pro Monat, DD normal 6–17 %, im Crash 25–45 %. OKX-Ergebnisse fast ueberall deutlich unter Kraken-Futures-Kerzen.
