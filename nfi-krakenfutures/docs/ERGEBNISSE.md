@@ -848,3 +848,5 @@ Hinweis: 4 parallele Backtests auf H1/W3 -> Speichermangel (Killed); max. 2 para
 - Installer nasmao_kf15_dryrun_setup.py -> ~/nasmao-kf15-dryrun, Container nasmao-kf15-dryrun (Fremdcode, nicht im Repo).
 - Trade-Haeufigkeit Backtest: NASMAO ca. 28–60 Trades/Monat (Median-Dauer 1–2 h, ca. 72–80 % Gewinner),
   NFI v23 ca. 2–25 Trades/Monat (Median 2–5 h, max. bis 12 Tage, ca. 91–100 % Gewinner).
+- 01.11.2026 18:12 UTC: Dry-Run NASMAO_KF15 auf dem Server gestartet (Rechte-Fix: chown -R 1000:1000 user_data, da
+  Container als ftuser laeuft; Installer entsprechend ergaenzt). Speicher: NFI 1018 MiB, NASMAO 312 MiB, frei 1,9 GiB, kein Swap.
