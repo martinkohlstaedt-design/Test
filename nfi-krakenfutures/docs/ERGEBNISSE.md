@@ -738,3 +738,13 @@ am 10.10. aehnliche Dochte wie OKX haben -> Spot-Ergebnisse vermutlich zu optimi
 Auch ohne Crash (H2) deutlich schwaecher: weniger Signale (174 statt 258 Trades) -> Strategie reagiert stark
 auf boersenspezifische Kursdaten. Fazit: 0,1 % Gebuehr gleicht das nicht aus; vor Spot-Live erst Test mit
 echten Kraken-Spot-Daten (Trades-Download) noetig.
+
+## Crash 10.10.2025 mit echten Kraken-Spot-Daten (Trades-Download 09.–12.10., 83 Coins)
+Tiefster Kurs 10.10. 20:00–11.10. 02:00 gegen Eroeffnung: Kraken-Spot ≈ OKX, Futures viel milder,
+z. B. DYDX -97/-57/-88, SUI -95/-38/-83, PENGU -79/-50/-80, APE -76/-54/-72 (Spot/Futures/OKX %).
+-> Die bisherigen "Kraken-Spot"-Tests (Futures-Kerzen) haben den Crash deutlich unterschaetzt.
+Hybrid-Daten (Futures-Kerzen, 09.–12.10. echte Spot-Kerzen, tools/hybrid.py), NASS_Roi15 H1:
+0,10 %: 487,9 % / DD 7,6 % (vorher 786,6 / 7,6); 0,25 %: 406,0 % / DD 7,9 % (vorher 545,1).
+Aber: Crash-Verluste 1INCH -35, APE -65, CFX -35, ADA -10 (= ca. -22 % des Kontos) werden im Backtest
+durch 10 Kaeufe im Docht mit +43 % ROI ausgeglichen (+10.549 USD) – Fuellung am Kerzentief, unrealistisch.
+Realistisch ist im H1-Fenster ein Drawdown von ca. 25–30 % zu erwarten (OKX: 46 %).
