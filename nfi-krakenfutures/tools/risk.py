@@ -17,7 +17,7 @@ def load(strat):
             s = json.load(zf.open(jn))["strategy"][strat]
         except Exception: continue
         w = W.get(s["backtest_start"][:10])
-        if w and s["trades"] and s["trades"][0]["fee_open"] < 0.0006: seen[w] = s
+        if w and s["trades"] and s["trades"][0]["fee_open"] < float(os.environ.get("MAXFEE", "0.0006")): seen[w] = s
     for w, s in seen.items():
         df = pd.DataFrame(s["trades"]); df["close_date"] = pd.to_datetime(df["close_date"]); df["open_date"] = pd.to_datetime(df["open_date"])
         c = df.sort_values("close_date"); cum = c["profit_abs"].cumsum().values; cd = c["close_date"].values

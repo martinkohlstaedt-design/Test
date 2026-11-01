@@ -11,11 +11,14 @@ ORDER = ["w1", "w2", "w2c", "w4a", "w3", "val", "h1", "h2"]
 cache = {}
 def low(pair):
     if pair not in cache:
-        cache[pair] = pd.read_feather(DATA + pair.replace("/", "_").replace(":", "_") + "-5m-futures.feather").set_index("date")["low"]
+        f = DATA + pair.replace("/", "_").replace(":", "_") + "-5m-futures.feather"
+        if ":" not in pair:
+            f = "/root/ft_workdir/data_spot/" + pair.replace("/", "_") + "-5m.feather"
+        cache[pair] = pd.read_feather(f).set_index("date")["low"]
     return cache[pair]
 def tzu(x):
     x = pd.Timestamp(x); return x.tz_localize("UTC") if x.tzinfo is None else x.tz_convert("UTC")
-def runs(strat, after, before):
+def runs(strat, after, before, maxfee=0.0006):
     found = {}
     for z in sorted(glob.glob(BT + "backtest-result-*.zip")):
         b = os.path.basename(z)
@@ -24,7 +27,7 @@ def runs(strat, after, before):
             if list(json.load(open(z.replace(".zip", ".meta.json"))).keys()) != [strat]: continue
             zf = zipfile.ZipFile(z); jn = [n for n in zf.namelist() if n.endswith(".json") and "config" not in n and "meta" not in n][0]
             s = json.load(zf.open(jn))["strategy"][strat]
-            if not s["trades"] or s["trades"][0]["fee_open"] > 0.0006: continue
+            if not s["trades"] or s["trades"][0]["fee_open"] > maxfee: continue
         except Exception: continue
         w = WIN.get(s["backtest_start"][:10])
         if w: found[w] = s
@@ -44,7 +47,8 @@ def curve(s):
         pnl[i1:] += t["profit_abs"]
     return pd.Series((eq0 + pnl) / eq0, index=grid)
 args = sys.argv[1:]; sep = args.index("--"); A, B = args[:sep], args[sep + 1:]
-ra = runs(A[0], A[1], A[2] if len(A) > 2 else "~"); rb = runs(B[0], B[1], B[2] if len(B) > 2 else "~")
+ra = runs(A[0], A[1], A[2] if len(A) > 2 else "~", float(os.environ.get("MAXFEE_A", "0.0006")))
+rb = runs(B[0], B[1], B[2] if len(B) > 2 else "~", float(os.environ.get("MAXFEE_B", "0.0006")))
 ca = {w: curve(s) for w, s in ra.items()}; cb = {w: curve(s) for w, s in rb.items()}
 print(f"A = {A[0]}, B = {B[0]}  (Gewinn % / max. Drawdown inkl. offener Positionen %)")
 print(f"{'A-Anteil':>9s}" + "".join(f"{w:>15s}" for w in ORDER) + f"{'max DD':>9s}{'Mittel DD':>11s}")

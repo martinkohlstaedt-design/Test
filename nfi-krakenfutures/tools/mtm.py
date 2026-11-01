@@ -12,7 +12,7 @@ WIN = {"2022-08-24": "w1", "2023-05-01": "w2", "2024-01-01": "w2c", "2024-09-01"
        "2025-04-01": "val", "2025-09-26": "h1", "2026-03-15": "h2"}
 found = {}
 for z in sorted(glob.glob(BT + "backtest-result-*.zip")):
-    if os.path.basename(z) < after:
+    if os.path.basename(z) < after or os.path.basename(z) >= os.environ.get("BEFORE", "~"):
         continue
     try:
         if list(json.load(open(z.replace(".zip", ".meta.json"))).keys()) != [strat]:
@@ -20,7 +20,7 @@ for z in sorted(glob.glob(BT + "backtest-result-*.zip")):
         zf = zipfile.ZipFile(z)
         jn = [n for n in zf.namelist() if n.endswith(".json") and "config" not in n and "meta" not in n][0]
         s = json.load(zf.open(jn))["strategy"][strat]
-        if not s["trades"] or s["trades"][0]["fee_open"] > 0.0006:
+        if not s["trades"] or s["trades"][0]["fee_open"] > float(os.environ.get("MAXFEE", "0.0006")):
             continue
     except Exception:
         continue
@@ -30,7 +30,10 @@ for z in sorted(glob.glob(BT + "backtest-result-*.zip")):
 cache = {}
 def candles(pair):
     if pair not in cache:
-        cache[pair] = pd.read_feather(DATA + pair.replace("/", "_").replace(":", "_") + "-5m-futures.feather").set_index("date")["low"]
+        f = DATA + pair.replace("/", "_").replace(":", "_") + "-5m-futures.feather"
+        if ":" not in pair:   # Spot-Paar: Kerzen aus data_spot
+            f = "/root/ft_workdir/data_spot/" + pair.replace("/", "_") + "-5m.feather"
+        cache[pair] = pd.read_feather(f).set_index("date")["low"]
     return cache[pair]
 res = {}
 for w in ["w1", "w2", "w2c", "w4a", "w3", "val", "h1", "h2"]:

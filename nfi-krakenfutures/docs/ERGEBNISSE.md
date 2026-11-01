@@ -690,3 +690,32 @@ N = ohne Meme-Coins (77). Gewinn %/DD %, Trainingssumme W1-W3:
 Ohne Trailing zeigt dasselbe Muster (alle 83: 240,2; N: 207,4; A: 156,4; B: 146,0; L: 131,5). Ergebnis: alle Coins
 gewinnen im Training; weniger Coins = weniger gute Gelegenheiten. Large Caps sehr ruhig (max DD 7,9 %), aber wenig
 Gewinn. Ohne Memes in der Pruefung minimal besser, im Training schlechter -> alle 83 Coins behalten.
+
+### Runde 2 und 3 (Kraken Spot, Maker 0,25 %), 01.11.2026
+
+| | W1 | W2 | W2c | W4a | W3 | Training | Val | H1 | H2 |
+|---|---|---|---|---|---|---|---|---|---|
+| x1,5 + ohne Trailing (C1) | 58,8/16,0 | 104,8/6,7 | 42,9/6,1 | 51,8/8,3 | 11,7/27,6 | 270,1 | 41,4/7,8 | 252,8/24,4 | 95,4/7,4 |
+| x1,5 + tiefere Einstiege (C2) | 57,6/7,7 | 77,8/3,5 | 25,2/6,4 | 44,5/3,5 | 28,9/14,1 | 234,1 | 25,1/7,0 | 466,1/23,2 | 77,4/2,2 |
+| x1,5 + beides (C3) | 67,2/10,4 | 93,4/3,5 | 39,9/4,9 | 48,2/3,7 | 28,7/16,9 | 277,4 | 27,6/7,0 | 188,4/23,9 | 71,4/7,0 |
+| x1,5, 3 Slots | 83,4/19,8 | 126,2/10,5 | 51,9/7,9 | 50,4/12,2 | -8,5/42,1 | 303,2 | 48,9/13,2 | 1483,4/11,3 | 162,3/12,2 |
+| x1,5, 8 Slots | 36,3/11,5 | 69,0/4,0 | 22,3/7,3 | 36,1/4,9 | 9,8/18,9 | 173,6 | 27,9/5,1 | 283,0/5,0 | 52,6/4,6 |
+
+Kombinationen gewinnen das Training, fallen in Val/H1/H2 zurueck (Ueberanpassung). 3 Slots = groessere Positionen
+(W3 -8,5 %, DD 42 %). Sieger: `NASS_Roi15` (Gewinnziele x1,5, letzte ROI-Stufe +1 %, Trailing-Offset 4,5 %), alle 83
+Coins, 5 Slots, Limit-Orders.
+Risiko (7 Fenster): Basis max/Mittel MtM-DD 38,8/19,8, MC-DD 95 % 19,6, Summe 429; NASS_Roi15 37,5/19,8, 19,2, 446;
+C1 39,7/20,6, 20,4, 408. Kein Trade unter -48 %.
+Gebuehren-Stress 0,40 % (falls Limit-Orders teils als Taker gefuellt): NASS_Roi15 23,0/16,9, 70,7/6,9, 22,1/7,2,
+28,2/9,3, -11,5/31,5, 23,5/8,2, 397,0/8,2, 61,5/7,5 (W3 negativ, sonst im Plus, besser als Basis mit 0,40 %).
+
+Kombination NFI-Futures (v23, 86 Coins) + NASMAO-Spot (NASS_Roi15), zwei getrennte Kraken-Konten (kein Konflikt),
+Gewinn % W1..H2, max/Mittel MtM-DD:
+- 100 % NFI: 64,1 / 59,2 / 57,2 / 257,5 / 1741,6 / 68,0 / 1015,0 / 237,7; 51,2 / 32,1
+- 70/30: 59,4 / 70,6 / 49,9 / 193,6 / 1221,9 / 58,1 / 874,0 / 192,2; 49,3 / 27,1
+- 50/50: 56,3 / 78,2 / 45,0 / 151,0 / 875,5 / 51,6 / 780,0 / 161,9; 47,3 / 24,3
+- 0 % NFI (nur Spot): 48,5 / 97,3 / 32,8 / 44,6 / 9,3 / 35,2 / 545,1 / 86,1; 37,5 / 19,8
+Vergleich 50/50 mit NASMAO auf Futures: gleiche Coins (Unterkonto) 45,1/22,9 bei H1 1054,9; getrennte Coin-Listen
+NASMAO 1,5x 46,6/23,8 bei H1 629,8.
+Fazit: Spot-Kombination senkt den Drawdown aehnlich wie die Futures-Varianten (Mittel 24 statt 32 %), bringt aber
+weniger Gewinn; Vorteil: getrenntes Konto, keine Liquidation, keine Positionskonflikte, einfach umzusetzen.
