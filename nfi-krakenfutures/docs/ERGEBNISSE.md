@@ -748,3 +748,20 @@ Hybrid-Daten (Futures-Kerzen, 09.–12.10. echte Spot-Kerzen, tools/hybrid.py), 
 Aber: Crash-Verluste 1INCH -35, APE -65, CFX -35, ADA -10 (= ca. -22 % des Kontos) werden im Backtest
 durch 10 Kaeufe im Docht mit +43 % ROI ausgeglichen (+10.549 USD) – Fuellung am Kerzentief, unrealistisch.
 Realistisch ist im H1-Fenster ein Drawdown von ca. 25–30 % zu erwarten (OKX: 46 %).
+
+## NASMAO intensiv auf OKX-Spot (USDT, 0,10 %), Runden 1–3 – 01.11.2026
+Gewinn % / Max-DD % (Val | H1 | H2):
+- NASS_Roi15 (Basis): 24,3/6,1 | 234,2/45,7 | 11,3/10,1
+- NASS_Base 24,0/4,9 | 162,0/46,9 | 15,8/8,5; NASS_SL20 23,7/5,2 | 186,5/44,0 | 14,6/8,5; Deep/C2/C3/NoTrail/C1 schwaecher
+- Engere Stops allein wirkungslos (SL12 H1 DD 43,9): NASMAO-"Slippage-Schutz" (confirm_trade_exit, 3 Wiederholungen,
+  -2 % gegen letzte Kerze) blockiert Stop-Verkaeufe im Crash -> Verkauf erst 2 Kerzen spaeter bei -65 %.
+- BTC-Bremse (-3 %/60 min u. a.): H1 -22 bis -31 % (verhindert die Docht-Kaeufe, die im Backtest den Crash ausgleichen).
+- StopFix (Stops nicht blockieren): H1 -48,8/70,1 – nach jedem Stop wird im fallenden Markt sofort nachgekauft (Kaskade).
+- StopFix + Kaufpause nach 2 Stops/24 h fuer 12 h (StoplossGuard, --enable-protections):
+  - Stop -35 %: 24,3/6,1 | -7,1/35,3 | 12,6/8,6
+  - Stop -20 % (NASO_StopFix20Prot): 24,0/6,3 | 13,1/23,8 | 16,1/7,2
+  - Stop -12 % (NASO_StopFix12Prot): 22,4/5,7 | 18,2/14,9 | 6,6/8,0
+- H1 ohne Crash (12.10.25–15.03.26): Roi15 35,7/6,7; StopFix20Prot 40,2/6,7; StopFix12Prot 31,2/8,2.
+Fazit: Die hohen H1-Gewinne (234 %) stammen fast nur aus Docht-Kaeufen im Crash (Backtest-Artefakt).
+Realistisch auf OKX: ca. 3–5 % pro Monat bei 6–10 % DD im Normalbetrieb; Crash-Risiko mit StopFix20Prot
+ca. 24 % statt 46 %. Favorit: NASO_StopFix20Prot. Naechster Schritt: alle 8 Fenster, sobald volle OKX-Historie geladen ist.
