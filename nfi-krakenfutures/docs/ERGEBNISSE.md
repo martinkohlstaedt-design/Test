@@ -859,3 +859,6 @@ die Berechnung im Live-Container mit den echten Trade-Daten funktioniert (WLD 0,
 v23M: setzt den Wert zusaetzlich in bot_loop_start (vor Trade.commit) mit freqtrades liquidation_buffer (5 %),
 protokolliert Wert und Fehler (Logger NFI_KF_V23M). Lokal im Dry-Run mit erzwungenem WLD- und XMR-Trade getestet:
 Wert gesetzt und gespeichert, identisch mit freqtrades eigenem Dry-Run-Wert (XMR 458,61). Deploy: deploy/nfi_v23m_update.py.
+- 01.11.2026 18:50 UTC: v23M live eingespielt. 18:54 Log "V23M: Liquidationspreis WLD = 0.280845, XMR = 472.632";
+  DB danach gespeichert (WLD 0,2808 = 31 % unter Einstieg 0,407 bei 3x; XMR 472,63 = 23 % unter 613,76 bei 4x).
+  NFIs Liquidations-Rettungslogik (grind/derisk nahe Liquidation) und die Telegram-Warnung (< 10 % Abstand) greifen jetzt live.
