@@ -841,3 +841,10 @@ Gewinn % / DD % (W1 | W2 | W2c | W4a | W3 | Val | H2), MtM-DD max:
 - Coin-Sperrliste: Trainings-Verlierer in Val/H2 positiv -> verworfen
 Fazit: keine robuste Verbesserung; KF15_E2M2 bleibt Favorit (W3-Crash Feb. 2025 = strukturelles Maximum 44,8 %).
 Hinweis: 4 parallele Backtests auf H1/W3 -> Speichermangel (Killed); max. 2 parallel.
+
+## Dry-Run-Paket NASMAO_KF15 (Kraken Futures, 01.11.2026)
+- Strategie NASMAO_KF15 = KF15_E2M2 (Backtest-Kontrolle identisch: Val 70,2/7,1, H2 203,5/10,2), GTC statt IOC.
+- Kraken Futures, isoliert, 1,5x, 86 Coins (alle aktiv), dry_run_wallet 400 USD, keine Schluessel.
+- Installer nasmao_kf15_dryrun_setup.py -> ~/nasmao-kf15-dryrun, Container nasmao-kf15-dryrun (Fremdcode, nicht im Repo).
+- Trade-Haeufigkeit Backtest: NASMAO ca. 28–60 Trades/Monat (Median-Dauer 1–2 h, ca. 72–80 % Gewinner),
+  NFI v23 ca. 2–25 Trades/Monat (Median 2–5 h, max. bis 12 Tage, ca. 91–100 % Gewinner).
