@@ -11,7 +11,7 @@ for p in sys.argv[1:]:
         for l in lines:
             c = l.split("│")
             if len(c) > 8:
-                name = c[1].strip() + ("" if p.startswith(("r4", "ok")) and not p[2:3] == "m" else f"[{p}]")
+                name = c[1].strip() + ("" if p in ("okf", "r4") else f"[{p}]")
                 prof = float(c[5]); dd = float(re.findall(r"([\d.]+)%", c[8])[0])
                 res.setdefault(name, {})[w] = (prof, dd)
 print(f"{'Strategie':26s}" + "".join(f"{w:>12s}" for w in W) + "   Summe  maxDD  Train  Test")

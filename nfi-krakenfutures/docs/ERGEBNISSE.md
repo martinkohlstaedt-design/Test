@@ -804,3 +804,28 @@ stabil, normaler DD <=16,5 %). Vorsichtig: SFP_Only1 (DD 9 %, halber Gewinn). Er
 - Installer nasmao_okx_dryrun_setup.py -> ~/nasmao-okx-dryrun, Container nasmao-okx-dryrun, eigene DB.
   (Installer enthaelt Fremdcode, daher nicht im Repo.)
 - Bewertung nach 4–8 Wochen: >= 1–2 %/Monat, DD < 15 %, keine Fehler im Log.
+
+## NASMAO auf Kraken Futures optimiert (Runden K1–K3, 01.11.2026)
+Mixins: StopFix (Stop-Loss nicht vom Slippage-Schutz blockiert), Prot (Kaufpause 12 h nach 2 Stops), E2M2 (max. 2 offene
+ewo2-Trades), Hebel 1x/1,5x/2x/3x (ROI/Trailing auf gleiche Kursbewegung). 3x nach W2c/W4a abgebrochen
+(Stop -25 % Kurs nahe Liquidation: W2c DD 30–55 %).
+Gewinn % / DD % geschlossene Trades (W1 | W2 | W2c | W4a | W3 | Val | H2; H1 durch Docht-Kaeufe 10.10.25 aufgeblaeht):
+- 1x Basis 105/12 | 157/6 | 54/10 | 89/7 | 59/16 | 55/5 | 111/7
+- 1x StopFix 106/11 | 155/7 | 54/10 | 89/7 | 89/8 | 55/5 | 113/7
+- 1x E2M2 (StopFix, ohne Pause) 133/7 | 92/7 | 72/6 | 75/7 | 77/10 | 40/5 | 100/7
+- 1,5x Basis 242/17 | 338/9 | 96/14 | 161/11 | 94/25 | 99/7 | 235/10
+- 1,5x E2M2 316/11 | 180/11 | 135/8 | 137/11 | 154/16 | 70/7 | 204/10
+- 2x Basis 460/21 | 624/12 | 145/19 | 260/14 | 138/34 | 157/10 | 402/14
+- 2x StopFix 472/21 | 607/14 | 145/19 | 260/14 | 304/22 | 157/10 | 404/14
+- 2x E2M2 665/6 | 293/14 | 213/11 | 204/14 | 249/25 | 114/10 | 340/14
+- Mit Kaufpause (Prot) H1-DD 28 % (1x), 41 % (1,5x), 54 % (2x) -> auf Kraken schaedlich, verworfen.
+Crash-Tage mit 1m-Detail, DD % (10.10.25 | 13.04.24 | 20.12.24 | 03.02.25): 1x Basis 12/8/1/11, 1x E2M2 13/6/1/14,
+1,5x Basis 19/12/2/16, 1,5x E2M2 19/8/2/20, 2x Basis 29/16/2/22, 2x E2M2 3/11/2/29; mit Pause 1,5x 41/12/2/28.
+03.02.25 mit 1m deutlich schlechter als 5m (1,5x E2M2 -14 statt +15 %).
+MtM-DD max/Mittel (alle 8 Fenster, Maximum jeweils W3): 1x E2M2 29,3/12,6; 1,5x E2M2 44,8/19,2; 2x E2M2 58,6/27,0;
+2x Basis 58,9/35,0; NFI v23 51,2/32,1.
+NFI v23 + NASMAO 50/50 (zwei Konten/Unterkonto), max/Mittel MtM-DD: + 1x E2M2 45,5/20,8; + 1,5x E2M2 47,8/22,9;
++ 2x E2M2 51,3/25,4.
+Fazit: Empfehlung NASMAO Kraken Futures = 1,5x E2M2 (KF15_E2M2): Gewinn ohne H1 ca. 1.200 % (NFI ca. 2.490 %, davon
+W3 1.742), DD max 44,8 (NFI 51,2), Mittel 19,2 (NFI 32,1). 1x E2M2 als vorsichtige Variante (29,3/12,6).
+2x erreicht NFI-Risiko (58,6). Naechster Schritt: Dry-Run KF15_E2M2.
