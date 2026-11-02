@@ -898,3 +898,10 @@ Vergleich: aktueller Dry-Run 1,5x E2M2 1196 / 44,8 / 19,2 / 20,1; NFI v23 2486 /
 Fazit: Markt-Breite-Filter ist der bisher beste Risikoschutz. KF2_X_Breadth (1/4) halbiert den max. DD ggue. Dry-Run bei
 -18 % Gewinn; KF2_X_Br50 (1/2) schlaegt den Dry-Run in allen Kennzahlen (mehr Gewinn, DD 34 statt 45, Crash 13,6 statt 20,1).
 Live-Hinweis: braucht 1h-Kerzen aller 86 Coins mit EMA200 -> startup_candle_count >= 800 im Live-Paket.
+
+## Dry-Run-Update NASMAO_KF2B (02.11.2026)
+- NASMAO_KF2B = KF2_X_Breadth (2x, E2M2, StopFix, Markt-Breite > 50 % unter EMA200 1h -> 1/4 Einsatz),
+  startup_candle_count 800; Backtest-Kontrolle: Val 71,1/7,7 (Original 70,9), H2 179,9/8,8 (identisch), W1 148,2/3,9.
+- Live-Sicherung: weniger als 10 ausgewertete Coins -> wie Abwaertstrend (1/4). Lokaler Dry-Run: 97 % der Coins unter
+  EMA200 -> Einsatz x0,25 (SOL 19,73 statt 78,9 USD). Log-Zeile "Markt-Breite ... -> Einsatz x..." je Einstieg.
+- Installer nasmao_kf2b_update.py (Fremdcode, nicht im Repo): neue DB tradesv3.dryrun.kf2b.sqlite, Config/Telegram unveraendert.
