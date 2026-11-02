@@ -862,3 +862,22 @@ Wert gesetzt und gespeichert, identisch mit freqtrades eigenem Dry-Run-Wert (XMR
 - 01.11.2026 18:50 UTC: v23M live eingespielt. 18:54 Log "V23M: Liquidationspreis WLD = 0.280845, XMR = 472.632";
   DB danach gespeichert (WLD 0,2808 = 31 % unter Einstieg 0,407 bei 3x; XMR 472,63 = 23 % unter 613,76 bei 4x).
   NFIs Liquidations-Rettungslogik (grind/derisk nahe Liquidation) und die Telegram-Warnung (< 10 % Abstand) greifen jetzt live.
+
+## NASMAO Kraken Futures Runden K5–K7: BTC-Trendfilter (02.11.2026)
+Ideen auf Basis 1,5x E2M2: Kauf-Bremse pro 5m-Kerze (max. 1/2 neue Trades), BTC-Trendfilter (BTC 1h unter EMA200 ->
+weniger/kein Einsatz), gespiegelte Short-Signale. Summe Gewinn ohne H1 / max. MtM-DD / Mittel MtM-DD / schlechtester
+Crash-Tag 1m-DD (13.04.24, 20.12.24, 03.02.25, 10.10.25):
+- 1,5x E2M2 (aktueller Dry-Run): 1196 / 44,8 / 19,2 / 20,1
+- 1,5x Kauf-Bremse 2: 1159 / 45,3; Bremse 1: 1089 / 47,0 -> verworfen
+- Long+Short: W1 DD 41,8 %, Short allein im Training negativ (W2c -11, W4a -29, W3 -27) -> verworfen
+- 1,5x BTC-Trend halber Einsatz: 792 / 27,5 / 14,3 / 10,2
+- 1,5x BTC-Trend Viertel-Einsatz: 628 / 19,1 / 12,3 / 5,2
+- 1,5x BTC-Trend kein Einsatz: 486 / 16,3 / 11,8
+- 1,5x BTC-Trend langsam (EMA800 1h): 923 / 29,4 / 16,9
+- 2x BTC-Trend halber Einsatz: 1248 / 38,4 / 20,0 / 13,6
+- 2x BTC-Trend Viertel-Einsatz: 943 / 28,1 / 17,1 / 6,9
+- zum Vergleich 1x E2M2: 589 / 29,3 / 12,6 / 13,6; NFI v23: 2486 / 51,2 / 32,1
+Gewinn %/DD % je Fenster 2x Viertel (KF2_Btc25): W1 170/4, W2 189/7, W2c 149/7, W4a 112/15, W3 97/19, Val 65/10, H1 944/2, H2 161/9.
+Fazit: BTC-EMA200-Filter (Standardwert, nicht optimiert) senkt v. a. den W3-Crash (Feb. 2025). Empfehlung: Dry-Run auf
+KF2_Btc25 umstellen (ca. 80 % des Gewinns bei 28 statt 45 % max. DD, Crash-Tage halbiert); offensiver: KF2_BtcTrend.
+Crash-Checks mit startup_candle_count 2600 (EMA200 1h eingeschwungen).
