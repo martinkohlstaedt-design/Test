@@ -881,3 +881,20 @@ Gewinn %/DD % je Fenster 2x Viertel (KF2_Btc25): W1 170/4, W2 189/7, W2c 149/7, 
 Fazit: BTC-EMA200-Filter (Standardwert, nicht optimiert) senkt v. a. den W3-Crash (Feb. 2025). Empfehlung: Dry-Run auf
 KF2_Btc25 umstellen (ca. 80 % des Gewinns bei 28 statt 45 % max. DD, Crash-Tage halbiert); offensiver: KF2_BtcTrend.
 Crash-Checks mit startup_candle_count 2600 (EMA200 1h eingeschwungen).
+
+## NASMAO Kraken Futures Runden K8/K9: Markt-Breite (02.11.2026)
+Basis KF2_Btc25. Summe Gewinn ohne H1 / max. MtM-DD / Mittel MtM-DD / schlechtester Crash-Tag 1m-DD:
+- KF2_Btc25 (BTC-Trend 1/4): 943 / 28,1 / 17,1 / 6,9
+- + Coin-eigener Trend 1/2: 775 / DD 17,3 (geschl.) -> verworfen
+- + Volatilitaets-Bremse: 755 -> verworfen
+- + Equity-Filter (letzte 10 Trades < 0 -> 1/2): 868 / 21,5
+- + Stopp bei tiefem BTC-Abwaertstrend: 760 / 22,4
+- Markt-Breite statt BTC (> 50 % der 86 Coins unter EMA200 1h -> 1/4): 979 / 21,5 / 15,9 / 6,9
+  (W1 150/4, W2 146/7, W2c 144/7, W4a 140/14, W3 149/14, Val 71/8, H1 823/5, H2 180/9)
+- Markt-Breite + Equity-Filter: 884 / 21,5 / 6,9
+- Markt-Breite 1/2 Einsatz: 1272 / 34,2 / 19,2 / 13,6
+  (W1 264/4, W2 188/8, W2c 165/6, W4a 160/14, W3 185/14, Val 84/8, H1 3341/5, H2 226/7)
+Vergleich: aktueller Dry-Run 1,5x E2M2 1196 / 44,8 / 19,2 / 20,1; NFI v23 2486 / 51,2 / 32,1.
+Fazit: Markt-Breite-Filter ist der bisher beste Risikoschutz. KF2_X_Breadth (1/4) halbiert den max. DD ggue. Dry-Run bei
+-18 % Gewinn; KF2_X_Br50 (1/2) schlaegt den Dry-Run in allen Kennzahlen (mehr Gewinn, DD 34 statt 45, Crash 13,6 statt 20,1).
+Live-Hinweis: braucht 1h-Kerzen aller 86 Coins mit EMA200 -> startup_candle_count >= 800 im Live-Paket.
