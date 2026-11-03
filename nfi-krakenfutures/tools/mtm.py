@@ -28,13 +28,13 @@ for z in sorted(glob.glob(BT + "backtest-result-*.zip")):
     if w:
         found[w] = s
 cache = {}
-def candles(pair):
-    if pair not in cache:
+def candles(pair, col="low"):
+    if (pair, col) not in cache:
         f = DATA + pair.replace("/", "_").replace(":", "_") + "-5m-futures.feather"
         if ":" not in pair:   # Spot-Paar: Kerzen aus data_spot
             f = "/root/ft_workdir/data_spot/" + pair.replace("/", "_") + "-5m.feather"
-        cache[pair] = pd.read_feather(f).set_index("date")["low"]
-    return cache[pair]
+        cache[(pair, col)] = pd.read_feather(f).set_index("date")[col]
+    return cache[(pair, col)]
 res = {}
 for w in ["w1", "w2", "w2c", "w4a", "w3", "val", "h1", "h2"]:
     if w not in found:
@@ -48,7 +48,7 @@ for w in ["w1", "w2", "w2c", "w4a", "w3", "val", "h1", "h2"]:
     grid = pd.date_range(t0, t1, freq="5min")
     pnl = np.zeros(len(grid))
     for t in s["trades"]:
-        lo = candles(t["pair"])
+        lo = candles(t["pair"], "high" if t.get("is_short") else "low")   # Shorts: ungünstigster Kurs = Hoch
         o = tzu(t["open_date"]); c = tzu(t["close_date"])
         i0 = grid.searchsorted(o); i1 = grid.searchsorted(c)
         if i1 <= i0:

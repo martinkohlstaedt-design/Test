@@ -921,3 +921,15 @@ Summe Gewinn ohne H1 / max. MtM-DD (Basis: 979 / 21,5; Mittel 15,9):
   mit Cluster 544 / 20,7 -> kostet viel Gewinn (NASMAO verdient an gepumpten Coins), Maximum bleibt ~20 %.
 Fazit: Strukturelle Grenze erreicht: max. MtM-DD ~20 % (Crash 03.02.25, Alt-Dump 24.11.24); weitere Filter tauschen
 Gewinn gegen geringe DD-Verbesserung. NASMAO_KF2B bleibt Favorit fuer den Dry-Run.
+
+## NASMAO Kraken Futures Runde K14: Shorts nur im Abwaertsmarkt (03.11.2026)
+Long wie KF2B (2x, Markt-Breite 1/4) + gespiegelte NASMAO-Shorts nur bei Markt-Breite > 50 % bzw. > 70 % der Coins unter
+EMA200 (1h). mtm.py ergaenzt: Shorts werden zum 5m-Hoch bewertet. Summe Gewinn ohne H1 / max. MtM-DD / Mittel:
+- KF2B nur Long: 979 / 21,5 / 15,9
+- Long + Short ab 50 %, voller Einsatz: 1824 / 50,3 / ~26 (W3 45,0, H1 50,3)
+- Long + Short ab 70 %: 1592 / 50,3
+- Long + Short ab 50 %, halber Short-Einsatz: 1315 / 30,4 / 19,9
+- nur Short ab 50 %: W1 82/31, W2 86/13, W2c -7/30, W4a -20/28, W3 -30/40, Val 39/15, H1 1228/47, H2 194/8
+Short-Anteil LSB50 je Fenster (Gewinn %): W1 +123, W2 +109, W2c +2, W4a -53, W3 -73, Val +49, H1 +2640, H2 +291.
+Fazit: Shorts bringen in manchen Phasen viel (2022, 2026), verlieren aber gerade im Crash-Fenster W3 und in W4a.
+Gewinn/Risiko nicht besser als nur Long (979/21,5 = 45,5 vs. 1315/30,4 = 43,2) -> keine Shorts.
