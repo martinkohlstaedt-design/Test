@@ -905,3 +905,19 @@ Live-Hinweis: braucht 1h-Kerzen aller 86 Coins mit EMA200 -> startup_candle_coun
 - Live-Sicherung: weniger als 10 ausgewertete Coins -> wie Abwaertstrend (1/4). Lokaler Dry-Run: 97 % der Coins unter
   EMA200 -> Einsatz x0,25 (SOL 19,73 statt 78,9 USD). Log-Zeile "Markt-Breite ... -> Einsatz x..." je Einstieg.
 - Installer nasmao_kf2b_update.py (Fremdcode, nicht im Repo): neue DB tradesv3.dryrun.kf2b.sqlite, Config/Telegram unveraendert.
+
+## NASMAO Kraken Futures Runden K10–K13 (03.11.2026), Basis KF2_X_Breadth (Dry-Run NASMAO_KF2B)
+Summe Gewinn ohne H1 / max. MtM-DD (Basis: 979 / 21,5; Mittel 15,9):
+- K10 gestufter Einsatz 875 / 21,5; Fruehwarnung EMA50 950 / 21,5; Gewinne im Abwaertsmarkt frueh sichern 983 / 21,5;
+  im Abwaertsmarkt nur ewo1 747; ATR-Spitzen 408 -> keine Verbesserung.
+- Analyse der Tiefpunkte: 05.03.24, 22.08.26 = viele Kaeufe in derselben Kerze; 24.11.24 = Kaeufe in Altcoins nach Pump
+  (MANA/XLM/XTZ/GALA 42–137 % ueber 3-Tage-Tief); 03.02.25 = ewolow-Kaskade.
+- Backtest-Eigenheit: andere Coins werden im Backtest bis zu 1 Kerze verzoegert gelesen (kein Lookahead). Fuer die
+  Markt-Breite (1h) bedeutungslos; ein Signal-Cluster-Zaehler sieht dadurch aber nur einen Teil -> K11 (dp-basiert) ungueltig.
+  Korrektur K12: Signal-Anzahl je Kerze vorab berechnet (tools/sigcount.py, Signal-Kerze T-1, kein Lookahead).
+- K12 Signal-Cluster: ab 4 Signalen max. 1 Kauf/Kerze 917 / 21,6 (H2-DD 21,5 -> 11,9, Mittel 14,6); ab 6 -> 1/2 881 / 20,9;
+  ab 10 -> 1/4 858 / 21,2. Wirkt gezielt, aendert das Maximum (W3/W4a) nicht.
+- K13 Pump-Filter (Kurs > 130/150 % des 3-Tage-Tiefs): 779 / 23,8 (1,5), 610 / 20,2 (1,3), 1/2 Einsatz 749 / 20,5,
+  mit Cluster 544 / 20,7 -> kostet viel Gewinn (NASMAO verdient an gepumpten Coins), Maximum bleibt ~20 %.
+Fazit: Strukturelle Grenze erreicht: max. MtM-DD ~20 % (Crash 03.02.25, Alt-Dump 24.11.24); weitere Filter tauschen
+Gewinn gegen geringe DD-Verbesserung. NASMAO_KF2B bleibt Favorit fuer den Dry-Run.
