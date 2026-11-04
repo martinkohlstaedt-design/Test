@@ -933,3 +933,10 @@ EMA200 (1h). mtm.py ergaenzt: Shorts werden zum 5m-Hoch bewertet. Summe Gewinn o
 Short-Anteil LSB50 je Fenster (Gewinn %): W1 +123, W2 +109, W2c +2, W4a -53, W3 -73, Val +49, H1 +2640, H2 +291.
 Fazit: Shorts bringen in manchen Phasen viel (2022, 2026), verlieren aber gerade im Crash-Fenster W3 und in W4a.
 Gewinn/Risiko nicht besser als nur Long (979/21,5 = 45,5 vs. 1315/30,4 = 43,2) -> keine Shorts.
+
+## NASMAO Kraken Futures Runde K15 (04.11.2026), Basis KF2B (979 / 21,5 / 15,9; Gewinn je % max. DD 45,5)
+- Limit-Kauf 0,5 % unter Signalkurs: 301 / 24,2; 1,0 %: 345 / 22,0 -> deutlich weniger Fuellungen, gefuellt werden vor allem
+  weiter fallende Kurse -> verworfen.
+- 1,3-facher Einsatz bei Markt-Breite < 30 %: 1247 / 27,4 / 18,9 (Verhaeltnis 45,5 = unveraendert) -> reiner Risiko-Regler.
+- ewolow mit halbem Einsatz: 901 / 21,5 / 15,5 (Verhaeltnis 41,9) -> verworfen.
+Fazit: Plateau beim Verhaeltnis Gewinn/Risiko (~45); weitere Aenderungen verschieben nur Gewinn gegen Risiko.
