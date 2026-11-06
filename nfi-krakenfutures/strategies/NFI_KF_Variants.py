@@ -3510,3 +3510,59 @@ class NFI_B25(_NfiBreadthMixin, NFI_KF_V23_Grind3):
 class NFI_B50(_NfiBreadthMixin, NFI_KF_V23_Grind3):
     """v23 + Markt-Breite > 50 % -> 1/2 Einsatz fuer neue Trades."""
     _BR_F = 0.5
+
+
+# ============================================================================
+# Positionsdeckel: Marge eines Trades inkl. aller Nachkaeufe (Grind/Rebuy) hoechstens
+# _PC_CAP des Kontos (Gesamtwert). Erst-Einsatz und Nachkaeufe werden gekappt;
+# Teilverkaeufe (negative Betraege) bleiben unveraendert.
+# ============================================================================
+
+class _PosCapMixin:
+    _PC_CAP = 0.35
+
+    def _pc_equity(self):
+        try:
+            return float(self.wallets.get_total_stake_amount())
+        except Exception:
+            return 0.0
+
+    def custom_stake_amount(self, pair, current_time, current_rate, proposed_stake,
+                            min_stake, max_stake, leverage, entry_tag, side, **kwargs):
+        stake = super().custom_stake_amount(
+            pair, current_time, current_rate, proposed_stake, min_stake, max_stake,
+            leverage, entry_tag, side, **kwargs)
+        eq = self._pc_equity()
+        if stake and eq > 0:
+            stake = min(stake, eq * self._PC_CAP)
+        return stake
+
+    def adjust_trade_position(self, trade, current_time, current_rate, current_profit,
+                              min_stake, max_stake, current_entry_rate, current_exit_rate,
+                              current_entry_profit, current_exit_profit, **kwargs):
+        res = super().adjust_trade_position(
+            trade, current_time, current_rate, current_profit, min_stake, max_stake,
+            current_entry_rate, current_exit_rate, current_entry_profit, current_exit_profit, **kwargs)
+        if res is None:
+            return res
+        amount, tag = (res[0], res[1]) if isinstance(res, tuple) else (res, None)
+        if amount is None or amount <= 0:
+            return res
+        eq = self._pc_equity()
+        if eq <= 0:
+            return res
+        room = eq * self._PC_CAP - float(trade.stake_amount or 0)
+        if room <= (min_stake or 0):
+            return None
+        if amount > room:
+            amount = room
+        return (amount, tag) if isinstance(res, tuple) else amount
+
+
+class NFI_PC35(_PosCapMixin, NFI_KF_V23_Grind3):
+    """v23 + Positionsdeckel 35 % des Kontos je Trade (inkl. Nachkaeufe)."""
+
+
+class NFI_PC50(_PosCapMixin, NFI_KF_V23_Grind3):
+    """v23 + Positionsdeckel 50 % des Kontos je Trade (inkl. Nachkaeufe)."""
+    _PC_CAP = 0.50

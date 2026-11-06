@@ -965,3 +965,11 @@ Hinweis: NFI-Backtest braucht ca. 7 GB RAM -> nur 1 Lauf gleichzeitig.
 | 30 % | 124/9 | 120/10 | 118/19 | 175/17 | 627/33 | 70/9 | 881/21 | 197/14 | 33,3 | 16,5 |
 | 0 % | 150/12 | 146/14 | 144/20 | 140/20 | 149/21 | 71/9 | 823/10 | 180/22 | 21,5 | 15,9 |
 Summe ohne H1: 2486 / 2033 / 1732 / 1431 / 979. Gewinn je % Mittel-DD: 77 / 85 / 90 / 87 / 62 -> 50/50 am besten.
+
+## Positionsdeckel fuer NFI (06.11.2026, verworfen)
+Marge je Trade inkl. Nachkaeufe max. 35 % bzw. 50 % des Kontos (_PosCapMixin, NFI_PC35/NFI_PC50).
+- 50 %: in W2c, W4a, W3, H1 identisch mit v23 (greift nie) -> abgebrochen.
+- 35 %: W1 62/0, W2 59/4, W2c 55/12, W4a 257/6, W3 1737/6, Val 68/7, H1 954/11, H2 237/11; MtM-DD max 51,2, Mittel 31,8
+  (v23 51,2 / 32,1); Tiefpunkte unveraendert (W2c 49,1, W4a 41,6, W3 51,2), H1 47,9 statt 50,9.
+Fazit: NFIs Drawdown entsteht nicht durch einzelne uebergrosse Trades, sondern durch mehrere gleichzeitig volle Slots im
+Crash -> Deckel ohne Wirkung. Bleibt: Risikostreuung ueber Portfolio NFI + NASMAO.
