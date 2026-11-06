@@ -998,3 +998,15 @@ Gewinn % / DD % (W1 | W2 | W2c | W4a | W3 | Val | H1 | H2):
 Portfolio mit NASMAO_KF2B (MtM, verfuegbare Fenster): 50/50 max DD 16–19 statt 21,5, aber Gewinn etwa halbiert
 -> Trendfolge allein zu schwach (Gewinn je Risiko deutlich unter NASMAO), keine Verbesserung. portfolio.py bewertet
 Shorts jetzt zum Hoch.
+
+## Market Making und Grid-Bot (06.11.2026)
+Market Making: Kraken Futures Einstiegsstufe 0,02 % Maker / 0,05 % Taker; Null/Rueckverguetung nur bei sehr hohem
+Volumen; Spanne BTC/ETH weit unter 0,04 % Rundweg; Hummingbot unterstuetzt Kraken nur Spot; ohne Orderbuch-Daten nicht
+seriös testbar -> nicht verfolgt.
+Grid-Bot (tools/gridsim.py, long-only, 1x, 0,02 % Gebuehr, 5m, Mittel BTC/ETH/SOL/XRP, DD = schlechtester Coin):
+Gewinn % / max. DD % (W1 | W2 | W2c | W4a | W3 | Val | H1 | H2):
+- 20 Stufen 1 %, halten:   24/67 | 51/39 | 19/29 | 40/20 | 20/50 | 37/21 | -42/61 | 25/29 (Summe 173)
+- 20 Stufen 1 %, Neustart: 10/56 | 25/34 | 15/24 | 29/20 | 10/50 | 3/25 | -22/40 | 16/19
+- 15 Stufen 2 %, halten:   22/64 | 39/35 | 13/27 | 29/17 | 16/48 | 31/15 | -35/57 | 22/26
+- 15 Stufen 2 %, Neustart: 27/49 | 27/29 | 15/20 | 23/19 | 12/28 | 25/17 | -24/44 | 11/19
+Fazit: Grid = Long-Bestand im Abwaertstrend, Drawdown 20–67 %, Gewinn deutlich unter NASMAO -> verworfen.
