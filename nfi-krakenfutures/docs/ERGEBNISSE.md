@@ -984,3 +984,17 @@ Silber/Oel/Meta ohne einen Trade -> verworfen.
 NASMAO_KF2B mit 5 zusaetzlichen Kryptos (ZRO, FARTCOIN, MUBARAK, WIF, W = 91 Coins), W2c–H2:
 Gewinn ohne H1 731 statt 683 (+7 %), MtM-DD W2c 25,5 (19,9), W3 23,1 (20,7), H2 24,1 (21,5) -> Risiko steigt
 staerker als Gewinn, verworfen.
+
+## Anderer Ansatz: Funding-Ertrag und Trendfolge (06.11.2026)
+Funding-Ertrag (Spot long + Futures short, marktneutral), Kraken-Funding-Daten 15.10.2025–23.10.2026:
+BTC +3,4 % p. a., Median aller Coins -1,6 % p. a.; hohe Werte nur bei illiquiden Coins/Sondermaerkten mit stark
+schwankendem Vorzeichen (CVX 74 % p. a., nur 33 % der Stunden positiv) -> nach Gebuehren (~0,6 %) unattraktiv.
+Trendfolge (eigene Strategie strategies/TrendDC.py: Donchian-Ausbruch 55/20, EMA50/200-Filter, 4h, 20 liquide Coins, 1x):
+Gewinn % / DD % (W1 | W2 | W2c | W4a | W3 | Val | H1 | H2):
+- Long+Short: -31/31 | 85/14 | 13/14 | 72/13 | 44/35 | -8/24 | -6/19 | 38/20 (Summe 206)
+- nur Long:   -20/21 | 121/5 | 24/10 | 129/3 | 54/19 | 13/14 | -14/15 | 21/20 (Summe 328)
+- schnell 20/10: -50/50 | 43/19 | 23/22 | 72/18 | 57/23 | -10/28 | 8/17 | 1/31
+- ohne Trendfilter: -3/25 | 30/17 | 10/19 | 113/15 | 56/19 | -16/20 | -17/25 | 23/12
+Portfolio mit NASMAO_KF2B (MtM, verfuegbare Fenster): 50/50 max DD 16–19 statt 21,5, aber Gewinn etwa halbiert
+-> Trendfolge allein zu schwach (Gewinn je Risiko deutlich unter NASMAO), keine Verbesserung. portfolio.py bewertet
+Shorts jetzt zum Hoch.

@@ -9,13 +9,13 @@ WIN = {"2022-08-24": "w1", "2023-05-01": "w2", "2024-01-01": "w2c", "2024-09-01"
        "2025-04-01": "val", "2025-09-26": "h1", "2026-03-15": "h2"}
 ORDER = ["w1", "w2", "w2c", "w4a", "w3", "val", "h1", "h2"]
 cache = {}
-def low(pair):
-    if pair not in cache:
+def low(pair, col="low"):
+    if (pair, col) not in cache:
         f = DATA + pair.replace("/", "_").replace(":", "_") + "-5m-futures.feather"
         if ":" not in pair:
             f = "/root/ft_workdir/data_spot/" + pair.replace("/", "_") + "-5m.feather"
-        cache[pair] = pd.read_feather(f).set_index("date")["low"]
-    return cache[pair]
+        cache[(pair, col)] = pd.read_feather(f).set_index("date")[col]
+    return cache[(pair, col)]
 def tzu(x):
     x = pd.Timestamp(x); return x.tz_localize("UTC") if x.tzinfo is None else x.tz_convert("UTC")
 def runs(strat, after, before, maxfee=0.0006):
@@ -38,7 +38,7 @@ def curve(s):
     for t in s["trades"]:
         o = tzu(t["open_date"]); c = tzu(t["close_date"]); i0 = grid.searchsorted(o); i1 = grid.searchsorted(c)
         if i1 > i0:
-            px = low(t["pair"]).reindex(grid[i0:i1]).ffill().bfill().values; gts = grid[i0:i1].as_unit("ms").asi8
+            px = low(t["pair"], "high" if t.get("is_short") else "low").reindex(grid[i0:i1]).ffill().bfill().values; gts = grid[i0:i1].as_unit("ms").asi8
             pos = np.zeros(i1 - i0); cash = np.zeros(i1 - i0)
             for x in t["orders"]:
                 sg = 1 if x["ft_order_side"] == "buy" else -1; m = gts >= x["order_filled_timestamp"]
