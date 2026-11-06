@@ -955,3 +955,13 @@ Gewinn % / MtM-DD %: W3 v23 1742/51,2, 1/2 768/37,0, 1/4 332/20,1; H1 v23 1015/5
 Gewinn je % Risiko W3 34,0 / 20,8 / 16,5; H1 19,9 / 9,8 / 8,6 -> NFI verdient gerade in Abwaertsphasen (Kauf in fallende
 Maerkte + Grinding), der Filter kostet mehr Gewinn als Risiko. Nicht uebernehmen.
 Hinweis: NFI-Backtest braucht ca. 7 GB RAM -> nur 1 Lauf gleichzeitig.
+
+## Portfolio NFI v23 + NASMAO_KF2B (KF2_X_Breadth), getrennte Konten (06.11.2026)
+| NFI-Anteil | W1 | W2 | W2c | W4a | W3 | Val | H1 | H2 | max DD | Mittel DD |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 100 % | 64/10 | 59/14 | 57/49 | 258/42 | 1742/51 | 68/14 | 1015/51 | 238/27 | 51,2 | 32,1 |
+| 70 % | 90/6 | 85/9 | 83/32 | 222/32 | 1264/46 | 69/11 | 957/37 | 220/18 | 45,8 | 23,8 |
+| 50 % | 107/7 | 103/8 | 101/23 | 199/25 | 945/41 | 69/9 | 919/29 | 209/13 | 40,7 | 19,3 |
+| 30 % | 124/9 | 120/10 | 118/19 | 175/17 | 627/33 | 70/9 | 881/21 | 197/14 | 33,3 | 16,5 |
+| 0 % | 150/12 | 146/14 | 144/20 | 140/20 | 149/21 | 71/9 | 823/10 | 180/22 | 21,5 | 15,9 |
+Summe ohne H1: 2486 / 2033 / 1732 / 1431 / 979. Gewinn je % Mittel-DD: 77 / 85 / 90 / 87 / 62 -> 50/50 am besten.
