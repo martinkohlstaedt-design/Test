@@ -3459,3 +3459,54 @@ class NFI_KF_V23M(_LiqLoopMixin, NFI_KF_V23L):
             d = abs(trade.open_rate - lp) * buf
             lp = lp - d if trade.is_short else lp + d
         return lp
+
+
+# ============================================================================
+# Markt-Breite-Filter (aus NASMAO uebernommen): liegen mehr als _BR_THR der Coins
+# (5m-Kurs) unter ihrer EMA200 (1h), werden NEUE Trades nur mit _BR_F Einsatz
+# eroeffnet. Nachkaeufe/Grinds/Rettung (adjust_trade_position) bleiben unveraendert.
+# ============================================================================
+
+class _NfiBreadthMixin:
+    _BR_THR = 0.5
+    _BR_F = 0.25
+    _brc = None
+
+    def _nfi_breadth(self, current_time):
+        if self._brc is not None and self._brc[0] == current_time:
+            return self._brc[1]
+        n = d = 0
+        for p in self.dp.current_whitelist():
+            try:
+                df, _ = self.dp.get_analyzed_dataframe(p, self.timeframe)
+                if len(df) and "EMA_200_1h" in df:
+                    last = df.iloc[-1]
+                    if last["EMA_200_1h"] == last["EMA_200_1h"]:   # nicht NaN
+                        n += 1
+                        d += int(last["close"] < last["EMA_200_1h"])
+            except Exception:
+                pass
+        v = d / n if n >= 10 else 1.0
+        self._brc = (current_time, v)
+        return v
+
+    def custom_stake_amount(self, pair, current_time, current_rate, proposed_stake,
+                            min_stake, max_stake, leverage, entry_tag, side, **kwargs):
+        stake = super().custom_stake_amount(
+            pair, current_time, current_rate, proposed_stake, min_stake, max_stake,
+            leverage, entry_tag, side, **kwargs)
+        try:
+            if stake and self._nfi_breadth(current_time) > self._BR_THR:
+                stake = max(stake * self._BR_F, min_stake or 0)
+        except Exception:
+            pass
+        return stake
+
+
+class NFI_B25(_NfiBreadthMixin, NFI_KF_V23_Grind3):
+    """v23 + Markt-Breite > 50 % -> 1/4 Einsatz fuer neue Trades."""
+
+
+class NFI_B50(_NfiBreadthMixin, NFI_KF_V23_Grind3):
+    """v23 + Markt-Breite > 50 % -> 1/2 Einsatz fuer neue Trades."""
+    _BR_F = 0.5

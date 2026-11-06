@@ -948,3 +948,10 @@ Nach Tag: 141/142/143 (Schnell-Trades, meist 5–25 min) 10 Trades +44,85 USD; 1
 Offen: WLD (Tag 145, 3x) seit 29.10., 8 Kaeufe/6 Verkaeufe (Grind/Derisk), realisiert bisher -7,63 USD, Resteinsatz
 25,79 USD; Liquidation 0,2697, Kurs 06.11. 0,3447 (Abstand ca. 22 %). Liquidationspreise werden seit v23M fuer neue Trades
 gespeichert. Trade 13 (TRUMP) ohne exit_reason in der DB (Gewinn +4,02 %), Ursache unklar.
+
+## Markt-Breite-Filter fuer NFI (06.11.2026, abgebrochen nach W3/H1 – verworfen)
+NFI v23 + neue Trades mit 1/4 bzw. 1/2 Einsatz, wenn > 50 % der Coins unter EMA200 (1h); Grinds/Rettung unveraendert.
+Gewinn % / MtM-DD %: W3 v23 1742/51,2, 1/2 768/37,0, 1/4 332/20,1; H1 v23 1015/50,9, 1/2 273/28,0, 1/4 122/14,2.
+Gewinn je % Risiko W3 34,0 / 20,8 / 16,5; H1 19,9 / 9,8 / 8,6 -> NFI verdient gerade in Abwaertsphasen (Kauf in fallende
+Maerkte + Grinding), der Filter kostet mehr Gewinn als Risiko. Nicht uebernehmen.
+Hinweis: NFI-Backtest braucht ca. 7 GB RAM -> nur 1 Lauf gleichzeitig.
