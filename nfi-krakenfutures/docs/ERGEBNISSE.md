@@ -940,3 +940,11 @@ Gewinn/Risiko nicht besser als nur Long (979/21,5 = 45,5 vs. 1315/30,4 = 43,2) -
 - 1,3-facher Einsatz bei Markt-Breite < 30 %: 1247 / 27,4 / 18,9 (Verhaeltnis 45,5 = unveraendert) -> reiner Risiko-Regler.
 - ewolow mit halbem Einsatz: 901 / 21,5 / 15,5 (Verhaeltnis 41,9) -> verworfen.
 Fazit: Plateau beim Verhaeltnis Gewinn/Risiko (~45); weitere Aenderungen verschieben nur Gewinn gegen Risiko.
+
+## Live-Analyse NFI V23M (Stand 06.11.2026)
+17 geschlossene Trades seit 13.10., alle im Plus, +60,13 USD (ca. +15 % auf ~400 USD in 24 Tagen).
+Nach Tag: 141/142/143 (Schnell-Trades, meist 5–25 min) 10 Trades +44,85 USD; 101 (rapid) 2 Trades +11,67; 120 (Mini-Einsatz
+2–3 USD, ROI) 2 Trades +3,06; 64 (Rebuy) 2 Trades +0,23 (XMR 101 h gebunden, Ausstieg stale_be +0,14); 2 (normal) +0,32.
+Offen: WLD (Tag 145, 3x) seit 29.10., 8 Kaeufe/6 Verkaeufe (Grind/Derisk), realisiert bisher -7,63 USD, Resteinsatz
+25,79 USD; Liquidation 0,2697, Kurs 06.11. 0,3447 (Abstand ca. 22 %). Liquidationspreise werden seit v23M fuer neue Trades
+gespeichert. Trade 13 (TRUMP) ohne exit_reason in der DB (Gewinn +4,02 %), Ursache unklar.
