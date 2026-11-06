@@ -52,11 +52,28 @@ rb = runs(B[0], B[1], B[2] if len(B) > 2 else "~", float(os.environ.get("MAXFEE_
 ca = {w: curve(s) for w, s in ra.items()}; cb = {w: curve(s) for w, s in rb.items()}
 print(f"A = {A[0]}, B = {B[0]}  (Gewinn % / max. Drawdown inkl. offener Positionen %)")
 print(f"{'A-Anteil':>9s}" + "".join(f"{w:>15s}" for w in ORDER) + f"{'max DD':>9s}{'Mittel DD':>11s}")
+REB = os.environ.get("REBAL")   # z. B. "7D" oder "30D": auf Zielanteile zurueckschichten
+def mix(a, b, wa):
+    if not REB:
+        return wa * a + (1 - wa) * b
+    out = []; base = 1.0
+    for _, idx in a.groupby(pd.Grouper(freq=REB)).groups.items() if False else []:
+        pass
+    edges = pd.date_range(a.index[0], a.index[-1], freq=REB).tolist() + [a.index[-1] + pd.Timedelta("5min")]
+    for i in range(len(edges) - 1):
+        seg = (a.index >= edges[i]) & (a.index < edges[i + 1])
+        if not seg.any(): continue
+        sa, sb = a[seg], b[seg]
+        a0 = a[a.index < edges[i]].iloc[-1] if (a.index < edges[i]).any() else sa.iloc[0]
+        b0 = b[b.index < edges[i]].iloc[-1] if (b.index < edges[i]).any() else sb.iloc[0]
+        part = base * (wa * sa / a0 + (1 - wa) * sb / b0)
+        out.append(part); base = float(part.iloc[-1])
+    return pd.concat(out)
 for wa in [1.0, 0.7, 0.5, 0.3, 0.0]:
     cells, dds = [], []
     for w in ORDER:
         if w not in ca or w not in cb: cells.append(f"{'-':>15s}"); continue
         a, b = ca[w], cb[w].reindex(ca[w].index).ffill().bfill()
-        eq = wa * a + (1 - wa) * b; pk = eq.cummax(); dd = ((pk - eq) / pk).max() * 100
+        eq = mix(a, b, wa); pk = eq.cummax(); dd = ((pk - eq) / pk).max() * 100
         dds.append(dd); cells.append(f"{(eq.iloc[-1] - 1) * 100:8.1f} /{dd:5.1f}")
     print(f"{wa * 100:8.0f}%" + "".join(cells) + f"{max(dds):9.1f}{np.mean(dds):11.1f}")

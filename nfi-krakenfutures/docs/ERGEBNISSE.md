@@ -973,3 +973,14 @@ Marge je Trade inkl. Nachkaeufe max. 35 % bzw. 50 % des Kontos (_PosCapMixin, NF
   (v23 51,2 / 32,1); Tiefpunkte unveraendert (W2c 49,1, W4a 41,6, W3 51,2), H1 47,9 statt 50,9.
 Fazit: NFIs Drawdown entsteht nicht durch einzelne uebergrosse Trades, sondern durch mehrere gleichzeitig volle Slots im
 Crash -> Deckel ohne Wirkung. Bleibt: Risikostreuung ueber Portfolio NFI + NASMAO.
+
+## Weitere Ideen beide Bots (06.11.2026)
+Portfolio mit Umschichten (portfolio.py, REBAL=30D/7D), NFI v23 + NASMAO_KF2B, NFI-Anteil 50 %:
+ohne Umschichten 1732 / max 40,7 / Mittel 19,3; monatlich 1449 / 33,4 / 19,0; woechentlich 1430 / 33,3 / 18,9
+(Summe ohne H1 / MtM-DD) -> senkt das Maximum, kostet Gewinn (W3 660 statt 945 %); wirkt wie kleinerer NFI-Anteil.
+NASMAO auf Zusatzmaerkten (tokenisierte Aktien, Gold/Silber/Oel, Indizes; Daten meist erst ab Feb. 2026):
+H2 17 Trades -0,1 % (53 % Gewinner), Juni–Nov. 21 Trades +8,8 % (fast nur 2 MOONSHOTX-Trades); NVIDIA/Apple/Gold/
+Silber/Oel/Meta ohne einen Trade -> verworfen.
+NASMAO_KF2B mit 5 zusaetzlichen Kryptos (ZRO, FARTCOIN, MUBARAK, WIF, W = 91 Coins), W2c–H2:
+Gewinn ohne H1 731 statt 683 (+7 %), MtM-DD W2c 25,5 (19,9), W3 23,1 (20,7), H2 24,1 (21,5) -> Risiko steigt
+staerker als Gewinn, verworfen.
