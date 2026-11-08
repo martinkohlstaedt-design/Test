@@ -1010,3 +1010,12 @@ Gewinn % / max. DD % (W1 | W2 | W2c | W4a | W3 | Val | H1 | H2):
 - 15 Stufen 2 %, halten:   22/64 | 39/35 | 13/27 | 29/17 | 16/48 | 31/15 | -35/57 | 22/26
 - 15 Stufen 2 %, Neustart: 27/49 | 27/29 | 15/20 | 23/19 | 12/28 | 25/17 | -24/44 | 11/19
 Fazit: Grid = Long-Bestand im Abwaertstrend, Drawdown 20–67 %, Gewinn deutlich unter NASMAO -> verworfen.
+
+## Recherche Bot-Alternativen (08.11.2026)
+Kraken-Partnerliste Derivate: Bots 3Commas, Bitsgap, Cornix (nur Spot), Finestel, HaasOnline, PinoAPI; Terminals ATAS,
+Insilico, Renesis, Tealstreet; Frameworks NautilusTrader, Siebly. Kommerzielle Bots bieten v. a. Grid/DCA/Signal-Bots
+(Grid oben getestet: verworfen; DCA entspricht im Kern NFIs Nachkauf-Logik), keine eigene Strategielogik pruefbar.
+Open Source: Passivbot (Grid/DCA, nur Futures, kein Kraken-Connector), Jesse (Research/Backtest), OctoBot (GUI),
+Superalgos (visuell), Hummingbot (Market Making, Kraken nur Spot), NautilusTrader (Rust/Python, von Kraken gelistet).
+FreqAI (ML in freqtrade): keine belastbaren Live-Ergebnisse gefunden. Kein Kandidat mit belegtem Vorteil gegenueber
+NFI + NASMAO auf Kraken Futures.
