@@ -1019,3 +1019,13 @@ Open Source: Passivbot (Grid/DCA, nur Futures, kein Kraken-Connector), Jesse (Re
 Superalgos (visuell), Hummingbot (Market Making, Kraken nur Spot), NautilusTrader (Rust/Python, von Kraken gelistet).
 FreqAI (ML in freqtrade): keine belastbaren Live-Ergebnisse gefunden. Kein Kandidat mit belegtem Vorteil gegenueber
 NFI + NASMAO auf Kraken Futures.
+
+## Neue NFI v18.0.241 (Commit 915353f, 11.11.2026) mit v23-Anpassungen
+Seit v18.0.181 v. a. neue Schutzfilter fuer Kaufsignale (1–6, 41/42, 46/47, 62–64, 101, 104, 161/162, 562), grind_1
+weiter unten (-18..-22 %), System v4: mehr Nachkauf vor Derisk.
+8 Fenster, Gewinn % / MtM-DD % (alt v18.0.61 -> neu): W1 64,1/9,6 -> 59,9/12,3; W2 59,2/14,2 -> 59,2/14,2;
+W2c 57,2/49,1 -> 70,3/49,0; W4a 257,5/41,6 -> 245,2/41,7; W3 1741,6/51,2 -> 1805,3/51,4; Val 68,0/14,1 -> 61,3/14,1;
+H1 1015,0/50,9 -> 1003,7/50,9; H2 237,7/26,5 -> 236,0/26,5. Summe ohne H1 2486 -> 2537, max/Mittel 51,2/32,1 -> 51,4/32,5.
+Juengste 5 Wochen (06.10.–11.11.2026, Markt -27,6 %, Daten nachgeladen): alt 16,7 % / max. Konto unter Wasser 25,9 %,
+neu 31,4 % / 16,7 % (28 bzw. 26 Trades). Vorsicht: neue Filter evtl. auf genau diese Wochen zugeschnitten.
+Lokaler Dry-Run NFI_KF_V23M mit v18.0.241 (erzwungener XMR-Trade): laeuft, Liquidationspreis gesetzt, keine Fehler.
