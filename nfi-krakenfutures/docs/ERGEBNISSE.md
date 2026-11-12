@@ -1040,3 +1040,18 @@ Gewinn % / DD % (W1 | W2 | W2c | W4a | W3 | Val | H1 | H2), Summe ohne H1, MtM m
 Fazit: Jeder Baustein hilft auch auf der neuen NFI; V23 bleibt beste Stufe (+6 % ggue. V13 bei kaum mehr Risiko).
 Update = nur NFI-Datei tauschen, V23M unveraendert.
 NASMAO_KF2B Backtest 06.10.–11.11.: 45 Trades +5,8 %; seit Dry-Run-Start 5 erwartet (MNT/ENA 05.11., DYDX/XPL 08.11., ZEC 10.11.).
+
+## Frischer Blick (12.11.2026): Liquidations-Naehe, BTC-Absicherung, Live-Abgleich
+Liquidations-Naehe (552 Trades, neue NFI + V23, 8 Fenster + 5 Wochen; Schaetzung aus Tiefstkurs/Hebel):
+< 10 % Abstand 7 Trades (1,3 %; 6 davon 4x), < 15 % 16 (2,9 %); 2 unter der Schwelle (JASMY, einmal -97 %).
+WLD 145 vom 29.10.: alte NFI bildet den Live-Trade nach (Tief 0,2833, -36 % am 11.11.), neue NFI v18.0.241 eroeffnet
+ihn nicht. SAND (live v8, 4x, liquidiert): mit V23 (3x) Ausstieg 21.10. bei +2,6 %.
+Liquidations-Waechter 8 % (Zwischenstand W3/H1): 1641/18,7 und 894/20,8 statt 1805/6,5 und 1004/10,8; 3 Ausloesungen
+(OP -63 statt -24 %, ZEC -63 statt -21 %, JASMY -61 statt -97 %); 15 % in W3 1306/31,1 -> verworfen.
+BTC-Absicherung (tools/hedgesim.py, Nachrechnung, Schlusskurse): ohne 2537 / max DD 40,0 / Mittel 26,7;
+h=0,3 2239/38,0/25,5; h=0,5 2040/39,2/25,4; h=1,0 1543/43,3/26,4; nur ab 2x Exposure 1729/46,2 -> verworfen
+(Altcoin-Rueckgaenge sind groesser als BTC, Erholungsgewinne gehen verloren).
+Live-Abgleich seit 30.10. (alte NFI, 5m-Backtest vs. live): QNT 64 und STRK 142 fast gleich; TRUMP 101 live 2 Trades
++4,0/+5,0 %, Backtest 1 Trade +24,9 %; ENA live +3,1 % (17 min), Backtest +1,2 % (65 min); XPL 141 live +3,0 % nach
+6 min (und nochmal +3,0 %), Backtest bis 11.11. offen bei -38,4 %; XPL 143 vom 01.11. fehlt im Backtest.
+-> Live steigt bei kurzen Kursspitzen innerhalb der 5m-Kerze aus, der 5m-Backtest sieht das nicht. Pruefung mit 1m-Detail laeuft.
