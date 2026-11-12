@@ -1029,3 +1029,14 @@ H1 1015,0/50,9 -> 1003,7/50,9; H2 237,7/26,5 -> 236,0/26,5. Summe ohne H1 2486 -
 Juengste 5 Wochen (06.10.–11.11.2026, Markt -27,6 %, Daten nachgeladen): alt 16,7 % / max. Konto unter Wasser 25,9 %,
 neu 31,4 % / 16,7 % (28 bzw. 26 Trades). Vorsicht: neue Filter evtl. auf genau diese Wochen zugeschnitten.
 Lokaler Dry-Run NFI_KF_V23M mit v18.0.241 (erzwungener XMR-Trade): laeuft, Liquidationspreis gesetzt, keine Fehler.
+
+## Eigene Anpassungen auf neuer NFI v18.0.241, Baustein fuer Baustein (12.11.2026)
+Gewinn % / DD % (W1 | W2 | W2c | W4a | W3 | Val | H1 | H2), Summe ohne H1, MtM max/Mittel, juengste 5 Wochen:
+- Basis (LongOnly/Hold90/4x/GrindLimit15/ROI/ThinCap): 27/0 | 24/4 | 19/9 | 105/8 | 390/15 | 29/7 | 245/8 | 77/10; 670; –; 10,3 %
+- V10 (+ Groessen/Hebel je Signal): 61/0 | 55/4 | 32/17 | 195/14 | 1356/14 | 59/6 | 826/15 | 241/5; 2000; 52,2/30,9; 31,8 %/15,0
+- V12 (+ kein Derisk bei starken Signalen): 61/0 | 59/4 | 52/11 | 232/6 | 1671/7 | 59/6 | 931/11 | 250/5; 2384; 51,6/31,2; 29,2 %/16,7
+- V13 (+ Ausstieg zum Einstand): 60/0 | 59/4 | 67/11 | 232/6 | 1671/7 | 58/6 | 931/11 | 248/5; 2394; 51,6/31,2; 29,0 %/16,7
+- V23 (+ Signal 120 x3, Live-Stand): 60/12 | 59/14 | 70/11 | 245/6 | 1805/6 | 61/6 | 1004/11 | 236/10; 2537; 51,4/32,5; 31,4 %/16,7
+Fazit: Jeder Baustein hilft auch auf der neuen NFI; V23 bleibt beste Stufe (+6 % ggue. V13 bei kaum mehr Risiko).
+Update = nur NFI-Datei tauschen, V23M unveraendert.
+NASMAO_KF2B Backtest 06.10.–11.11.: 45 Trades +5,8 %; seit Dry-Run-Start 5 erwartet (MNT/ENA 05.11., DYDX/XPL 08.11., ZEC 10.11.).
