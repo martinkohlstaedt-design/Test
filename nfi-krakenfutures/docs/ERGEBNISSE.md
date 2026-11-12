@@ -1055,3 +1055,15 @@ Live-Abgleich seit 30.10. (alte NFI, 5m-Backtest vs. live): QNT 64 und STRK 142 
 +4,0/+5,0 %, Backtest 1 Trade +24,9 %; ENA live +3,1 % (17 min), Backtest +1,2 % (65 min); XPL 141 live +3,0 % nach
 6 min (und nochmal +3,0 %), Backtest bis 11.11. offen bei -38,4 %; XPL 143 vom 01.11. fehlt im Backtest.
 -> Live steigt bei kurzen Kursspitzen innerhalb der 5m-Kerze aus, der 5m-Backtest sieht das nicht. Pruefung mit 1m-Detail laeuft.
+
+## Liquidations-Waechter (12.11.2026, verworfen)
+Neue NFI + V23, Trade schliessen bei weniger als 4/8/15 % Abstand zum Liquidationspreis (`_LiqGuardMixin`).
+Gewinn % / DD % (W1 | W2 | W2c | W4a | W3 | Val | H1 | H2):
+- ohne:  60/0 | 59/4 | 70/11 | 245/6 | 1805/7 | 61/6 | 1004/11 | 236/11 (Summe ohne H1 2537)
+- 4 %:   60/0 | (laeuft) | 70/11 | 245/6 | 1805/7 | 61/6 | 845/24 | 236/11
+- 8 %:   60/0 | 59/4 | 45/19 | 217/19 | 1641/19 | 62/6 | 894/21 | 236/11 (Summe ohne H1 2320)
+- 15 %:  W3 1306/31 (abgebrochen)
+Ausloesungen 8 %: JUP 16.03.24 -62 % (ohne -8 %), OP 19.12.24 -63 % (ohne -24 %), ZEC 01.12.25 -63 % (ohne -21 %),
+JASMY 08.01.26 -61 % (ohne -97 %). 4 %: ZEC -71 % (ohne -21 %), JASMY -74 % (ohne -97 %).
+Fazit: 3 von 4 Fast-Liquidationen erholen sich im Backtest; nahe der Liquidation sind bei 3–4x ohnehin 60–75 % der Marge
+weg. Waechter kostet mehr als er spart -> nicht live. Telegram-Warnung (< 10 %) bleibt fuer manuelle Entscheidung.

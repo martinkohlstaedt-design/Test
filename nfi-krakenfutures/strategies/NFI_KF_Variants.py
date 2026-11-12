@@ -3566,3 +3566,42 @@ class NFI_PC35(_PosCapMixin, NFI_KF_V23_Grind3):
 class NFI_PC50(_PosCapMixin, NFI_KF_V23_Grind3):
     """v23 + Positionsdeckel 50 % des Kontos je Trade (inkl. Nachkaeufe)."""
     _PC_CAP = 0.50
+
+
+# ============================================================================
+# Liquidations-Waechter: kommt der Kurs naeher als _LG_DIST an den Liquidationspreis,
+# wird der Trade sofort geschlossen (Verlust begrenzt statt Totalverlust der Marge).
+# Wirkt live (Preis aus v23M) und im Backtest (freqtrade setzt dort den Liquidationspreis).
+# ============================================================================
+
+class _LiqGuardMixin:
+    _LG_DIST = 0.08
+
+    def custom_exit(self, pair, trade, current_time, current_rate, current_profit, **kwargs):
+        try:
+            lp = trade.liquidation_price
+            if lp and not trade.is_short and current_rate < lp * (1 + self._LG_DIST):
+                return "liq_guard"
+            if lp and trade.is_short and current_rate > lp * (1 - self._LG_DIST):
+                return "liq_guard"
+        except Exception:
+            pass
+        return super().custom_exit(pair, trade, current_time, current_rate, current_profit, **kwargs)
+
+
+class NFI_LG08(_LiqGuardMixin, NFI_KF_V23_Grind3):
+    """v23 + Liquidations-Waechter 8 %."""
+
+
+class NFI_LG15(_LiqGuardMixin, NFI_KF_V23_Grind3):
+    """v23 + Liquidations-Waechter 15 %."""
+    _LG_DIST = 0.15
+
+
+class NFI_KF_V23G(_LiqGuardMixin, NFI_KF_V23M):
+    """Live-Kandidat: v23M + Liquidations-Waechter 8 %."""
+
+
+class NFI_LG04(_LiqGuardMixin, NFI_KF_V23_Grind3):
+    """v23 + Liquidations-Waechter 4 % (letzte Notbremse)."""
+    _LG_DIST = 0.04
