@@ -1067,3 +1067,18 @@ Ausloesungen 8 %: JUP 16.03.24 -62 % (ohne -8 %), OP 19.12.24 -63 % (ohne -24 %)
 JASMY 08.01.26 -61 % (ohne -97 %). 4 %: ZEC -71 % (ohne -21 %), JASMY -74 % (ohne -97 %).
 Fazit: 3 von 4 Fast-Liquidationen erholen sich im Backtest; nahe der Liquidation sind bei 3–4x ohnehin 60–75 % der Marge
 weg. Waechter kostet mehr als er spart -> nicht live. Telegram-Warnung (< 10 %) bleibt fuer manuelle Entscheidung.
+
+## 1m-Detail bildet die Live-Trades nach (12.11.2026)
+Letzte 5 Wochen (06.10.–11.11.2026) mit `--timeframe-detail 1m` (1m-Kerzen ab 01.10. nachgeladen):
+| | 5m | 5m + 1m-Detail |
+|---|---|---|
+| alte NFI + V23 (live) | 16,7 % / unter Wasser 25,9 % (28 Trades) | 41,5 % / 10,0 % (32 Trades) |
+| neue NFI v18.0.241 + V23 | 31,4 % / 16,7 % (26) | 53,7 % / 0,0 % (30) |
+Abgleich mit den Live-Trades seit 29.10. (alte NFI, 1m-Detail): BNB, LDO, ENA (29.10.), XMR (stale_be 03.11. 07:07,
+live 07:06), TRUMP 2x (17:45–17:57 und 18:00–18:06, live 17:47–17:56 und 18:03–18:07), QNT (Ende 06:04, live 06:03),
+XPL 2x, ENA, STRK und WLD 145 (16 Orders, offen) stimmen in Coin, Signal, Hebel und Zeit bis auf Minuten ueberein;
+Gewinn je Trade im Backtest ca. 1–2 Prozentpunkte hoeher. Abweichungen: NEAR (Backtest 1 min, live 16 h mit Nachkauf),
+XPL 143 vom 01.11. fehlt im Backtest, PEPE 65 vom 29.10. nur im Backtest.
+Neue NFI: gleiche Trades ohne NEAR 141 und ohne WLD 145.
+Fazit: 1m-Detail ist die richtige "wie live"-Pruefung; 5m-Backtests unterschaetzen die Schnell-Trades.
+H2 mit 1m-Detail (alt/neu V23, neu V13, neu V10) laeuft (tools/val1m.sh).
