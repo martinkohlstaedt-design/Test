@@ -1091,3 +1091,16 @@ Erster Heartbeat der neuen Version 19:31:27 (`strategy_version: v18.0.241`, RUNN
 keine Fehler im Log, NFI-Container 772 MiB. Zum Zeitpunkt des Updates keine offenen Orders (WLD vorher manuell geschlossen).
 Rueckweg: `cp -p user_data/strategies/NostalgiaForInfinityX8.py.vor241 user_data/strategies/NostalgiaForInfinityX8.py && docker compose restart`.
 Hinweis: `docker compose up -d` startet bei reiner Dateiaenderung nicht neu, `restart` verwenden.
+
+## NASMAO_KF2B Dry-Run vs. Backtest (13.11.2026, Dry-Run seit 02.11., Konto 400 USD simuliert)
+5 geschlossene Trades, Gewinn -6,73 USD = -1,68 %, max. DD 1,7 %, nichts offen. Alle Signal ewo2, alle Ausstiege per exit_signal.
+| Coin | Dry-Run (Ende, Ergebnis) | Backtest (Kauf, Ergebnis) |
+|---|---|---|
+| MNT | 05.11. 19:21, -7,39 % (voller Einsatz ca. 79 USD) | 05.11. 12:35, -6,0 % (voller Einsatz) |
+| ENA | 05.11. 18:31, -3,25 % (1/4 Einsatz) | 05.11. 15:25, -1,6 % (1/4) |
+| DYDX | 08.11. 23:21, +3,90 % (1/4) | 08.11. 22:00, +6,3 % (1/4) |
+| XPL | 08.11. 23:21, +3,31 % (1/4) | 08.11. 22:00, +6,3 % (1/4) |
+| ZEC | 10.11. 19:51, -10,03 % (1/4) | 10.11. 15:45, -9,6 % (1/4) |
+Gleiche 5 Coins, gleiche Tage, gleiche Einsatzstufen (Markt-Breite-Filter greift live wie im Backtest). Backtest-Gewinn im Zeitraum
+ca. -1,2 %, Dry-Run -1,7 %. Der 5m-Backtest kennt das Live-Verhalten von NASMAO_KF2B damit gut.
+Server-Neustart 13.11. 19:35 UTC (Ubuntu-Updates) problemlos; "asyncio Task was destroyed" im Log = normales Herunterfahren (SIGINT).
