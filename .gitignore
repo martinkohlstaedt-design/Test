@@ -16,3 +16,8 @@ trading-bot/*.db
 
 # OS/editor cruft
 .DS_Store
+
+# NFI Kraken Futures: keine Konfiguration mit Schluesseln, keine Daten/Datenbanken
+nfi-krakenfutures/**/config*.json
+nfi-krakenfutures/**/*.sqlite
+nfi-krakenfutures/user_data/
