@@ -1082,3 +1082,12 @@ XPL 143 vom 01.11. fehlt im Backtest, PEPE 65 vom 29.10. nur im Backtest.
 Neue NFI: gleiche Trades ohne NEAR 141 und ohne WLD 145.
 Fazit: 1m-Detail ist die richtige "wie live"-Pruefung; 5m-Backtests unterschaetzen die Schnell-Trades.
 H2 mit 1m-Detail (alt/neu V23, neu V13, neu V10) laeuft (tools/val1m.sh).
+
+## Live-Update NFI v18.0.241 eingespielt (13.11.2026)
+Ablauf: Backup `NostalgiaForInfinityX8.py.vor241` (v18.0.61), Datei von GitHub (Commit 915353f, Datei-SHA256
+7d7bc97a6b77695bda7a8dbce00ac22f2f9faad6534d211ab14201db97262f85, 3.296.544 Bytes) geladen, Pruefsumme verifiziert, nach
+`user_data/strategies/` kopiert (Besitzer 1000:1000), `docker compose restart` um 19:26 UTC. Strategie weiter `NFI_KF_V23M`.
+Erster Heartbeat der neuen Version 19:31:27 (`strategy_version: v18.0.241`, RUNNING), erster Analysedurchlauf ca. 5 Minuten,
+keine Fehler im Log, NFI-Container 772 MiB. Zum Zeitpunkt des Updates keine offenen Orders (WLD vorher manuell geschlossen).
+Rueckweg: `cp -p user_data/strategies/NostalgiaForInfinityX8.py.vor241 user_data/strategies/NostalgiaForInfinityX8.py && docker compose restart`.
+Hinweis: `docker compose up -d` startet bei reiner Dateiaenderung nicht neu, `restart` verwenden.
