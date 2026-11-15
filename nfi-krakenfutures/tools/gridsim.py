@@ -5,11 +5,13 @@ Gitter bleibt) oder STOP (alles verkaufen, Gitter am neuen Kurs neu). Steigt der
 Verkaufsstufe und ist nichts mehr gekauft: Gitter am neuen Kurs neu. Gebuehr je Ausfuehrung FEE.
 Kaeufe einer Kerze koennen erst ab der naechsten Kerze verkauft werden (vorsichtig)."""
 import sys, numpy as np, pandas as pd
-D = "/root/ft_workdir/user_data/data/krakenfutures/futures/"
+import os
+SRC = os.environ.get("GRID_SRC", "kraken")
+D = "/root/ft_workdir/user_data/data/krakenfutures/futures/" if SRC == "kraken" else "/root/ft_workdir/data_okx_snap/"
 W = {"w1": ("2022-08-24", "2023-05-01"), "w2": ("2023-05-01", "2024-01-01"), "w2c": ("2024-01-01", "2024-05-01"),
      "w4a": ("2024-09-01", "2025-01-01"), "w3": ("2024-10-01", "2025-04-01"), "val": ("2025-04-01", "2025-10-01"),
      "h1": ("2025-09-26", "2026-03-15"), "h2": ("2026-03-15", "2026-10-06")}
-FEE = 0.0002
+FEE = float(os.environ.get("GRID_FEE", "0.0002"))
 
 def sim(df, N=20, STEP=0.01, mode="HOLD", C=10000.0):
     lo, hi, cl = df["low"].values, df["high"].values, df["close"].values
@@ -47,7 +49,7 @@ for N, STEP in [(20, 0.01), (15, 0.02)]:
         for w, (a, b) in W.items():
             r, d = [], []
             for c in coins:
-                df = pd.read_feather(D + f"{c}_USD_USD-5m-futures.feather")
+                df = pd.read_feather(D + (f"{c}_USD_USD-5m-futures.feather" if SRC == "kraken" else f"{c}_USDT-5m.feather"))
                 df = df[(df.date >= a) & (df.date < b)]
                 if len(df) < 1000: continue
                 x, y = sim(df, N, STEP, mode); r.append(x); d.append(y)

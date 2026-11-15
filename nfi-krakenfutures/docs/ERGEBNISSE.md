@@ -1104,3 +1104,12 @@ Hinweis: `docker compose up -d` startet bei reiner Dateiaenderung nicht neu, `re
 Gleiche 5 Coins, gleiche Tage, gleiche Einsatzstufen (Markt-Breite-Filter greift live wie im Backtest). Backtest-Gewinn im Zeitraum
 ca. -1,2 %, Dry-Run -1,7 %. Der 5m-Backtest kennt das Live-Verhalten von NASMAO_KF2B damit gut.
 Server-Neustart 13.11. 19:35 UTC (Ubuntu-Updates) problemlos; "asyncio Task was destroyed" im Log = normales Herunterfahren (SIGINT).
+
+## OKX-Grid-Bot (Spot-Grid) auf OKX-Daten simuliert (15.11.2026)
+tools/gridsim.py mit GRID_SRC=okx GRID_FEE=0,001; BTC/ETH/SOL/XRP (Mittel), long-only, ohne Hebel, 5m. Gewinn % / max. DD (schlechtester Coin):
+(W1 | W2 | W2c | W4a | W3 | Val | H1 | H2)
+- 20 Stufen 1 %, halten:  20/66 | 37/45 | 12/30 | 29/21 | 8/51 | 28/21 | -42/62 | 19/29
+- 20 Stufen 1 %, Stop:    12/46 | 4/45 | 1/26 | 17/23 | -8/57 | -7/28 | -37/61 | 6/21
+- 15 Stufen 2 %, halten:  20/64 | 34/41 | 11/28 | 24/17 | 9/48 | 27/15 | -37/59 | 18/26
+- 15 Stufen 2 %, Stop:    9/47 | 12/37 | 13/19 | 18/20 | 4/30 | 21/18 | -36/57 | 6/21
+Praktisch identisch zur Kraken-Futures-Simulation: Grid = Long-Bestand im Abwaertstrend, Drawdown 20–66 %, H1 (Okt. 2025–Maerz 2026) -36 bis -42 %.
