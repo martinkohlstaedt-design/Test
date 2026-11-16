@@ -1113,3 +1113,17 @@ tools/gridsim.py mit GRID_SRC=okx GRID_FEE=0,001; BTC/ETH/SOL/XRP (Mittel), long
 - 15 Stufen 2 %, halten:  20/64 | 34/41 | 11/28 | 24/17 | 9/48 | 27/15 | -37/59 | 18/26
 - 15 Stufen 2 %, Stop:    9/47 | 12/37 | 13/19 | 18/20 | 4/30 | 21/18 | -36/57 | 6/21
 Praktisch identisch zur Kraken-Futures-Simulation: Grid = Long-Bestand im Abwaertstrend, Drawdown 20–66 %, H1 (Okt. 2025–Maerz 2026) -36 bis -42 %.
+
+## KAVA-Absturz 14.11.2026: NASMAO-Dry-Run verliert, Backtest nicht (16.11.2026)
+KAVA fiel am Samstag 14.11. ab 10:00 UTC von 0,068 auf 0,0262 (-62 % in Stunden, Volumen 37 Mio USD statt ~0,1 Mio).
+Dry-Run NASMAO_KF2B: 13 KAVA-Trades + 2 ASTER, Summe -43,9 USD (-11 % von 400): #6 ewo2 Einstieg 0,0597, Stopp bei 0,0383 (-71,8 % Marge,
+-14,0 USD); danach 12 ewolow-Trades auf KAVA bei ca. 0,03, 11 davon per exit_signal mit -5 bis -18 % Marge verloren (zusammen -28 USD),
+jeder Trade nur 6–140 Minuten. Einsatz je Trade ca. 18 USD (1/4-Stufe, 2x).
+Backtest derselben Strategie mit den echten Kraken-Kerzen (12.–16.11.): 25 Trades +7,3 % (5m), 29 Trades +9,9 % (1m-Detail).
+Ursache der Abweichung: Backtest-Gewinne kommen aus Trailing-Ausstiegen nach 1–5 Minuten (+5–11 %) direkt an den Docht-Tiefs;
+live wird erst nach der Signal-Kerze gefuellt (Kauf z. B. 0,03251 statt 0,03193) und der Coin faellt weiter -> exit_signal im Verlust.
+Anteil Trades <= 10 Minuten im Backtest KF2_X_Breadth (ohne H1): 19 % der Trades, aber 60 % des Gewinns (W3 sogar 88 %).
+Min-Haltedauer 10 min im Backtest aendert fast nichts (Val 73,6 % statt 70,9 %): 5m-Backtest bildet die Kerzen-Wicks auch ohne Same-Candle-Ausstieg ab.
+Regeln gegen die ECHTEN Trades (Summe -43,87 USD): 24h-Abstand < -40/-50 % sperrt 11 Trades -> -23,85 USD; Coin nach Stopp 24 h sperren -> -15,93;
+1h-Spanne > 15 % -> -17,49; > 10 % -> -5,46 (sperrt 12 von 15). Backtest-Kosten 8 Fenster (Summe ohne -/ mit): Basis 1802,
+Drop50 1766 (-2 %), Drop40 1389 (-23 %), Drop30 1031 (-43 %); max. DD unveraendert 14,0.
