@@ -1127,3 +1127,8 @@ Min-Haltedauer 10 min im Backtest aendert fast nichts (Val 73,6 % statt 70,9 %):
 Regeln gegen die ECHTEN Trades (Summe -43,87 USD): 24h-Abstand < -40/-50 % sperrt 11 Trades -> -23,85 USD; Coin nach Stopp 24 h sperren -> -15,93;
 1h-Spanne > 15 % -> -17,49; > 10 % -> -5,46 (sperrt 12 von 15). Backtest-Kosten 8 Fenster (Summe ohne -/ mit): Basis 1802,
 Drop50 1766 (-2 %), Drop40 1389 (-23 %), Drop30 1031 (-43 %); max. DD unveraendert 14,0.
+Runde K22 (8 Fenster, Summe %, max. DD): Basis 1802 / 14,0; Drop50 1766 (-2 %); PL1 (Coin nach Stop 24 h gesperrt) 1748 (-3 %); PL2 (LowProfitPairs) 1695 (-6 %);
+Drop50 + PL1 1722 (-4,4 %), DD 14,0; Drop45 + PL1 1482 (-18 %, verworfen). Drawdown bleibt in allen Varianten gleich, weil der Backtest den KAVA-Verlauf nicht abbildet;
+der Nutzen zeigt sich nur an den echten Trades (Drop50 ca. -24 USD, PL1 ca. -16 USD, kombiniert deutlich mehr). Der erste Verlust bleibt.
+Entscheidung: Dry-Run-Update NASMAO_KF2B + Drop50 + StoplossGuard (nur pro Coin, 24 h). Backtest der gebauten Strategie: W1 119,0 % / 3,9 %, Val 66,5 % / 7,7 % (passt zu D50_PL1).
+NASMAO bleibt im Dry-Run; echtes Geld erst nach mehreren Wochen ohne solche Verluste und dann nur klein.
