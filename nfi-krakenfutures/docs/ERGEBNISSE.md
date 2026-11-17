@@ -1145,3 +1145,13 @@ Gewinn % / max. DD % (5m-Backtest, Kraken Futures, 86 Paare):
 Summe: G2 3400 | G3 3541 | G4 3650 (+3,1 % gegen G3); max. DD in allen drei 10,9 %.
 Bewertung: G4 bringt ca. +3 % Gewinn bei unveraendertem Backtest-Drawdown. Der Backtest bildet echte Crash-Ausfuehrung (Slippage, Liquidationsnaehe, siehe WLD)
 nur begrenzt ab; groessere Nachkauf-Positionen erhoehen genau dieses Risiko. Empfehlung: Live bei x3 belassen.
+
+## Spannen-Sperre fuer NASMAO (K23, 17.11.2026) - verworfen
+Zusaetzlich zu Drop50 + Coin-Sperre: kein Kauf, wenn die 1h-Hoch/Tief-Spanne > X % (Gewinn % / max. DD):
+(w1 | w2 | w2c | w4a | w3 | val | h1 | h2)
+- Basis D50_PL1: 120/3,9 | 144/7,2 | 144/7,0 | 140/14,0 | 142/12,7 | 66/7,7 | 790/4,7 | 176/8,8
+- 15 %: 63/5,3 | 123/7,2 | 110/5,5 | 95/14,0 | - | - | - | -
+- 20 %: 92/3,9 | 134/7,2 | 110/7,0 | 135/14,0 | 109/13,8 | 52/7,7 | 198/10,4 | 112/8,8
+- 30 %: 121/3,9 | 141/7,2 | 118/7,0 | 140/14,0 | 137/12,7 | 56/7,7 | - | -
+Die Sperre kostet schon ab 30 % in mehreren Fenstern deutlich Gewinn, bei 20 % faellt H1 von 790 auf 198 %. Der Drawdown wird nicht besser.
+Die Signale von NASMAO entstehen gerade bei hoher Schwankung (Dochte); die Sperre nimmt die guten mit. Entscheidung: nicht einbauen, Schutz bleibt Drop50 + Coin-Sperre.
