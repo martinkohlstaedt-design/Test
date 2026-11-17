@@ -1132,3 +1132,16 @@ Drop50 + PL1 1722 (-4,4 %), DD 14,0; Drop45 + PL1 1482 (-18 %, verworfen). Drawd
 der Nutzen zeigt sich nur an den echten Trades (Drop50 ca. -24 USD, PL1 ca. -16 USD, kombiniert deutlich mehr). Der erste Verlust bleibt.
 Entscheidung: Dry-Run-Update NASMAO_KF2B + Drop50 + StoplossGuard (nur pro Coin, 24 h). Backtest der gebauten Strategie: W1 119,0 % / 3,9 %, Val 66,5 % / 7,7 % (passt zu D50_PL1).
 NASMAO bleibt im Dry-Run; echtes Geld erst nach mehreren Wochen ohne solche Verluste und dann nur klein.
+
+## Grind-Staerke x2 / x3 (live) / x4 auf NFI v18.0.241, 8 Fenster (17.11.2026)
+Gewinn % / max. DD % (5m-Backtest, Kraken Futures, 86 Paare):
+- w1: 59,9/0,0 in allen drei | w2: 59,2/4,3 in allen drei
+- w2c: G2 68,6/10,9 | G3 70,3/10,9 | G4 72,6/10,9
+- w4a: G2 238,0/6,2 | G3 245,2/6,2 | G4 253,4/6,2
+- w3:  G2 1726/6,5 | G3 1805/6,5 | G4 1856/6,5
+- val: G2 59,7/6,4 | G3 61,3/6,4 | G4 62,9/6,4
+- h1:  G2 962/10,8 | G3 1004/10,8 | G4 1040/10,8
+- h2:  G2 226,8/10,6 | G3 236,0/10,5 | G4 245,2/10,4
+Summe: G2 3400 | G3 3541 | G4 3650 (+3,1 % gegen G3); max. DD in allen drei 10,9 %.
+Bewertung: G4 bringt ca. +3 % Gewinn bei unveraendertem Backtest-Drawdown. Der Backtest bildet echte Crash-Ausfuehrung (Slippage, Liquidationsnaehe, siehe WLD)
+nur begrenzt ab; groessere Nachkauf-Positionen erhoehen genau dieses Risiko. Empfehlung: Live bei x3 belassen.
