@@ -1163,3 +1163,14 @@ Variante NFI_WE1 (Samstag + Sonntag UTC keine neuen Einstiege, Nachkaeufe laufen
 Der Drawdown aendert sich nicht, der Gewinn sinkt deutlich: NFI verdient am Wochenende genauso wie unter der Woche, und die Verlustphasen
 liegen nicht am Wochenende. WE2 (Fr 20 Uhr bis So 20 Uhr) und NT1 (00-06 Uhr) nicht mehr gerechnet, da sie dieselbe Wirkung haben muessten
 (Gewinn faellt mit der gesperrten Zeit, Drawdown bleibt). Entscheidung: nicht einbauen.
+
+## NFI: Signal 65 abschalten (N2, v23M65, 18.11.2026)
+Auswertung der V23-Backtests ueber 8 Fenster (552 Trades, `ENTER TAG STATS`): fast alle Signale gewinnen (>90 % Gewinn-Trades). Signal 65 hat nur 6 Einstiege,
+aber die zwei groessten Verluste (H1: Stop -97 %, 10 Tage offen; H2: -48 %); Summe -29,5 Prozentpunkte. Die einzigen anderen Verlust-Ausstiege:
+stop_loss in W3 (Signal 145, -46,8 %), exit_bad_trade_broken_12pct (142, H1, -49 %), abandon_8d (145, W2, -16 %).
+NFI_N65 (long_entry_condition_65_enable = False) gegen V23 (x3), Gewinn % / max. DD %:
+- w1: 59,2/0,0 (vorher 59,9/0,0) | w2: 59,2/4,3 (gleich) | w2c: 70,3/10,9 (gleich) | w4a: 245,2/6,2 (gleich)
+- w3: 1794,6/6,51 (1805,3/6,48) | val: 61,3/6,4 (gleich) | h1: 1034,9/10,75 (1003,7/10,75) | h2: 267,3/10,34 (236,0/10,5)
+Summe 3592 statt 3541 (+1,4 %); max. DD unveraendert. Nutzen liegt im Schwanzrisiko (H1/H2 je +31 Punkte, H2-DD leicht niedriger); Stichprobe klein (6 Trades),
+Kosten praktisch null (w3 -11, w1 -0,6). Paket: deploy/nfi_v23m65_update.py (haengt NFI_KF_V23M65 an, stellt Compose von V23M auf V23M65, Backups .vorv23m65).
+Getestet: Installer auf Kopie (idempotent), Klasse laedt und laeuft im Backtest ohne Signal 65.
