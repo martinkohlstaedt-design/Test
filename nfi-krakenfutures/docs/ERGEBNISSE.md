@@ -1155,3 +1155,11 @@ Zusaetzlich zu Drop50 + Coin-Sperre: kein Kauf, wenn die 1h-Hoch/Tief-Spanne > X
 - 30 %: 121/3,9 | 141/7,2 | 118/7,0 | 140/14,0 | 137/12,7 | 56/7,7 | - | -
 Die Sperre kostet schon ab 30 % in mehreren Fenstern deutlich Gewinn, bei 20 % faellt H1 von 790 auf 198 %. Der Drawdown wird nicht besser.
 Die Signale von NASMAO entstehen gerade bei hoher Schwankung (Dochte); die Sperre nimmt die guten mit. Entscheidung: nicht einbauen, Schutz bleibt Drop50 + Coin-Sperre.
+
+## NFI: keine Einstiege zu duennen Zeiten (N1, 18.11.2026) - verworfen
+Variante NFI_WE1 (Samstag + Sonntag UTC keine neuen Einstiege, Nachkaeufe laufen weiter) gegen V23 (x3) auf NFI v18.0.241:
+- W3: 1155 % / DD 6,5 statt 1805 / 6,5 (-36 %)
+- H1: 805 % / DD 10,8 statt 1004 / 10,8 (-20 %)
+Der Drawdown aendert sich nicht, der Gewinn sinkt deutlich: NFI verdient am Wochenende genauso wie unter der Woche, und die Verlustphasen
+liegen nicht am Wochenende. WE2 (Fr 20 Uhr bis So 20 Uhr) und NT1 (00-06 Uhr) nicht mehr gerechnet, da sie dieselbe Wirkung haben muessten
+(Gewinn faellt mit der gesperrten Zeit, Drawdown bleibt). Entscheidung: nicht einbauen.
