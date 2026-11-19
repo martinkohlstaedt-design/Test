@@ -1183,3 +1183,11 @@ Test mit den 20 neuen Coins in der Top-Liste (NFI_X2TC): H1 106 Trades, 1150 % (
 der Rest ist Umverteilung der Slots. Fuenf liquidere (BONK, BOME, BRETT, EIGEN, CRO): kein einziger Trade, identisch zu 86 Coins.
 Bewertung: zu wenige Signale auf den neuen Coins, die zudem duenn gehandelt sind (Backtest ohne Orderbuch/Slippage). Der +11 % in H1 stammt aus 3 Trades -> nicht belastbar.
 Entscheidung: Coin-Liste bleibt bei 86. KAVA ist auf Kraken Futures nicht mehr gelistet (wird beim Start entfernt, unkritisch).
+
+## NFI: Signal 145 aus und Slot-Zahl (N4, 19.11.2026) - beides verworfen
+Basis N65 (Signal 65 aus, 5 Slots): Summe 3592 %, max. DD 10,9 %. Gewinn % / max. DD %:
+- Signal 145 zusaetzlich aus (NFI_N145): w3 1656/6,59 (1795/6,51), h1 833/10,63 (1035/10,75) -> klar schlechter, abgebrochen.
+- 4 Slots (max_open_trades 4): w1 71,7/0,0 | w2 67,6/5,4 | w2c 67,6/13,4 | w4a 264,1/7,4 | w3 2155/8,2 | val 68,9/8,1 | h1 1486/13,8 | h2 291,3/10,4;
+  Summe 4472 (+24 %), max. DD 13,8 (+26 %); Gewinn je max. DD 324 gegen 329 -> kein Effizienzgewinn, nur mehr Risiko je Trade.
+- 7 Slots: w3 1249/4,7 (1795/6,5): weniger Gewinn, weniger DD, Verhaeltnis 266 gegen 276 (h1/h2 nicht mehr gerechnet).
+Fazit: Die Slotzahl skaliert Gewinn und Risiko etwa gleich; gerade fuer das kleine Konto (grosse Einsaetze pro Trade) kein Gewinn. Bei 5 Slots bleiben.
