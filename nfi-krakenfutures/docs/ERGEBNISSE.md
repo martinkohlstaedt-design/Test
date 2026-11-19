@@ -1174,3 +1174,12 @@ NFI_N65 (long_entry_condition_65_enable = False) gegen V23 (x3), Gewinn % / max.
 Summe 3592 statt 3541 (+1,4 %); max. DD unveraendert. Nutzen liegt im Schwanzrisiko (H1/H2 je +31 Punkte, H2-DD leicht niedriger); Stichprobe klein (6 Trades),
 Kosten praktisch null (w3 -11, w1 -0,6). Paket: deploy/nfi_v23m65_update.py (haengt NFI_KF_V23M65 an, stellt Compose von V23M auf V23M65, Backups .vorv23m65).
 Getestet: Installer auf Kopie (idempotent), Klasse laedt und laeuft im Backtest ohne Signal 65.
+
+## NFI mit mehr Coins (N3, 19.11.2026) - verworfen
+Kraken Futures listet jetzt 207 Perps (unsere Liste: 86). 67 weitere Krypto-Perps geladen (nur 21 vollstaendig getestet: ACE ... EIGEN, 1d/4h/1h ab 10/2023, 5m/15m ab 04/2025).
+Befund: Die gewinnstarken NFI-Signale 141-145 gelten nur fuer die feste Liste `top_coins_mode_coins` (54 Coins). Weitere Coins in der Whitelist
+handeln darum nicht: H1 mit 86+21 Coins ist auf den Cent identisch mit 86 Coins (103 Trades, 1034,88 %, DD 10,75).
+Test mit den 20 neuen Coins in der Top-Liste (NFI_X2TC): H1 106 Trades, 1150 % (statt 1035), DD 10,75; nur 3 Trades kommen von neuen Coins (ARC 2, ALICE 1),
+der Rest ist Umverteilung der Slots. Fuenf liquidere (BONK, BOME, BRETT, EIGEN, CRO): kein einziger Trade, identisch zu 86 Coins.
+Bewertung: zu wenige Signale auf den neuen Coins, die zudem duenn gehandelt sind (Backtest ohne Orderbuch/Slippage). Der +11 % in H1 stammt aus 3 Trades -> nicht belastbar.
+Entscheidung: Coin-Liste bleibt bei 86. KAVA ist auf Kraken Futures nicht mehr gelistet (wird beim Start entfernt, unkritisch).
