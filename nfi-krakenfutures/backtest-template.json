@@ -1,0 +1,149 @@
+{
+ "max_open_trades": 5,
+ "stake_currency": "USD",
+ "stake_amount": "unlimited",
+ "tradable_balance_ratio": 0.99,
+ "dry_run": true,
+ "dry_run_wallet": 10000,
+ "trading_mode": "futures",
+ "margin_mode": "isolated",
+ "timeframe": "5m",
+ "unfilledtimeout": {
+  "entry": 10,
+  "exit": 10,
+  "exit_timeout_count": 0,
+  "unit": "minutes"
+ },
+ "entry_pricing": {
+  "price_side": "same",
+  "use_order_book": true,
+  "order_book_top": 1,
+  "price_last_balance": 0.0,
+  "check_depth_of_market": {
+   "enabled": false,
+   "bids_to_ask_delta": 1
+  }
+ },
+ "exit_pricing": {
+  "price_side": "same",
+  "use_order_book": true,
+  "order_book_top": 1
+ },
+ "exchange": {
+  "name": "krakenfutures",
+  "key": "",
+  "secret": "",
+  "ccxt_config": {
+   "aiohttp_trust_env": true,
+   "requests_trust_env": true,
+   "options": {
+    "defaultType": "swap"
+   }
+  },
+  "ccxt_async_config": {
+   "aiohttp_trust_env": true,
+   "requests_trust_env": true,
+   "options": {
+    "defaultType": "swap"
+   }
+  },
+  "pair_whitelist": [
+   "1INCH/USD:USD",
+   "AAVE/USD:USD",
+   "ADA/USD:USD",
+   "ALGO/USD:USD",
+   "APE/USD:USD",
+   "APT/USD:USD",
+   "ARB/USD:USD",
+   "ASTER/USD:USD",
+   "ATOM/USD:USD",
+   "AVAX/USD:USD",
+   "AXS/USD:USD",
+   "BAT/USD:USD",
+   "BCH/USD:USD",
+   "BNB/USD:USD",
+   "BTC/USD:USD",
+   "CFX/USD:USD",
+   "CHZ/USD:USD",
+   "COMP/USD:USD",
+   "CRV/USD:USD",
+   "CVX/USD:USD",
+   "DASH/USD:USD",
+   "DOGE/USD:USD",
+   "DOT/USD:USD",
+   "DYDX/USD:USD",
+   "EGLD/USD:USD",
+   "ENA/USD:USD",
+   "ENS/USD:USD",
+   "ETC/USD:USD",
+   "ETH/USD:USD",
+   "FET/USD:USD",
+   "FIL/USD:USD",
+   "FLOW/USD:USD",
+   "GALA/USD:USD",
+   "GRT/USD:USD",
+   "HBAR/USD:USD",
+   "HYPE/USD:USD",
+   "ICP/USD:USD",
+   "IMX/USD:USD",
+   "INJ/USD:USD",
+   "JASMY/USD:USD",
+   "JUP/USD:USD",
+   "KAVA/USD:USD",
+   "LDO/USD:USD",
+   "LINK/USD:USD",
+   "LPT/USD:USD",
+   "LTC/USD:USD",
+   "LUNA2/USD:USD",
+   "MANA/USD:USD",
+   "MNT/USD:USD",
+   "NEAR/USD:USD",
+   "ONDO/USD:USD",
+   "OP/USD:USD",
+   "ORDI/USD:USD",
+   "PENGU/USD:USD",
+   "PEPE/USD:USD",
+   "POL/USD:USD",
+   "PUMP/USD:USD",
+   "PYTH/USD:USD",
+   "QNT/USD:USD",
+   "QTUM/USD:USD",
+   "RAY/USD:USD",
+   "RENDER/USD:USD",
+   "ROSE/USD:USD",
+   "RUNE/USD:USD",
+   "SAND/USD:USD",
+   "SEI/USD:USD",
+   "SHIB/USD:USD",
+   "SNX/USD:USD",
+   "SOL/USD:USD",
+   "STRK/USD:USD",
+   "STX/USD:USD",
+   "SUI/USD:USD",
+   "SUSHI/USD:USD",
+   "TAO/USD:USD",
+   "TIA/USD:USD",
+   "TRUMP/USD:USD",
+   "TRX/USD:USD",
+   "UNI/USD:USD",
+   "WLD/USD:USD",
+   "XLM/USD:USD",
+   "XMR/USD:USD",
+   "XPL/USD:USD",
+   "XRP/USD:USD",
+   "XTZ/USD:USD",
+   "YFI/USD:USD",
+   "ZEC/USD:USD"
+  ],
+  "pair_blacklist": [
+   "(BULL|BEAR|UP|DOWN)/.*",
+   "(3L|3S|5L|5S)/.*"
+  ]
+ },
+ "pairlists": [
+  {
+   "method": "StaticPairList"
+  }
+ ],
+ "datadir": "user_data/data/krakenfutures"
+}

@@ -1,0 +1,145 @@
+{
+ "max_open_trades": 5,
+ "stake_currency": "USD",
+ "stake_amount": "unlimited",
+ "tradable_balance_ratio": 0.99,
+ "dry_run": true,
+ "dry_run_wallet": 10000,
+ "trading_mode": "spot",
+ "timeframe": "5m",
+ "unfilledtimeout": {
+  "entry": 10,
+  "exit": 10,
+  "exit_timeout_count": 0,
+  "unit": "minutes"
+ },
+ "entry_pricing": {
+  "price_side": "same",
+  "use_order_book": true,
+  "order_book_top": 1,
+  "price_last_balance": 0.0,
+  "check_depth_of_market": {
+   "enabled": false,
+   "bids_to_ask_delta": 1
+  }
+ },
+ "exit_pricing": {
+  "price_side": "same",
+  "use_order_book": true,
+  "order_book_top": 1
+ },
+ "exchange": {
+  "name": "kraken",
+  "key": "",
+  "secret": "",
+  "ccxt_config": {
+   "aiohttp_trust_env": true,
+   "requests_trust_env": true,
+   "options": {
+    "defaultType": "swap"
+   }
+  },
+  "ccxt_async_config": {
+   "aiohttp_trust_env": true,
+   "requests_trust_env": true,
+   "options": {
+    "defaultType": "swap"
+   }
+  },
+  "pair_whitelist": [
+   "1INCH/USD",
+   "AAVE/USD",
+   "ADA/USD",
+   "ALGO/USD",
+   "APE/USD",
+   "APT/USD",
+   "ARB/USD",
+   "ASTER/USD",
+   "ATOM/USD",
+   "AVAX/USD",
+   "AXS/USD",
+   "BAT/USD",
+   "BCH/USD",
+   "BNB/USD",
+   "BTC/USD",
+   "CFX/USD",
+   "CHZ/USD",
+   "COMP/USD",
+   "CRV/USD",
+   "CVX/USD",
+   "DASH/USD",
+   "DOGE/USD",
+   "DOT/USD",
+   "DYDX/USD",
+   "EGLD/USD",
+   "ENA/USD",
+   "ENS/USD",
+   "ETC/USD",
+   "ETH/USD",
+   "FET/USD",
+   "FIL/USD",
+   "FLOW/USD",
+   "GALA/USD",
+   "GRT/USD",
+   "HBAR/USD",
+   "HYPE/USD",
+   "ICP/USD",
+   "IMX/USD",
+   "INJ/USD",
+   "JASMY/USD",
+   "JUP/USD",
+   "KAVA/USD",
+   "LDO/USD",
+   "LINK/USD",
+   "LPT/USD",
+   "LTC/USD",
+   "MANA/USD",
+   "MNT/USD",
+   "NEAR/USD",
+   "ONDO/USD",
+   "OP/USD",
+   "PENGU/USD",
+   "PEPE/USD",
+   "POL/USD",
+   "PUMP/USD",
+   "PYTH/USD",
+   "QNT/USD",
+   "QTUM/USD",
+   "RAY/USD",
+   "RENDER/USD",
+   "RUNE/USD",
+   "SAND/USD",
+   "SEI/USD",
+   "SHIB/USD",
+   "SNX/USD",
+   "SOL/USD",
+   "STRK/USD",
+   "STX/USD",
+   "SUI/USD",
+   "SUSHI/USD",
+   "TAO/USD",
+   "TIA/USD",
+   "TRUMP/USD",
+   "TRX/USD",
+   "UNI/USD",
+   "WLD/USD",
+   "XLM/USD",
+   "XMR/USD",
+   "XPL/USD",
+   "XRP/USD",
+   "XTZ/USD",
+   "YFI/USD",
+   "ZEC/USD"
+  ],
+  "pair_blacklist": [
+   "(BULL|BEAR|UP|DOWN)/.*",
+   "(3L|3S|5L|5S)/.*"
+  ]
+ },
+ "pairlists": [
+  {
+   "method": "StaticPairList"
+  }
+ ],
+ "datadir": "/root/ft_workdir/data_spot"
+}
