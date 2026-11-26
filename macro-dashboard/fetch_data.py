@@ -131,6 +131,17 @@ def main():
     except Exception as e:
         failed.append("VALUATION")
         print(f"FAIL Bewertung: {e}", file=sys.stderr)
+    # Zentralbank-Liquidität (eigene Datei data/liq.json); bei Ausfall bleibt die vorhandene Datei bestehen
+    try:
+        import fetch_liquidity
+        liq = fetch_liquidity.keep_early_history(fetch_liquidity.build(), "data/liq.json")
+        with open("data/liq.json", "w") as lf:
+            json.dump(liq, lf, separators=(",", ":"))
+        print("ok   Zentralbank-Liquidität, letzter Stand:", liq["series"]["LIQ_TOTAL"]["points"][-1][0])
+    except Exception as e:
+        print(f"::warning::Liquidität nicht aktualisiert, alte Datei bleibt: {e}")
+        print(f"FAIL Liquidität: {e}", file=sys.stderr)
+
     # Bei Teilausfällen die letzten bekannten Reihen behalten (statt sie zu verlieren), markiert als veraltet.
     try:
         prev = json.load(open("data/us.json"))["series"]

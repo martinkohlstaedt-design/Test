@@ -37,13 +37,13 @@ jobs:
       - name: Commit data
         if: github.event_name != 'push'
         run: |
-          if git diff --quiet -- macro-dashboard/data/us.json; then
+          if git diff --quiet -- macro-dashboard/data; then
             echo "Keine Änderungen"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add macro-dashboard/data/us.json
+          git add macro-dashboard/data
           git commit -m "Update macro data $(date -u +%F)"
           git push
 
