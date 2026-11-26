@@ -131,12 +131,31 @@ def main():
     except Exception as e:
         failed.append("VALUATION")
         print(f"FAIL Bewertung: {e}", file=sys.stderr)
+    # Bei Teilausfällen die letzten bekannten Reihen behalten (statt sie zu verlieren), markiert als veraltet.
+    try:
+        prev = json.load(open("data/us.json"))["series"]
+    except Exception:
+        prev = {}
+    carry = {sid for sid in failed if sid in prev}
+    if "VALUATION" in failed:
+        carry |= {k for k in prev if k.startswith("SPX_")}
+    if "GLOBALM2" in failed:
+        carry |= {k for k in prev if k.startswith("GLOBALM2") or (k.startswith("M2_") and k.endswith("_USD"))}
+    for k in sorted(carry):
+        if k not in ordered:
+            ordered[k] = dict(prev[k], stale=True)
+            print(f"stale {k}: letzte bekannte Daten behalten")
     payload = {"updated": datetime.now(timezone.utc).isoformat(timespec="seconds"), "series": ordered}
     with open("data/us.json", "w") as f:
         json.dump(payload, f, separators=(",", ":"))
     if failed:
         print("Fehlgeschlagen:", failed, file=sys.stderr)
-        sys.exit(1)
+        print(f"::warning::Quellen nicht erreichbar, letzte bekannte Daten behalten: {', '.join(failed)}")
+        # Nur abbrechen, wenn Reihen komplett fehlen; sonst soll das Dashboard trotzdem aktualisiert werden.
+        missing = [sid for sid in failed if sid not in ("VALUATION", "GLOBALM2") and sid not in ordered]
+        if missing or ("VALUATION" in failed and not any(k.startswith("SPX_") for k in ordered)) \
+                or ("GLOBALM2" in failed and "GLOBALM2" not in ordered):
+            sys.exit(1)
 
 
 if __name__ == "__main__":

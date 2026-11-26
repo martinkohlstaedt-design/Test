@@ -49,9 +49,10 @@ jobs:
 
       - uses: actions/configure-pages@v5
 
+      # Gesamte Seite (wie bisher von Pages ausgeliefert); das Dashboard liegt unter /macro-dashboard/
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: macro-dashboard
+          path: .
 
       - id: deploy
         uses: actions/deploy-pages@v4
