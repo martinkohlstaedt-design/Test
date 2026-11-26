@@ -168,7 +168,7 @@ const level = (l, v) => l.dir === "up"
 // Signale: [Label, Serie, Formatierer, Bewertungsfunktion -> "good"|"warn"|"crit"]
 const SIGNALS = [
   ["Global M2 (ohne China)", "GLOBALM2", v => v.toFixed(1) + " Bio. $", () => { const y = last(DATA.series.GLOBALM2_YOY)[1]; return y < 0 ? "crit" : y < 4 ? "warn" : "good"; },
-    () => (last(DATA.series.GLOBALM2_YOY)[1] >= 0 ? "+" : "") + last(DATA.series.GLOBALM2_YOY)[1].toFixed(1) + " % YoY · US, EZ, JP, UK"],
+    () => (last(DATA.series.GLOBALM2_YOY)[1] >= 0 ? "+" : "") + last(DATA.series.GLOBALM2_YOY)[1].toFixed(1) + " % YoY · " + m2Src()],
   ["Liquiditätszyklus (Impuls)", "LIQ_YOY", v => (v >= 0 ? "+" : "") + v.toFixed(1) + " %", v => level(LIM.LIQ_YOY, v),
     () => "Fed netto + EZB + BoJ, YoY"],
   ["10J Realzins", "DFII10", v => v.toFixed(2) + " %", v => level(LIM.DFII10, v)],
@@ -180,6 +180,11 @@ const SIGNALS = [
   ["Kern-PCE (YoY)", "PCEPILFE", v => v.toFixed(2) + " %", v => level(LIM.PCEPILFE, v)],
   ["Sahm-Rule", "SAHMREALTIME", v => v.toFixed(2) + " pp", v => level(LIM.SAHMREALTIME, v)],
 ];
+// Quellen der Global-M2-Kachel; hinterherhinkende Werte (UK M4) werden bis zu 2 Monate fortgeschrieben
+const m2Src = () => {
+  const s = DATA.series.GLOBALM2, e = (s.est || {})[last(s)[0].slice(0, 7)];
+  return e ? e.join(", ") + " fortgeschrieben" : "US, EZ, JP, UK";
+};
 const STATE = { good: ["●", "Unauffällig"], warn: ["▲", "Erhöht"], crit: ["■", "Alarm"] };
 const RANGES = [["1M", 1], ["1J", 12], ["5J", 60], ["10J", 120], ["25J", 300], ["Max", 0]];  // Monate
 

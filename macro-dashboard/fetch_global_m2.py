@@ -63,16 +63,45 @@ def boe_m4():
     return out  # Mio. GBP
 
 
+MAX_CARRY = 2  # Monate, die ein hinterherhinkender Wert (z. B. UK M4) fortgeschrieben werden darf
+
+
 def build():
     us, ez, jp, uk = fred("M2SL"), ecb_m2(), boj_m2(), boe_m4()
     eurusd, jpyusd, gbpusd = fred("EXUSEU"), fred("EXJPUS"), fred("EXUSUK")
-    parts = {  # Monat -> USD Billionen
-        "US": {m: v / 1e3 for m, v in us.items()},
-        "EZ": {m: v * 1e6 * eurusd[m] / 1e12 for m, v in ez.items() if m in eurusd},
-        "JP": {m: v * 1e8 / jpyusd[m] / 1e12 for m, v in jp.items() if m in jpyusd},
-        "UK": {m: v * 1e6 * gbpusd[m] / 1e12 for m, v in uk.items() if m in gbpusd},
+    local = {"US": us, "EZ": ez, "JP": jp, "UK": uk}
+    to_usd = {  # Monat, lokaler Wert -> USD Billionen (None, wenn der Kurs fehlt)
+        "US": lambda m, v: v / 1e3,
+        "EZ": lambda m, v: v * 1e6 * eurusd[m] / 1e12 if m in eurusd else None,
+        "JP": lambda m, v: v * 1e8 / jpyusd[m] / 1e12 if m in jpyusd else None,
+        "UK": lambda m, v: v * 1e6 * gbpusd[m] / 1e12 if m in gbpusd else None,
     }
-    months = sorted(set.intersection(*(set(p) for p in parts.values())))
+
+    def months_between(a, b):
+        return (int(b[:4]) - int(a[:4])) * 12 + int(b[5:]) - int(a[5:])
+
+    parts = {k: {} for k in local}
+    est = {}
+    for m in sorted(set().union(*local.values())):
+        vals, carried = {}, []
+        for k, src in local.items():
+            if m in src:
+                v = to_usd[k](m, src[m])
+            else:  # letzter bekannter Wert, mit dem aktuellen Kurs umgerechnet
+                prev = [p for p in src if p < m and months_between(p, m) <= MAX_CARRY]
+                v = to_usd[k](m, src[max(prev)]) if prev else None
+                if v is not None:
+                    carried.append(k)
+            if v is None:
+                break
+            vals[k] = v
+        else:
+            if len(carried) <= 1:
+                for k, v in vals.items():
+                    parts[k][m] = v
+                if carried:
+                    est[m] = carried
+    months = sorted(parts["US"])
     total = {m: sum(p[m] for p in parts.values()) for m in months}
     level = [(f"{m}-01", round(total[m], 3)) for m in months]
     yoy = []
@@ -81,13 +110,13 @@ def build():
         if prev in total:
             yoy.append((f"{m}-01", round((total[m] / total[prev] - 1) * 100, 3)))
     series = {
-        "GLOBALM2": {"name": "Global M2 G4 (USD Bio.)", "group": "money", "unit": "USD Bio.", "transform": "level", "points": level},
+        "GLOBALM2": {"name": "Global M2 G4 (USD Bio.)", "group": "money", "unit": "USD Bio.", "transform": "level",
+                     "points": level, "est": est},
         "GLOBALM2_YOY": {"name": "Global M2 G4 (YoY)", "group": "money", "unit": "%", "transform": "yoy", "points": yoy},
     }
     for k, p in parts.items():
-        ms = [m for m in months]
         series[f"M2_{k}_USD"] = {"name": f"M2 {k} (USD Bio.)", "group": "money", "unit": "USD Bio.", "transform": "level",
-                                 "points": [(f"{m}-01", round(p[m], 3)) for m in ms]}
+                                 "points": [(f"{m}-01", round(p[m], 3)) for m in months]}
     return series
 
 
